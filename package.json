@@ -2,6 +2,7 @@
   "name": "chameleon",
   "main": "./lib/chameleon",
   "version": "0.0.0",
+  "author": "OnionStu",
   "description": "Atom package for Chameleon Quick Development Tool",
   "keywords": [
   ],
@@ -11,7 +12,7 @@
       "chameleon:create-project"
     ]
   },
-  "repository": "https://github.com/atom/chameleon",
+  "repository": "https://github.com/OnionStu/atom-chameleon",
   "license": "MIT",
   "engines": {
     "atom": ">=0.174.0 <2.0.0"
