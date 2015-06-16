@@ -4,6 +4,7 @@
 // for a full listing of what's available.
 @import "ui-variables";
 @border_color:#858585;
+@close_icon_size:2.5em;
 
 atom-panel.modal.from-top.down{
   top:100px;
@@ -22,9 +23,13 @@ atom-panel.modal.from-top.down{
   }
   .close-view {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
+    top: 4px;
+    right: 4px;
+
+    &::before{
+      font-size:@close_icon_size;
+      margin:0;
+    }
   }
   .box{
     height: 300px;

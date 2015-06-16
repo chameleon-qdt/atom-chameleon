@@ -10,10 +10,10 @@ class ChameleonBoxView extends View
   @content : (params) ->
     @div class: 'chameleon', =>
       @h1 desc.headtitle, class: 'box-title', outlet: 'title'
-      @span class: 'glyphicon glyphicon-remove close-view', outlet: 'closeBtn', click: 'hide'
+      @span class: 'icon icon-remove-close close-view', outlet: 'closeBtn', click: 'onCloseClick'
       @div class: 'box', outlet: 'content-box', =>
         if params.subview?
-          @subview 'contentView', params.subview.view
+          @subview 'contentView', params.subview
       @div class: 'clearfix', =>
         @button desc.cancel, class: 'btn cancel pull-left', outlet: 'cancelBtn', click: 'onCancelClick'
         @button desc.next, class: 'btn next pull-right', outlet: 'nextBtn', click: 'onNextClick'
@@ -44,6 +44,8 @@ class ChameleonBoxView extends View
 
   move: ->
     @element.parentElement.classList.add('down')
+
+  onCloseClick: ->
 
   onCancelClick: ->
     console.log 'onCancelClick'
