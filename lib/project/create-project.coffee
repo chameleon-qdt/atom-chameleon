@@ -14,14 +14,9 @@ module.exports = CreateProject =
 
     @chameleonBox = new ChameleonBox(opt)
     @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
-    # @chameleonBox.setTitle('创建项目');
     @chameleonBox.move()
     @chameleonBox.onCancelClick = => @closeView()
-
-    @chameleonBox.closeBtn.on 'click', =>
-      @closeView()
-
-    # console.log @createProjectView.contentView.Command.setText '.....'
+    @chameleonBox.onCloseClick = => @closeView()
 
   deactivate: ->
     @modalPanel.destroy()
