@@ -7,7 +7,7 @@ desc = require '../utils/text-description'
 module.exports =
 class CmdView extends View
 
-  modalPanel = null
+  modalPanel : null
 
   @content : (params) ->
     @div class: 'chameleon-cmd', =>

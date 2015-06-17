@@ -5,7 +5,7 @@ desc = require './text-description'
 module.exports =
 class ChameleonBoxView extends View
 
-  modalPanel = null
+  modalPanel : null
 
   @content : (params) ->
     @div class: 'chameleon', =>
