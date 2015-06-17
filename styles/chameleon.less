@@ -5,6 +5,7 @@
 @import "ui-variables";
 @border_color:#858585;
 @close_icon_size:2.5em;
+@item-logo-size:120px;
 
 atom-panel.modal.from-top.down{
   top:100px;
@@ -61,6 +62,37 @@ atom-panel.modal > .login-box{
     width: 100%;
   }
 }
+
+.create-project{
+  .item{
+    padding: 10px;
+
+    &:hover{
+      background-color: rgba(255, 255, 255, .1);
+      .border_radius();
+    }
+  }
+  .title{
+
+  }
+  .pic{
+    width: @item-logo-size;
+    height: @item-logo-size;
+    margin: 20px auto;
+    display: block;
+  }
+
+  .add-icon{
+    .pic();
+    line-height: @item-logo-size;
+    border: 1px solid @border_color;
+
+    &::before{
+      font-size:10em;
+    }
+  }
+}
+
 
 .border_radius(@radius:6px){
   border-radius: @radius;
