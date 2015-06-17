@@ -66,6 +66,12 @@ atom-panel.modal > .login-box{
 }
 
 .create-project{
+  .step{
+    display: none;
+  }
+  .step.active{
+    display: block;
+  }
   .item{
     padding: 10px;
 
@@ -91,6 +97,9 @@ atom-panel.modal > .login-box{
 
     &::before{
       font-size:10em;
+      width:1em;
+      margin:5px auto;
+      height: 1em;
     }
   }
 }
