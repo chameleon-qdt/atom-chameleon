@@ -27,6 +27,8 @@ class ChameleonBoxView extends View
     params = _.extend defaultOpt,params
     console.log params
     @title.text params.title
+    @nextBtn.addClass 'hide' if params.hideNextBtn is true
+    @prevBtn.addClass 'hide' if params.hidePrevBtn is true
 
   setTitle: (title)->
     @title.text title

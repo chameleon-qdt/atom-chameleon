@@ -11,6 +11,8 @@ module.exports = CreateProject =
     opt =
       title : desc.createProject
       subview : new CreateProjectView()
+      hideNextBtn :　true
+      hidePrevBtn :　true
 
     @chameleonBox = new ChameleonBox(opt)
     @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
