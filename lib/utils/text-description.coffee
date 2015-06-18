@@ -4,6 +4,7 @@ module.exports = TextDescription =
   next : '下一步'
   prev : '上一步'
   upload : '上传'
+  back : '返回'
   finish : '完成'
   login : '登录'
   logout : '退出登录'

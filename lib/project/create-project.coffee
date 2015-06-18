@@ -4,7 +4,7 @@ ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
 
 module.exports = CreateProject =
-  createProjectView: null
+  chameleonBox: null
   modalPanel: null
 
   activate: (state) ->
@@ -19,6 +19,8 @@ module.exports = CreateProject =
     @chameleonBox.move()
     @chameleonBox.onCancelClick = => @closeView()
     @chameleonBox.onCloseClick = => @closeView()
+    @chameleonBox.onNextClick = => @chameleonBox.contentView.nextStep()
+    @chameleonBox.onPrevClick = => @chameleonBox.contentView.prevStep()
 
   deactivate: ->
     @modalPanel.destroy()
