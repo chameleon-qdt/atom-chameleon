@@ -9,7 +9,11 @@
   "activationCommands": {
     "atom-workspace":[
       "chameleon:toggle",
-      "chameleon:create-project"
+      "chameleon:create-project",
+      "chameleon:login",
+      "chameleon:configure:module",
+      "chameleon:configure:application",
+      "chameleon:configure:global"
     ]
   },
   "repository": "https://github.com/OnionStu/atom-chameleon",

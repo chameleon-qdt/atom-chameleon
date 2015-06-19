@@ -80,14 +80,22 @@
         'submenu':[
           {
             'label':'模块配置'
+            'command':'chameleon:configure:module'
           }
           {
             'label':'应用配置'
+            'command':'chameleon:configure:application'
+
           }
           {
             'label':'全局配置'
+            'command':'chameleon:configure:global'
           }
         ]
+      }
+      {
+        'label':'登录'
+        'command':'chameleon:login'
       }
     ]
   }
