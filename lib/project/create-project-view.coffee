@@ -1,4 +1,5 @@
 # CmdView = require '../utils/cmd-view'
+{Directory,File} = require 'atom'
 desc = require '../utils/text-description'
 {$, View} = require 'atom-space-pen-views'
 syncProjectView = require './sync-project-view'
@@ -6,6 +7,9 @@ newProjectView = require './new-project-view'
 
 module.exports =
 class CreateProjectView extends View
+
+  prevBtn:null
+  nextBtn:null
 
   @content: ->
     @div class: 'create-project container', =>
@@ -22,14 +26,22 @@ class CreateProjectView extends View
             @div class: 'desc', '同步已登录账户中的项目到本地，未登录的用户请登录'
       @div class: 'row hide',outlet: 'second', =>
         @div class: 'col-md-12', =>
-          @subview 'sync-project', new syncProjectView()
-          @subview 'new-project', new newProjectView()
+          @subview 'syncProjectView', new syncProjectView()
+          @subview 'newProjectView', new newProjectView()
+
+  attached: ->
+    @prevBtn?= @parentView.prevBtn
+    @nextBtn?= @parentView.nextBtn
 
   getElement: ->
     @element
 
   newProject: ->
-    console.log @parentView
+    # console.log @parentView
+    @main.addClass('hide');
+    @second.find('.sync-project').addClass('hide')
+    @second.removeClass('hide').find('.new-project').removeClass('hide')
+    @parentView.prevBtn.text(desc.back).addClass('back').removeClass('hide');
 
   syncProject: ->
 
@@ -37,29 +49,52 @@ class CreateProjectView extends View
     #
     ##############
     @main.addClass('hide');
+    @second.find('.new-project').addClass('hide')
     @second.removeClass('hide').find('.sync-project').removeClass('hide')
     @parentView.prevBtn.text(desc.back).addClass('back').removeClass('hide');
     @parentView.nextBtn.text(desc.finish).addClass('finish').removeClass('hide');
 
-  prevStep: ->
-    prevBtn = @parentView.prevBtn
-    nextBtn = @parentView.nextBtn
+  createProject: ->
+    info = @newProjectView.getProjectInfo()
+    # dir =
+    nDir = new Directory(info.appPath);
+    # if nDir.existsSync() isnt true
+    #   console.log nDir.create()
+    # else
+    #   alert '文件夹已存在'
+    # nDir.create()
+    #   .then (a,b,c) ->
+    #     # nDir.create() if isExists is no
+    #     console.log a,b,c
 
-    if prevBtn.hasClass 'back'
+    # console.log nDir
+
+  prevStep: ->
+    if @prevBtn.hasClass 'back'
+      console.log 'back'
       @second.addClass('hide')
       @main.removeClass('hide')
-      prevBtn.addClass('hide')
-      nextBtn.addClass('hide')
+      @prevBtn.addClass('hide')
+      @nextBtn.addClass('hide')
     else
-    # currStep = $('.step.active');
-    # prevStep = $('[dataStep='+( currStep.attr('dataStep') - 1)+']')
-    # currStep.removeClass 'active'
-    # prevStep.addClass 'active'
+      console.log 'prevStep'
+      currStep = $('.step.active');
+      prevStep = $('[data-step='+( currStep.attr('data-step') - 1)+']')
+      currStep.removeClass 'active'
+      prevStep.addClass 'active'
+
+    @prevBtn.removeClass('back')
+    @nextBtn.removeClass('finish')
 
   nextStep: ->
-    nextBtn = @parentView.nextBtn
-    # currStep = $('.step.active');
-    if nextBtn.hasClass 'finish'
+    if @nextBtn.hasClass 'finish'
       console.log 'finish'
+      # @nextBtn.removeClass('finish')
+      if($('.new-project [data-step="2"].active').length>0)
+        @createProject()
     else
-      console.log @
+      console.log 'nextStep'
+      currStep = $('.step.active');
+      nextStep = $('[data-step='+( currStep.attr('data-step') + 1)+']')
+      currStep.removeClass 'active'
+      nextStep.addClass 'active'

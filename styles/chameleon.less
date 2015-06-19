@@ -76,8 +76,7 @@ atom-panel.modal > .login-box{
     padding: 10px;
 
     &:hover{
-      background-color: rgba(255, 255, 255, .1);
-      .border_radius();
+      .hover();
     }
   }
   .title{
@@ -104,6 +103,21 @@ atom-panel.modal > .login-box{
   }
 }
 
+.new-project{
+  .new-item{
+    width: 33%;
+    padding: 10px;
+    display: inline-block;
+    &:hover{
+      .hover();
+    }
+  }
+}
+
+.hover{
+  background-color: rgba(255, 255, 255, .1);
+  .border_radius();
+}
 
 .border_radius(@radius:6px){
   border-radius: @radius;
