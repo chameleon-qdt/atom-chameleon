@@ -6,7 +6,7 @@ module.exports =
 class NewProjectView extends View
 
   @content: (params) ->
-    @div class: 'new-project hide', =>
+    @div class: 'new-project', =>
       @div class: 'step active', 'data-step': '1', =>
         @h2 '请选择要创建的项目类型:'
         @div class: 'new-item text-center',  =>
@@ -35,14 +35,8 @@ class NewProjectView extends View
             @div class: 'col-sm-9', =>
               @subview 'appPath', new TextEditorView(mini: true)
 
-  # initialize: (params) ->
-    # params = _.extend defaultOpt,params
-    # console.log params
-
   attached: ->
     $('.new-item').on 'click',(e) => @onItemClick(e)
-    @prevBtn?= @parentView.prevBtn
-    @nextBtn?= @parentView.nextBtn
 
     @appId.setText 'newPackage'
     @appName.setText '新项目'
@@ -55,8 +49,6 @@ class NewProjectView extends View
     # console.log e,@
     $('.step').toggleClass('active')
 
-    @prevBtn.text(desc.prev).removeClass('hide back');
-    @nextBtn.text(desc.finish).addClass('finish').removeClass('hide');
 
   getProjectInfo: ->
     console.log @appId
@@ -67,3 +59,6 @@ class NewProjectView extends View
 
     console.log projectInfo
     projectInfo
+
+  nextStep:(box) ->
+    console.log box

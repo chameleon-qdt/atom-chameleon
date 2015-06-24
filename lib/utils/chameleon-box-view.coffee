@@ -7,51 +7,113 @@ class ChameleonBoxView extends View
 
   modalPanel : null
 
-  @content : (params) ->
+  @content : (options) ->
     @div class: 'chameleon', =>
-      @h1 desc.headtitle, class: 'box-title', outlet: 'title'
+      @h1 options.title or desc.headtitle, class: 'box-title', outlet: 'title'
       @span class: 'icon icon-remove-close close-view', outlet: 'closeBtn', click: 'onCloseClick'
-      @div class: 'box', outlet: 'content-box', =>
-        if params.subview?
-          @subview 'contentView', params.subview
+      @div class: 'box', outlet: 'contentBox'
       @div class: 'clearfix', =>
         @button desc.cancel, class: 'btn cancel pull-left', outlet: 'cancelBtn', click: 'onCancelClick'
         @button desc.next, class: 'btn next pull-right', outlet: 'nextBtn', click: 'onNextClick'
         @button desc.prev, class: 'btn prev pull-right', outlet: 'prevBtn', click: 'onPrevClick'
 
 
-  initialize: (params) ->
-    defaultOpt =
-      title: desc.headtitle
+  initialize: (options) ->
+    @order = 0
+    @options = {}
+    @prevStep = []
 
-    params = _.extend defaultOpt,params
-    console.log params
-    @title.text params.title
-    @nextBtn.addClass 'hide' if params.hideNextBtn is true
-    @prevBtn.addClass 'hide' if params.hidePrevBtn is true
+    @options = options = _.extend @options,options
 
-  setTitle: (title)->
-    @title.text title
+  attached: ->
+    @_refresh()
+    @
 
-  # Returns an object that can be retrieved when package is activated
-  serialize: ->
-
-  # Tear down any state and detach
   destroy: ->
+    @remove()
+
+  _refresh: ->
+    console.log 'refresh...'
+    @_destroyCurrentStep()
+    # @options.subviews[@order]
+    @setPrevBtn()
+    @setNextBtn()
+    @contentView =  @options.subview
+    @contentView.parentView = @
+    @contentBox.append(@contentView)
 
   getElement: ->
     @element
 
-  attached: ->
+  _destroyCurrentStep: ->
+    @contentView.destroy?() or @contentView.remove?() if @contentView
 
   move: ->
     @element.parentElement.classList.add('down')
 
+  mergeOptions: (options) ->
+    _.extend @options, options
+
+  setPrevStep:(prevStep) ->
+    @prevStep.unshift prevStep
+    @prevStep
+
+  getPrevStep: ->
+    @prevStep.shift()
+
   onCloseClick: ->
+    @closeView()
 
   onCancelClick: ->
-    console.log 'onCancelClick'
+    @closeView()
 
   onNextClick: ->
+    @contentView.nextStep(@);
 
   onPrevClick: ->
+    @order--
+    console.log @options,@prevStep
+    @mergeOptions {subview:prevView} if prevView = @getPrevStep()
+    @_refresh()
+
+  nextStep: ->
+    @order++
+    @_refresh(@options)
+
+  setNextBtn: (type = 'normal') ->
+    if type is 'finish'
+      @nextBtn.text(desc.finish).addClass('finish')
+    else
+      @nextBtn.text(desc.next).removeClass('finish')
+    @showNextBtn()
+
+  setPrevBtn: (type = 'normal') ->
+    if type is 'back'
+      @prevBtn.text(desc.back).addClass('back')
+    else
+      @prevBtn.text(desc.prev).removeClass('back')
+    @showPrevBtn()
+
+  enableNext: ->
+    @nextBtn.prop 'disabled', false
+
+  disableNext: ->
+    @nextBtn.prop 'disabled', true
+
+  showNextBtn: ->
+    @nextBtn.removeClass 'hide'
+
+  hideNextBtn: ->
+    @nextBtn.addClass 'hide'
+
+  showPrevBtn: ->
+    @prevBtn.removeClass 'hide'
+
+  hidePrevBtn: ->
+    @prevBtn.addClass 'hide'
+
+  closeView: ->
+    if @modalPanel.isVisible()
+      @modalPanel.hide()
+    else
+      @hide()

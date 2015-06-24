@@ -11,16 +11,10 @@ module.exports = CreateProject =
     opt =
       title : desc.createProject
       subview : new CreateProjectView()
-      hideNextBtn :　true
-      hidePrevBtn :　true
 
     @chameleonBox = new ChameleonBox(opt)
     @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
     @chameleonBox.move()
-    @chameleonBox.onCancelClick = => @closeView()
-    @chameleonBox.onCloseClick = => @closeView()
-    @chameleonBox.onNextClick = => @chameleonBox.contentView.nextStep()
-    @chameleonBox.onPrevClick = => @chameleonBox.contentView.prevStep()
 
   deactivate: ->
     @modalPanel.destroy()
@@ -37,5 +31,3 @@ module.exports = CreateProject =
   closeView: ->
     if @modalPanel.isVisible()
       @modalPanel.hide()
-
-  createProject: ->
