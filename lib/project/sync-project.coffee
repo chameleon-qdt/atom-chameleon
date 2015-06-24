@@ -25,4 +25,4 @@ class SyncProjectView extends View
     @parentView.setPrevBtn('back');
 
   nextStep: (box)->
-    console.log box
+    box.nextStep()

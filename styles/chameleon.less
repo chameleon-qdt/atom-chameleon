@@ -87,21 +87,13 @@ atom-panel.modal > .login-box{
       .hover();
     }
   }
-  .select{
-    .hover();
-  }
   .title{
 
   }
 }
 
 .new-project{
-  .step{
-    display: none;
-  }
-  .step.active{
-    display: block;
-  }
+
   .new-item{
     width: 33%;
     padding: 10px;
@@ -109,6 +101,11 @@ atom-panel.modal > .login-box{
     &:hover{
       .hover();
     }
+  }
+  .openFolder{
+    position: absolute;
+    right: 15px;
+    top: 5px;
   }
 }
 
@@ -138,7 +135,9 @@ atom-panel.modal > .login-box{
   background-color: rgba(255, 255, 255, .1);
   .border_radius();
 }
-
+.select{
+  .hover();
+}
 .border_radius(@radius:6px){
   border-radius: @radius;
 }

@@ -1,3 +1,4 @@
+{Emitter} = require 'atom'
 _ = require 'underscore-plus'
 desc = require './text-description'
 {$, View} = require 'atom-space-pen-views'
@@ -23,7 +24,7 @@ class ChameleonBoxView extends View
     @order = 0
     @options = {}
     @prevStep = []
-
+    @emitter = new Emitter
     @options = options = _.extend @options,options
 
   attached: ->
@@ -31,6 +32,7 @@ class ChameleonBoxView extends View
     @
 
   destroy: ->
+    @emitter.dispose()
     @remove()
 
   _refresh: ->
@@ -77,9 +79,16 @@ class ChameleonBoxView extends View
     @mergeOptions {subview:prevView} if prevView = @getPrevStep()
     @_refresh()
 
+  onFinish: (callback) ->
+    @emitter.on 'finish', callback
+
   nextStep: ->
-    @order++
-    @_refresh(@options)
+    if @nextBtn.hasClass 'finish'
+      @emitter.emit 'finish', @options
+    else
+      @order++
+      @_refresh(@options)
+
 
   setNextBtn: (type = 'normal') ->
     if type is 'finish'

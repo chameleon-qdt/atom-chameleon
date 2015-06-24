@@ -1,9 +1,8 @@
 # CmdView = require '../utils/cmd-view'
-{Directory,File} = require 'atom'
 desc = require '../utils/text-description'
 {$, View} = require 'atom-space-pen-views'
-syncProjectView = require './sync-project-view'
-newProjectView = require './new-project-view'
+syncProjectView = require './sync-project'
+newProjectView = require './new-project'
 
 module.exports =
 class CreateProjectView extends View
@@ -30,8 +29,8 @@ class CreateProjectView extends View
 
   attached: ->
     console.log 'c'
-    @parentView.disableNext();
-    @parentView.hidePrevBtn();
+    @parentView.disableNext()
+    @parentView.hidePrevBtn()
     $('.item.select').removeClass 'select'
     $('.item').on 'click', (e) => @onTypeItemClick(e)
 
@@ -50,31 +49,3 @@ class CreateProjectView extends View
     box.setPrevStep @
     box.mergeOptions {subview:nextStepView}
     box.nextStep()
-
-  # createProject: ->
-  #   info = @newProjectView.getProjectInfo()
-  #   # dir =
-  #   nDir = new Directory(info.appPath);
-  #   filePath = nDir.getPath()+'/'
-  #   indexHtml = new File(filePath+'index.html');
-  #   packageJson = new File(filePath+'package.json');
-  #
-  #   # if nDir.existsSync() isnt true
-  #   p = nDir.create()
-  #   console.log nDir.getPath()
-  #   # else
-  #   #   alert '文件夹已存在'
-  #   console.log p
-  #   p.then (success) ->
-  #       # nDir.create() if isExists is no
-  #       # console.log success,info
-  #       if success is yes
-  #         # alert '创建成功'
-  #         indexHtml.create()
-  #         packageJson.create();
-  #       else
-  #         alert '创建失败'
-  #     .then (a,b,c) ->
-  #       console.log a,b,c
-  #
-  #   # console.log nDir
