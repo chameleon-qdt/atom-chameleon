@@ -7,20 +7,21 @@ module.exports =
 		@content: ->
 			@div class:'login-box container',=>
 				@div class: 'col-md-12', =>
-					@label class: 'col-md-3', style:'font-size:18px', "邮箱："
+					@label class: 'col-md-3 label_view', "邮箱："
 					@div class: 'col-md-9', =>
 			      @subview 'loginEmail', new TextEditorView(mini: true,placeholderText: 'E-mail...')
 				@div class: 'col-md-12', =>
-					@label "密码：", class: 'col-md-3',style:'font-size:18px'
+					@label "密码：", class: 'col-md-3 label_view'
 					@div class: 'col-md-9 ', =>
 			      @subview 'loginPassword', new TextEditorView(mini: true,placeholderText: 'password...')
 				@div class: 'col-md-12 ', =>
 					@input type:'checkbox',style:'margin-right:2px;margin-left:18px;'
-					@label  "记住密码" ,style:'font-size:12px;padding-bottom:2px'
+					@label  "记住密码" ,class:'checkBox_label_view'
 				@div class: 'col-md-12 text-right', =>
-					@button  "登 录",name: 'loginBtn', class:'btn' ,style:'font-size:12px;margin:5px'
-					@button  "取 消", outlet:'cancelBtn', click: 'onCancelClick',name: 'loginCancelBtn', class:'btn' ,style:'font-size:12px'
+					@button  "登 录",name: 'loginBtn', class:'btn loginBtn'
+					@button  "取 消", outlet:'cancelBtn', click: 'onCancelClick',name: 'loginCancelBtn', class:'btn cancelBtn'
 				@div class: 'col-md-12 text-right', =>
+					@a '注册', src:desc.registerUrl
 					@input id:'loginPassword', type: "password", style: "display: none"
 	  serialize: ->
 

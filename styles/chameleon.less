@@ -60,6 +60,20 @@ atom-panel.modal > .login-box{
   .info{
     padding-left: 60px;
   }
+  .checkBox_label_view{
+    font-size:12px;
+    padding-bottom:2px;
+  }
+  .label_view{
+    font-size:18px;
+  }
+  .loginBtn{
+    font-size:12px;
+    margin:5px;
+  }
+  .cancelBtn{
+    font-size:12px;
+  }
   atom-text-editor[mini] {
     width: 100%;
   }
@@ -121,4 +135,20 @@ atom-panel.modal > .login-box{
 
 .border_radius(@radius:6px){
   border-radius: @radius;
+}
+
+.configure-module{
+  .step{
+    display: none;
+  }
+  .step.active{
+    display: block;
+  }
+  .item{
+    padding: 10px;
+
+    &:hover{
+      .hover();
+    }
+  }
 }
