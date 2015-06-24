@@ -11,7 +11,8 @@ class ChameleonBoxView extends View
     @div class: 'chameleon', =>
       @h1 options.title or desc.headtitle, class: 'box-title', outlet: 'title'
       @span class: 'icon icon-remove-close close-view', outlet: 'closeBtn', click: 'onCloseClick'
-      @div class: 'box', outlet: 'contentBox'
+      @div class: 'box', outlet: 'contentBox', =>
+        @subview  'contentView', options.subview
       @div class: 'clearfix', =>
         @button desc.cancel, class: 'btn cancel pull-left', outlet: 'cancelBtn', click: 'onCancelClick'
         @button desc.next, class: 'btn next pull-right', outlet: 'nextBtn', click: 'onNextClick'
