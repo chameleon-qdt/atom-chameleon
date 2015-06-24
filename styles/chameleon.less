@@ -66,12 +66,6 @@ atom-panel.modal > .login-box{
 }
 
 .create-project{
-  .step{
-    display: none;
-  }
-  .step.active{
-    display: block;
-  }
   .item{
     padding: 10px;
 
@@ -79,16 +73,32 @@ atom-panel.modal > .login-box{
       .hover();
     }
   }
+  .select{
+    .hover();
+  }
   .title{
 
   }
-  .pic{
-    width: @item-logo-size;
-    height: @item-logo-size;
-    margin: 20px auto;
+}
+
+.new-project{
+  .step{
+    display: none;
+  }
+  .step.active{
     display: block;
   }
+  .new-item{
+    width: 33%;
+    padding: 10px;
+    display: inline-block;
+    &:hover{
+      .hover();
+    }
+  }
+}
 
+.sync-project{
   .add-icon{
     .pic();
     line-height: @item-logo-size;
@@ -103,15 +113,11 @@ atom-panel.modal > .login-box{
   }
 }
 
-.new-project{
-  .new-item{
-    width: 33%;
-    padding: 10px;
-    display: inline-block;
-    &:hover{
-      .hover();
-    }
-  }
+.pic{
+  width: @item-logo-size;
+  height: @item-logo-size;
+  margin: 20px auto;
+  display: block;
 }
 
 .hover{
