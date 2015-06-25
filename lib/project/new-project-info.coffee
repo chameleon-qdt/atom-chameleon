@@ -36,8 +36,9 @@ class NewProjectView extends View
   openFolder: ->
     openDirectory(title: 'Select Path')
     .then (destPath) =>
-      console.log  destPath
-      path = destPath[0] +'/'+ @appId.getText()
+      console.log destPath[0]
+      path = "#{destPath[0]}/#{@appId.getText()}"
+      console.log  path
       @appPath.setText path
 
   getElement: ->
