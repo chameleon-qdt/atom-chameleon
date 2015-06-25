@@ -18,3 +18,4 @@ module.exports = TextDescription =
   appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.txt'
   moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.txt'
   configPath: atom.project.getPaths()[0]+'\\config'
+  newProjectDefaultPath: ''

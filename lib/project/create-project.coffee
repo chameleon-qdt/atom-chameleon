@@ -1,4 +1,4 @@
-{$,Emitter,Directory,File} = require 'atom'
+{$, Emitter, Directory, File, GitRepository, BufferedProcess} = require 'atom'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
@@ -6,6 +6,7 @@ CreateProjectView = require './create-project-view'
 module.exports = CreateProject =
   chameleonBox: null
   modalPanel: null
+  repoURI: 'https://git.oschina.net/chameleon/butterfly-slim.git'
 
   activate: (state) ->
     opt =
@@ -40,14 +41,29 @@ module.exports = CreateProject =
     info = options.projectInfo
     appConfig = new File(info.appPath+'/'+'package.json')
     console.log JSON.stringify(info)
-    appConfig.create()
-    .then (isSuccess,a,b,c) ->
-      console.log isSuccess,a,b,c
-      if isSuccess is yes
-        appConfig.setEncoding('utf8')
-        appConfig.write(JSON.stringify(info))
-        alert '项目创建成功！'
-      else
-        alert '项目创建失败...'
-    .then (a,b,c,d) ->
-      console.log a,b,c,d
+    console.log options.newType
+    if options.newType is 'empty' 
+      appConfig.create()
+        .then (isSuccess,a,b,c) ->
+          console.log isSuccess,a,b,c
+          if isSuccess is yes
+            appConfig.setEncoding('utf8')
+            appConfig.write(JSON.stringify(info))
+            alert '项目创建成功！'
+          else
+            alert '项目创建失败...'
+        .then (a,b,c,d) ->
+          console.log a,b,c,d
+    else 
+      success = (state, appPath) ->
+        atom.project.setPaths([appPath])
+        @closeView()
+
+      @gitClone(info.appPath, success.bind(this))
+
+  gitClone: (appPath, cb) ->
+    command = 'git'
+    args = ['clone', @repoURI, appPath]
+    stdout = (output) -> console.log(output)
+    exit = (code) -> cb(code, appPath)
+    process = new BufferedProcess({command, args, stdout, exit})
