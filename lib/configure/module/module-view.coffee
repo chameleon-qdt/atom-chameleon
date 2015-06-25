@@ -50,10 +50,10 @@ module.exports =
 			else
 				console.log 'save file'
 				file = new File(desc.moduleConfigPath)
-				file.create()
-				configureMessage = '{"moduleName":"' + @moduleName.getText() + '","moduleVersion":"'+ @moduleVersion.getText() + '","moduleDescription":"'+ @moduleDescription.getText() + '","moduleInput":"' + @moduleInput.getText() + '"}'
-				# console.log configureMessage
-				file.write(configureMessage)
+				file.create().then =>
+					configureMessage = '{"moduleName":"' + @moduleName.getText() + '","moduleVersion":"'+ @moduleVersion.getText() + '","moduleDescription":"'+ @moduleDescription.getText() + '","moduleInput":"' + @moduleInput.getText() + '"}'
+					# console.log configureMessage
+					file.write(configureMessage)
 
 		prevStep: ->
 			@main.removeClass('hide')

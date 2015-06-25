@@ -1,6 +1,6 @@
 {$,View,TextEditorView} = require 'atom-space-pen-views'
 desc = require '../../utils/text-description'
-{File} = require 'atom'
+{File,Directory} = require 'atom'
 module.exports =
 	class AppView extends View
 		@content: ->
@@ -33,11 +33,13 @@ module.exports =
 			@nextBtn?= @parentView.nextBtn
 
 		saveInput: ->
+			  # body...
 			file = new File(desc.appConfigPath)
-			file.create()
-			configureMessage = '{"appId":"' + @appId.getText() + '","appName":"'+ @appName.getText() + '","appVersion":"'+ @appVersion.getText() + '","appStartModule":"' + @appStartModule.getText() + '","appDownloadUrl":"' + @appDownloadUrl.getText() + '"}'
-			console.log configureMessage
-			file.write(configureMessage)
+			file.create().then =>
+				configureMessage = '{"appId":"' + @appId.getText() + '","appName":"'+ @appName.getText() + '","appVersion":"'+ @appVersion.getText() + '","appStartModule":"' + @appStartModule.getText() + '","appDownloadUrl":"' + @appDownloadUrl.getText() + '"}'
+				console.log configureMessage
+				file.write(configureMessage)
+
 
 		clearInput: ->
 			@appId.setText('')
