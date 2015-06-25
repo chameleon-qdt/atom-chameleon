@@ -11,13 +11,13 @@ class NewProjectView extends View
       @div class: 'step active', 'data-step': '1', =>
         @h2 '请选择要创建的项目类型:'
         @div class: 'new-item text-center', 'data-type': 'empty',  =>
-          @img class: 'pic', src:'atom://chameleon/images/icon.png'
+          @img class: 'pic', src:desc.iconPath
           @h3 '空白项目',class: 'project-name'
         @div class: 'new-item text-center', 'data-type': 'frame', =>
-          @img class: 'pic', src: 'atom://chameleon/images/icon.png'
+          @img class: 'pic', src: desc.iconPath
           @h3 '自带框架项目',class: 'project-name'
         @div class: 'new-item text-center', 'data-type': 'template',  =>
-          @img class: 'pic', src: 'atom://chameleon/images/icon.png'
+          @img class: 'pic', src: desc.iconPath
           @h3 '业务模板',class: 'project-name'
 
   attached: ->

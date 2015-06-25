@@ -42,7 +42,7 @@ module.exports = CreateProject =
     appConfig = new File(info.appPath+'/'+'package.json')
     console.log JSON.stringify(info)
     console.log options.newType
-    if options.newType is 'empty' 
+    if options.newType is 'empty'
       appConfig.create()
         .then (isSuccess,a,b,c) ->
           console.log isSuccess,a,b,c
@@ -54,7 +54,7 @@ module.exports = CreateProject =
             alert '项目创建失败...'
         .then (a,b,c,d) ->
           console.log a,b,c,d
-    else 
+    else
       success = (state, appPath) ->
         atom.project.setPaths([appPath])
         @closeView()
