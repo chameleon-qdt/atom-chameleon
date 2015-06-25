@@ -34,15 +34,18 @@ class CreateProjectView extends View
     $('.item.select').removeClass 'select'
     $('.item').on 'click', (e) => @onTypeItemClick(e)
 
+  destroy: ->
+    @element.remove()
+
+  getElement: ->
+    @element
+
   onTypeItemClick: (e) ->
     el = e.currentTarget
     $('.item.select').removeClass 'select'
     el.classList.add 'select'
-    @createType = el.dataset.type;
-    @parentView.enableNext();
-
-  getElement: ->
-    @element
+    @createType = el.dataset.type
+    @parentView.enableNext()
 
   nextStep: (box)->
     nextStepView = new @v[@createType]()
