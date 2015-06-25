@@ -1,4 +1,4 @@
-{$,Emitter} = require 'atom'
+{$,Emitter,Directory,File} = require 'atom'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
@@ -11,16 +11,12 @@ module.exports = CreateProject =
     opt =
       title : desc.createProject
       subview : new CreateProjectView()
-      hideNextBtn :　true
-      hidePrevBtn :　true
 
     @chameleonBox = new ChameleonBox(opt)
     @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
     @chameleonBox.move()
-    @chameleonBox.onCancelClick = => @closeView()
-    @chameleonBox.onCloseClick = => @closeView()
-    @chameleonBox.onNextClick = => @chameleonBox.contentView.nextStep()
-    @chameleonBox.onPrevClick = => @chameleonBox.contentView.prevStep()
+
+    @chameleonBox.onFinish (options) => @createProject(options)
 
   deactivate: ->
     @modalPanel.destroy()
@@ -38,4 +34,19 @@ module.exports = CreateProject =
     if @modalPanel.isVisible()
       @modalPanel.hide()
 
-  createProject: ->
+  createProject: (options) ->
+    console.log options
+
+    info = options.projectInfo
+    nDir = new Directory(info.appPath)
+    filePath = nDir.getPath()+'/'
+    indexHtml = new File(filePath+'index.html')
+    packageJson = new File(filePath+'package.json')
+
+    p.then (success) ->
+      if success is yes
+        indexHtml.create()
+        packageJson.create();
+        alert '创建成功'
+      else
+        alert '创建失败'
