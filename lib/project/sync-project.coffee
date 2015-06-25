@@ -21,6 +21,9 @@ class SyncProjectView extends View
     @element
 
   attached: ->
+    # ################
+    #  判断是否已登录
+    # ################
     @parentView.setNextBtn('finish');
     @parentView.setPrevBtn('back');
 

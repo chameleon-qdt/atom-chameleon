@@ -29,6 +29,7 @@ class NewProjectView extends View
     @type = @parentView.options.newType
     if @type isnt 'template'
       @parentView.setNextBtn('finish')
+      # @parentView.disableNext()
     @appId.setText 'newPackage'
     @appName.setText '新项目'
     @appPath.setText desc.newProjectDefaultPath
@@ -36,9 +37,11 @@ class NewProjectView extends View
   openFolder: ->
     openDirectory(title: 'Select Path')
     .then (destPath) =>
-      console.log  destPath
-      path = destPath[0] +'/'+ @appId.getText()
-      @appPath.setText path
+      appId = @appId.getText()
+      sPath = destPath[0]
+      rPath = sPath + '\\' + appId
+      console.log rPath
+      @appPath.setText rPath
 
   getElement: ->
     @element

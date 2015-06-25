@@ -27,7 +27,7 @@ module.exports = CreateProject =
 
   openView: ->
     unless @modalPanel.isVisible()
-      console.log 'CreateProject was opened!'
+      console.log 'CreateProject was opened!',@
       @modalPanel.show()
 
   closeView: ->
@@ -38,15 +38,16 @@ module.exports = CreateProject =
     console.log options
 
     info = options.projectInfo
-    nDir = new Directory(info.appPath)
-    filePath = nDir.getPath()+'/'
-    indexHtml = new File(filePath+'index.html')
-    packageJson = new File(filePath+'package.json')
-
-    p.then (success) ->
-      if success is yes
-        indexHtml.create()
-        packageJson.create();
-        alert '创建成功'
+    appConfig = new File(info.appPath+'/'+'package.json')
+    console.log JSON.stringify(info)
+    appConfig.create()
+    .then (isSuccess,a,b,c) ->
+      console.log isSuccess,a,b,c
+      if isSuccess is yes
+        appConfig.setEncoding('utf8')
+        appConfig.write(JSON.stringify(info))
+        alert '项目创建成功！'
       else
-        alert '创建失败'
+        alert '项目创建失败...'
+    .then (a,b,c,d) ->
+      console.log a,b,c,d

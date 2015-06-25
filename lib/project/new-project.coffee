@@ -32,8 +32,11 @@ class NewProjectView extends View
     el = e.currentTarget
     $('.new-item.select').removeClass 'select'
     el.classList.add 'select'
-    @newType = el.dataset.type;
-    @parentView.enableNext();
+    @newType = el.dataset.type
+    if @newType is 'template'
+      @parentView.disableNext()
+    else
+      @parentView.enableNext()
 
   nextStep:(box) ->
     nextStepView = new infoView()
