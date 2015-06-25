@@ -46,6 +46,7 @@ module.exports = CreateProject =
       if isSuccess is yes
         appConfig.setEncoding('utf8')
         appConfig.write(JSON.stringify(info))
+        @chameleonBox.closeView()
         alert '项目创建成功！'
       else
         alert '项目创建失败...'
