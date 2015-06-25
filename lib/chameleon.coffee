@@ -18,13 +18,13 @@ module.exports = Chameleon =
     @createProject = CreateProject
     @createProject.activate(state)
     @login = Login
-    @login.activate(state)
+    # @login.activate(state)
     @configureModule = ConfigureModule
-    @configureModule.activate(state)
+    # @configureModule.activate(state)
     @configureApp = ConfigureApp
-    @configureApp.activate(state)
+    # @configureApp.activate(state)
     @configureGlobal = ConfigureGlobal
-    @configureGlobal.activate(state)
+    # @configureGlobal.activate(state)
     # @login = Login
     # @login.activate(state)
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
@@ -32,10 +32,10 @@ module.exports = Chameleon =
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:toggle': => @toggle()
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @createProject.openView()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @login.openView()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:module': => @configureModule.openView()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:application': => @configureApp.openView()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:global' : => @configureGlobal.openView()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:module': => @configureModuleViewOpen(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:application': => @configureAppViewOpen(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:global' : => @configureGlobalViewOpen(state)
   deactivate: ->
     @subscriptions.dispose()
     @createProject.destroy()
@@ -47,6 +47,21 @@ module.exports = Chameleon =
   toggle: ->
     console.log 'Chameleon was toggled!'
     # @login.toggle()
+  loginViewOpen:(state) ->
+    @login.activate(state)
+    @login.openView()
+
+  configureModuleViewOpen:(state) ->
+    @configureModule.activate(state)
+    @configureModule.openView()
+
+  configureAppViewOpen:(state) ->
+    @configureApp.activate(state)
+    @configureApp.openView()
+
+  configureGlobalViewOpen:(state) ->
+    @configureGlobal.activate(state)
+    @configureGlobal.openView()
 
   # createProject: ->
   #   console.log 'create-project'
