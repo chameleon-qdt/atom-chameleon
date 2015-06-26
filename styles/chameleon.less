@@ -26,7 +26,7 @@ atom-panel.modal.from-top.down{
     position: absolute;
     top: 4px;
     right: 4px;
-
+    cursor: pointer;
     &::before{
       font-size:@close_icon_size;
       margin:0;
@@ -82,7 +82,7 @@ atom-panel.modal > .login-box{
 .create-project{
   .item{
     padding: 10px;
-
+    cursor: pointer;
     &:hover{
       .hover();
     }
@@ -98,6 +98,7 @@ atom-panel.modal > .login-box{
     width: 33%;
     padding: 10px;
     display: inline-block;
+    cursor: pointer;
     &:hover{
       .hover();
     }
@@ -106,6 +107,7 @@ atom-panel.modal > .login-box{
     position: absolute;
     right: 15px;
     top: 5px;
+    cursor: pointer;
   }
 }
 
@@ -155,5 +157,22 @@ atom-panel.modal > .login-box{
     &:hover{
       .hover();
     }
+  }
+}
+
+.loading-mask{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+
+  .loading{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -32px;
+    margin-left: -32px;
   }
 }
