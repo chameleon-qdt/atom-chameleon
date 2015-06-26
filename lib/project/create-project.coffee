@@ -2,6 +2,7 @@
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
+LoadingMask = require '../utils/loadingMask'
 
 module.exports = CreateProject =
   chameleonBox: null
@@ -57,9 +58,12 @@ module.exports = CreateProject =
     else
       success = (state, appPath) ->
         atom.project.setPaths([appPath])
+        @modalPanel.item.children(".loading-mask").remove()
         @closeView()
 
       @gitClone(info.appPath, success.bind(this))
+      LoadingMask = new LoadingMask()
+      @modalPanel.item.append(LoadingMask)
 
   gitClone: (appPath, cb) ->
     command = 'git'
