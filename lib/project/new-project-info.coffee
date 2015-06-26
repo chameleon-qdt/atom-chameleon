@@ -1,6 +1,4 @@
-_ = require 'underscore-plus'
 desc = require '../utils/text-description'
-{openDirectory} = require '../utils/dialog'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
 module.exports =
@@ -34,10 +32,9 @@ class NewProjectView extends View
     @appPath.setText desc.newProjectDefaultPath
 
   openFolder: ->
-    openDirectory(title: 'Select Path')
-    .then (destPath) =>
-      console.log destPath[0]
-      path = "#{destPath[0]}/#{@appId.getText()}"
+    atom.pickFolder (paths) =>
+      console.log paths[0]
+      path = "#{paths[0]}/#{@appId.getText()}"
       console.log  path
       @appPath.setText path
 

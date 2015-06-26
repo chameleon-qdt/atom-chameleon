@@ -40,7 +40,7 @@ module.exports = CreateProject =
     console.log options
 
     info = options.projectInfo
-    appConfig = new File(info.appPath+'/'+'package.json')
+    appConfig = new File(info.appPath+'/'+'appConfig.json')
     console.log JSON.stringify(info)
     console.log options.newType
     if options.newType is 'empty'
