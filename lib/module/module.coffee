@@ -1,33 +1,25 @@
-ModuleView = require './module-view'
-{CompositeDisposable} = require 'atom'
+{$, Emitter, Directory, File, GitRepository, BufferedProcess} = require 'atom'
+desc = require '../utils/text-description'
+ChameleonBox = require '../utils/chameleon-box-view'
+CreateModuleView = require './create-module-view'
 
 module.exports = Module =
-  moduleView: null
+  createModuleView: null
   modalPanel: null
-  subscriptions: null
 
   activate: (state) ->
-    @moduleView = new ModuleView(state.moduleViewState)
-    @modalPanel = atom.workspace.addModalPanel(item: @moduleView.getElement(), visible: false)
+    @createModuleView = new CreateModuleView(state.moduleViewState)
+    @modalPanel = atom.workspace.addModalPanel(item: @CreateModuleView.getElement(), visible: false)
 
-    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
-    @subscriptions = new CompositeDisposable
-
-    # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'module:toggle': => @toggle()
 
   deactivate: ->
     @modalPanel.destroy()
-    @subscriptions.dispose()
     @moduleView.destroy()
 
   serialize: ->
-    moduleViewState: @moduleView.serialize()
+    createModuleViewState: @createModuleView.serialize()
 
-  toggle: ->
-    console.log 'Module was toggled!'
-
-    if @modalPanel.isVisible()
-      @modalPanel.hide()
-    else
+  openView: ->
+    unless @modalPanel.isVisible()
+      console.log 'CreateModuleView was opened!',@
       @modalPanel.show()
