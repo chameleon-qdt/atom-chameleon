@@ -1,5 +1,8 @@
+desc = require '../utils/text-description'
+{$, TextEditorView, View} = require 'atom-space-pen-views'
+
 module.exports =
-class CreateModuleView
+class CreateModuleView extends View
 
   @content: ->
     @div class: 'create-module', =>
@@ -14,23 +17,39 @@ class CreateModuleView
           @div class: 'col-sm-9', =>
             @subview 'moduleName', new TextEditorView(mini: true)
         @div class: 'form-group', =>
-          @label '模块起始页', class: 'col-sm-3 control-label'
+          @label '模块入口', class: 'col-sm-3 control-label'
           @div class: 'col-sm-9', =>
             @subview 'mainEntry', new TextEditorView(mini: true)
 
+  initialize: ->
+    @moduleId.getModel().onDidChange => @checkInput()
+    @moduleName.getModel().onDidChange => @checkInput()
+    @mainEntry.getModel().onDidChange => @checkInput()
+
   attached: ->
+    @mainEntry.setText(desc.mainEntry)
+
     @parentView.setNextBtn('finish')
     @parentView.disableNext()
     @parentView.hidePrevBtn()
+    # console.log @
 
-  destroy: ->
-    @remove()
+  # destroy: ->
+  #   @element.remove()
 
   getElement: ->
     @element
 
   serialize: ->
 
+  getModuleInfo: ->
+    info =
+      mainEntry: @mainEntry.getText()
+      moduleId: @moduleId.getText()
+      moduleName: @moduleName.getText()
+      version: "0.0.0"
+      releaseNote: ''
+    info
 
   onTypeItemClick: (e) ->
     el = e.currentTarget
@@ -39,8 +58,17 @@ class CreateModuleView
     @createType = el.dataset.type
     @parentView.enableNext()
 
+  checkInput: ->
+    flag1 = @moduleId.getText().trim() isnt ""
+    flag2 = @moduleName.getText().trim() isnt ""
+    flag3 = @mainEntry.getText().trim() isnt ""
+
+    if flag1 and flag2 and flag3
+      @parentView.enableNext()
+    else
+      @parentView.disableNext()
+
   nextStep: (box)->
-    nextStepView = new @v[@createType]()
     box.setPrevStep @
-    box.mergeOptions {subview:nextStepView}
+    box.mergeOptions {moduleInfo:@getModuleInfo()}
     box.nextStep()
