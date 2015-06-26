@@ -33,10 +33,12 @@ module.exports = ModuleManager =
   CreateModule: (options)->
     console.log options
     info = options.moduleInfo
-    configFilePath = "#{atom.project.getPaths()[0]}/#{info.moduleName}/moduleConfig.json"
-    htmlString = @getIndexHtmlCore()
+    filePath = "#{atom.project.getPaths()[0]}/#{info.moduleId}"
+    configFilePath = "#{filePath}/moduleConfig.json"
     configFile = new File(configFilePath)
     configFileContent = @formatConfig(info)
+    entryFile = new File("#{filePath}/#{info.mainEntry}")
+    htmlString = @getIndexHtmlCore()
     console.log JSON.stringify(info),configFileContent
 
     # console.log options.newType
@@ -46,14 +48,17 @@ module.exports = ModuleManager =
         console.log isSuccess
         if isSuccess is yes
           configFile.setEncoding('utf8')
-          configFile.write(configFileContent)
-          indexHtml = new File("#{configFile.getPath()}/index.html")
           console.log 'CreateModule Success'
-          indexHtml.create()
+          configFile.writeSync(configFileContent)
+          entryFile.create()
         else
           console.log 'CreateModule error'
-      .then (isSuccess) ->
-        console.log isSuccess
+      .then (isSuccess) =>
+        if isSuccess is yes
+          entryFile.writeSync(htmlString)
+          @chameleonBox.closeView()
+      # .finally =>
+        # console.log 'CreateModule Success',@
 
   formatConfig:(options) ->
     str ="""

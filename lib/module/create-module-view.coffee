@@ -20,6 +20,8 @@ class CreateModuleView extends View
           @label '模块入口', class: 'col-sm-3 control-label'
           @div class: 'col-sm-9', =>
             @subview 'mainEntry', new TextEditorView(mini: true)
+        @div class: 'col-sm-9 col-sm-offset-3', =>
+          @div '模块标识已存在', class: 'text-warning'
 
   initialize: ->
     @moduleId.getModel().onDidChange => @checkInput()
@@ -47,8 +49,6 @@ class CreateModuleView extends View
       mainEntry: @mainEntry.getText()
       moduleId: @moduleId.getText()
       moduleName: @moduleName.getText()
-      version: "0.0.0"
-      releaseNote: ''
     info
 
   onTypeItemClick: (e) ->
