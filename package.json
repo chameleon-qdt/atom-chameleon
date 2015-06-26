@@ -9,10 +9,12 @@
     "atom-workspace": [
       "chameleon:toggle",
       "chameleon:create-project",
+      "chameleon:create-module",
       "chameleon:login",
       "chameleon:configure:module",
       "chameleon:configure:application",
-      "chameleon:configure:global"
+      "chameleon:configure:global",
+      "chameleon:openSource"
     ]
   },
   "repository": "https://github.com/OnionStu/atom-chameleon",

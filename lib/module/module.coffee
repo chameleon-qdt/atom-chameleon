@@ -3,18 +3,24 @@ desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateModuleView = require './create-module-view'
 
-module.exports = Module =
+module.exports = ModuleManager =
   createModuleView: null
   modalPanel: null
 
   activate: (state) ->
-    @createModuleView = new CreateModuleView(state.moduleViewState)
-    @modalPanel = atom.workspace.addModalPanel(item: @CreateModuleView.getElement(), visible: false)
+    opt =
+      title : desc.createModule
+      subview : new CreateModuleView()
 
+    @chameleonBox = new ChameleonBox(opt)
+    @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
+    @chameleonBox.move()
+
+    @chameleonBox.onFinish (options) => @createProject(options)
 
   deactivate: ->
     @modalPanel.destroy()
-    @moduleView.destroy()
+    @CreateModuleView.destroy()
 
   serialize: ->
     createModuleViewState: @createModuleView.serialize()
@@ -23,3 +29,5 @@ module.exports = Module =
     unless @modalPanel.isVisible()
       console.log 'CreateModuleView was opened!',@
       @modalPanel.show()
+
+  CreateModule: (options)->

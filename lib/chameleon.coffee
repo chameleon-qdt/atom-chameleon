@@ -1,4 +1,5 @@
 CreateProject = require './project/create-project'
+CreateModule = require './module/module'
 Login = require './login/login'
 ConfigureModule = require './configure/module/module'
 ConfigureApp = require './configure/application/app'
@@ -12,30 +13,26 @@ module.exports = Chameleon =
   configureApp: null
   subscriptions: null
   configureGlobal: null
+  createModule:null
 
   activate: (state) ->
-    # console.log CreateProject,Login
     @createProject = CreateProject
-    @createProject.activate(state)
     @login = Login
-    # @login.activate(state)
     @configureModule = ConfigureModule
-    # @configureModule.activate(state)
     @configureApp = ConfigureApp
-    # @configureApp.activate(state)
     @configureGlobal = ConfigureGlobal
-    # @configureGlobal.activate(state)
-    # @login = Login
-    # @login.activate(state)
-    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
+    @createModule = CreateModule
+
     @subscriptions = new CompositeDisposable
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:toggle': => @toggle()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @createProject.openView()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @toggleCreateProject(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:module': => @configureModuleViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:application': => @configureAppViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:global' : => @configureGlobalViewOpen(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:openSource' : => @openSourceFolder()
   deactivate: ->
     @subscriptions.dispose()
     @createProject.destroy()
@@ -46,7 +43,15 @@ module.exports = Chameleon =
     @login.serialize()
   toggle: ->
     console.log 'Chameleon was toggled!'
-    # @login.toggle()
+
+  toggleCreateProject:(state) ->
+    @createProject.activate(state)
+    @createProject.openView()
+
+  toggleCreateModule:(state) ->
+    @createModule.activate(state)
+    @createModule.openView()
+
   loginViewOpen:(state) ->
     @login.activate(state)
     @login.openView()
@@ -62,6 +67,9 @@ module.exports = Chameleon =
   configureGlobalViewOpen:(state) ->
     @configureGlobal.activate(state)
     @configureGlobal.openView()
+
+  openSourceFolder: ->
+    atom.project.setPaths(['D:/_Work/QDT/chameleon'])
 
   # createProject: ->
   #   console.log 'create-project'

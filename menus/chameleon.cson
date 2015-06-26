@@ -43,7 +43,8 @@
         'label':'模块'
         'submenu':[
           {
-            'label':'创建模块'
+            'label':'创建模块',
+            'command':'chameleon:create-module'
           }
           {
             'label':'发布模块'
@@ -97,6 +98,10 @@
         'label':'登录'
         'command':'chameleon:login'
       }
+      # {
+      #   'label':'打开项目'
+      #   'command':'chameleon:openSource'
+      # }
     ]
   }
 ]

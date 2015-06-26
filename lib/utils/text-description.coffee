@@ -12,6 +12,7 @@ module.exports = TextDescription =
   pwd : '密码'
   save : '保存'
   createProject : '创建项目'
+  createModule : '创建模块'
   newProject: '新建项目'
   syncProject: '同步账号中的项目'
   registerUrl : ''
