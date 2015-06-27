@@ -69,9 +69,12 @@ module.exports = Chameleon =
     @configureGlobal.openView()
 
   openSourceFolder: ->
-    atom.project.setPaths(['D:/_Work/QDT/chameleon'])
+    path = atom.packages.getLoadedPackage('chameleon').path
+    atom.project.setPaths([path])
 
   # createProject: ->
   #   console.log 'create-project'
   #   unless @createProjectView.modalPanel.isVisible()
   #     @createProjectView.modalPanel.show()
+# @eventElement.dispatchEvent(new CustomEvent(name, bubbles: true, cancelable: true))
+# atom.views.getView(atom.workspace).dispatchEvent(new CustomEvent('chameleon:create-module', {bubbles: true, cancelable: true}))
