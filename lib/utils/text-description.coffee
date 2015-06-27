@@ -16,7 +16,7 @@ module.exports = TextDescription =
   newProject: '新建项目'
   syncProject: '同步账号中的项目'
   registerUrl : ''
-  newProjectDefaultPath: 'D:/_Study/atom/package/newPackage'
+  newProjectDefaultPath: atom.config.get('core').projectHome
   appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.txt'
   moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.txt'
   configPath: atom.project.getPaths()[0]+'\\config'
