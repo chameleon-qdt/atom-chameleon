@@ -1,4 +1,5 @@
 {$, Emitter, Directory, File, GitRepository, BufferedProcess} = require 'atom'
+pathM = require 'path'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
@@ -52,7 +53,10 @@ module.exports = CreateProject =
 
   newEmptyProject: (options) ->
     info = options.projectInfo
-    appConfig = new File(info.appPath+'/'+'appConfig.json')
+    appConfigFileName = 'appConfig.json'
+    appConfigFilePath = pathM.join info.appPath,appConfigFileName
+    console.log appConfigFilePath
+    appConfig = new File appConfigFilePath
     appConfig.create()
       .then (isSuccess) =>
         console.log isSuccess
@@ -61,6 +65,7 @@ module.exports = CreateProject =
           appConfig.write(JSON.stringify(info))
           alert '项目创建成功！'
           @closeView()
+          atom.project.setPaths([info.appPath])
         else
           alert '项目创建失败...'
 
