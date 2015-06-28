@@ -1,4 +1,5 @@
 desc = require '../utils/text-description'
+pathM = require 'path'
 {Directory} = require 'atom'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
@@ -30,7 +31,7 @@ class CreateModuleView extends View
     @mainEntry.getModel().onDidChange => @checkInput()
 
   attached: ->
-    @mainEntry.setText(desc.mainEntry)
+    @mainEntry.setText(desc.mainEntryFileName)
 
     @parentView.setNextBtn('finish')
     @parentView.disableNext()
@@ -63,6 +64,7 @@ class CreateModuleView extends View
     path = @moduleId.getText().trim()
     if path isnt ""
       projectPath = atom.project.getPaths()[0]
+      # console.log pathM.join atom.project.getPaths()[0],path
       path = "#{projectPath}/#{path}"
       console.log path
       dir = new Directory(path);
