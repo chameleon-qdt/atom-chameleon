@@ -1,5 +1,6 @@
 {$, Emitter, Directory, File, GitRepository, BufferedProcess} = require 'atom'
 pathM = require 'path'
+Util = require '../utils/util'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
@@ -62,7 +63,7 @@ module.exports = CreateProject =
         console.log isSuccess
         if isSuccess is yes
           appConfig.setEncoding('utf8')
-          appConfig.write(JSON.stringify(info))
+          appConfig.write(Util.formatAppConfig(info))
           alert '项目创建成功！'
           @closeView()
           atom.project.setPaths([info.appPath])

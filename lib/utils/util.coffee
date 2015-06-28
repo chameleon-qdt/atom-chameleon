@@ -22,17 +22,27 @@ module.exports= Util =
     """
 
   formatModuleConfig:(options) ->
-    str ="""
-          {
-            "name": "#{options.moduleName}",
-            "identifier": "#{options.moduleId}",
-            "name":"#{options.mainEntry}",
-            "version": "0.0.1",
-            "description": "",
-            "dependencies": "{}",
-            "releaseNote": "frist create",
-          }
-          """
+    """
+    {
+      "name": "#{options.moduleName}",
+      "identifier": "#{options.moduleId}",
+      "main":"#{options.mainEntry}",
+      "version": "0.0.1",
+      "description": "",
+      "dependencies": {},
+      "releaseNote": "module init",
+    }
+    """
 
-  formatAppConfig:(options): ->
-    
+  formatAppConfig:(options) ->
+    """
+    {
+      "name": "#{options.appName}",
+      "identifier": "#{options.appId}",
+      "mainModule":"#{if options.mainModule? then options.mainModule else '' }",
+      "version": "0.0.1",
+      "description": "",
+      "dependencies": {},
+      "releaseNote": "app init",
+    }
+    """
