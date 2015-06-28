@@ -26,7 +26,7 @@ module.exports = TextDescription =
 
   registerUrl : ''
 
-  newProjectDefaultPath: "#{atom.config.get('core').projectHome.replace(/\\/g,'/')}/"
+  newProjectDefaultPath: atom.config.get('core').projectHome
   appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.txt'
   moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.txt'
   configPath: atom.project.getPaths()[0]+'\\config'
