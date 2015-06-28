@@ -1,4 +1,5 @@
 desc = require '../utils/text-description'
+pathM = require 'path'
 {Directory} = require 'atom'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
@@ -35,23 +36,22 @@ class NewProjectView extends View
     if @type isnt 'template'
       @parentView.setNextBtn('finish')
     @parentView.disableNext()
-    # @appId.setText 'newPackage'
-    # @appName.setText '新项目'
-    @appPath.setText desc.newProjectDefaultPath
+    @appPath.basePath = desc.newProjectDefaultPath
+    @appPath.setText @appPath.basePath
 
   openFolder: ->
     atom.pickFolder (paths) =>
-      if paths[0]?
+      if paths?
         console.log paths[0]
-        path = "#{paths[0]}/#{@appId.getText()}".replace(/\\/g,'/')
+        path = pathM.join paths[0],@appId.getText()
         console.log  path
-        @appPath.setText path
+        @appPath.basePath = path
+        @appPath.setText @appPath.basePath
 
   getElement: ->
     @element
 
   getProjectInfo: ->
-    console.log @appId
     projectInfo =
       appId : @appId.getText();
       appName : @appName.getText();
@@ -71,20 +71,19 @@ class NewProjectView extends View
       @parentView.disableNext()
 
   setPath: ->
-    currPath = @appPath.getText().trim()
-    currPath = currPath.substr(0,currPath.lastIndexOf('/')+1)
-    console.log currPath
-    @appPath.setText currPath+@appId.getText().trim() if currPath isnt ""
+    currPath = @appPath.basePath
+    # console.log currPath
+    @appPath.setText pathM.join currPath,@appId.getText().trim() if currPath isnt ""
     @checkInput()
 
   checkPath: ->
     path = @appPath.getText().trim()
+    @appPath.basePath = path if @appPath.hasFocus()
     if path isnt ""
-      console.log path
       dir = new Directory(path);
       dir.exists()
         .then (isExists) =>
-          console.log isExists,@,dir.getRealPathSync()
+          # console.log isExists,@,dir.getRealPathSync()
           unless isExists
             @checkInput()
             @errorMsg.addClass('hide')
