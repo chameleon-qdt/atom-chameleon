@@ -22,6 +22,7 @@ class CreateModuleView extends View
           @label desc.mainEntry, class: 'col-sm-3 control-label'
           @div class: 'col-sm-9', =>
             @subview 'mainEntry', new TextEditorView(mini: true)
+            @span class: 'inline-block status-added icon icon-file-directory openFolder', click: 'openFolder'
         @div class: 'col-sm-9 col-sm-offset-3', =>
           @div desc.createModuleErrorMsg, class: 'text-warning hide', outlet: 'errorMsg'
 
@@ -40,6 +41,11 @@ class CreateModuleView extends View
 
   # destroy: ->
   #   @element.remove()
+
+  openFolder: ->
+    atom.pickFolder (paths) =>
+      if paths?
+        console.log paths
 
   getElement: ->
     @element
