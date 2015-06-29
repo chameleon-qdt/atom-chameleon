@@ -32,11 +32,12 @@ module.exports =
 			@prevBtn?= @parentView.prevBtn
 			@nextBtn?= @parentView.nextBtn
 
+
 		saveInput: ->
 			  # body...
 			file = new File(desc.appConfigPath)
 			file.create().then =>
-				configureMessage = '{"appId":"' + @appId.getText() + '","appName":"'+ @appName.getText() + '","appVersion":"'+ @appVersion.getText() + '","appStartModule":"' + @appStartModule.getText() + '","appDownloadUrl":"' + @appDownloadUrl.getText() + '"}'
+				configureMessage = '{\n\t"appId":"' + @appId.getText() + '",\n\t"appName":"'+ @appName.getText() + '",\n\t"appVersion":"'+ @appVersion.getText() + '",\n\t"appStartModule":"' + @appStartModule.getText() + '",\n\t"appDownloadUrl":"' + @appDownloadUrl.getText() + '"\n}'
 				console.log configureMessage
 				file.write(configureMessage)
 

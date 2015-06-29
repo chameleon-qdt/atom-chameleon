@@ -21,8 +21,10 @@ module.exports = ConfigureApp =
 		@chameleonBox.move()
 		@chameleonBox.onCancelClick = =>@closeView()
 		@chameleonBox.onCloseClick = => @closeView()
-		@chameleonBox.onNextClick = => @chameleonBox.contentView.saveInput()
-		@chameleonBox.onPrevClick = => @chameleonBox.contentView.clearInput()
+		@chameleonBox.prevBtn.text('清空')
+		@chameleonBox.nextBtn.text('保存')
+		@chameleonBox.onNextClick = => @saveInput()
+		@chameleonBox.onPrevClick = => @clearInput()
 
 	closeView: ->
 		if @modalPanel.isVisible()
@@ -39,3 +41,19 @@ module.exports = ConfigureApp =
     unless @modalPanel.isVisible()
       # console.log 'CreateProject was opened!'
       @modalPanel.show()
+
+	saveInput: ->
+		@chameleonBox.contentView.saveInput()
+		alert "应用信息保存成功！"
+		@closeView()
+
+	clearInput: ->
+		_chanmeleonBox = @chameleonBox
+		options =
+			message : "是否清空应用配置输入框信息？"
+			detailedMessage : "注意！"
+			buttons :
+				'是' : ->
+					_chanmeleonBox.contentView.clearInput()
+				'否' : ->
+		atom.confirm(options)
