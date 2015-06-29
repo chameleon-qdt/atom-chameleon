@@ -1,4 +1,8 @@
-module.exports= Util =
+{BufferedProcess} = require 'atom'
+
+fs = require 'fs.extra'
+
+module.exports = Util =
 
   rumAtomCommand: (command) ->
      atom.views.getView(atom.workspace).dispatchEvent(new CustomEvent(command, bubbles: true, cancelable: true))
@@ -46,3 +50,16 @@ module.exports= Util =
       "releaseNote": "app init",
     }
     """
+
+  getRepo: (appPath,repoUri, cb) ->
+    command = 'git'
+    args = ['clone', repoUri, appPath]
+    stdout = (output) -> console.log(output)
+    exit = (code) -> cb(code, appPath)
+    process = new BufferedProcess({command, args, stdout, exit})
+
+  copy: (sourcePath, destinationPath, cb) ->
+    fs.copyRecursive(sourcePath, destinationPath, cb)
+
+  createDir: (path, cb) ->
+    fs.mkdirp(path, cb) 

@@ -6,9 +6,13 @@ ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
 LoadingMask = require '../utils/loadingMask'
 
+config = require '../../config/config'
+
 module.exports = CreateProject =
   chameleonBox: null
   modalPanel: null
+  repoDir: "#{atom.packages.getLoadedPackage('chameleon').path}/src/butterfly-slim"
+  projectTempDir: "#{atom.packages.getLoadedPackage('chameleon').path}/src/ProjectTemp"
   repoURI: 'https://git.oschina.net/chameleon/butterfly-slim.git'
 
   activate: (state) ->
@@ -54,31 +58,43 @@ module.exports = CreateProject =
 
   newEmptyProject: (options) ->
     info = options.projectInfo
-    appConfigFileName = 'appConfig.json'
-    appConfigFilePath = pathM.join info.appPath,appConfigFileName
-    console.log appConfigFilePath
-    appConfig = new File appConfigFilePath
-    appConfig.create()
-      .then (isSuccess) =>
-        console.log isSuccess
-        if isSuccess is yes
-          appConfig.setEncoding('utf8')
-          appConfig.write(Util.formatAppConfig(info))
-          alert '项目创建成功！'
-          @closeView()
-          atom.project.addPath(info.appPath)
-        else
-          alert '项目创建失败...'
+
+    createSuccess = (err) =>
+      if err
+        console.error err
+      else
+        copySuccess = (err) -> 
+          throw err if err
+          console.log 'hi'
+
+        Util.copy(@projectTempDir, info.appPath, copySuccess)
+    
+    Util.createDir(info.appPath, createSuccess)
 
   newFrameProject: (options) ->
     info = options.projectInfo
-    success = (state, appPath) ->
-      atom.project.setPaths([appPath])
-      @modalPanel.item.children(".loading-mask").remove()
-      @closeView()
 
-    @gitClone(info.appPath, success.bind(this))
-    LoadingMask = new LoadingMask()
-    @modalPanel.item.append(LoadingMask)
+    createSuccess = (err) =>
+      if err
+        console.error err
+      else
+        copySuccess = (err) => 
+          throw err if err
+          Util.copy @repoDir, "#{info.appPath}/modules/butterfly-slim", (err) -> 
+            throw err if err
+            console.log 'success'
+
+        Util.copy @projectTempDir, info.appPath, copySuccess
+    
+    Util.createDir info.appPath, createSuccess
+
+    # success = (state, appPath) ->
+    #   # atom.project.setPaths([appPath])
+    #   @modalPanel.item.children(".loading-mask").remove()
+    #   @closeView()
+    
+    # Util.getRepo(@repoDir, config.repoUri, success.bind(this))
+    # LoadingMask = new LoadingMask()
+    # @modalPanel.item.append(LoadingMask)
 
   newTemplateProject: (options) ->
