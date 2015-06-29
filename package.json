@@ -12,7 +12,8 @@
       "chameleon:login",
       "chameleon:configure:module",
       "chameleon:configure:application",
-      "chameleon:configure:global"
+      "chameleon:configure:global",
+      "chameleon:settings"
     ]
   },
   "repository": "https://github.com/OnionStu/atom-chameleon",
