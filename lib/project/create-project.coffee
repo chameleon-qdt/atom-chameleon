@@ -66,7 +66,7 @@ module.exports = CreateProject =
           appConfig.write(Util.formatAppConfig(info))
           alert '项目创建成功！'
           @closeView()
-          atom.project.setPaths([info.appPath])
+          atom.project.addPath(info.appPath)
         else
           alert '项目创建失败...'
 
