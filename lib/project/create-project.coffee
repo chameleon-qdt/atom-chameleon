@@ -71,6 +71,7 @@ module.exports = CreateProject =
           alert '项目创建失败...'
 
   newFrameProject: (options) ->
+    info = options.projectInfo
     success = (state, appPath) ->
       atom.project.setPaths([appPath])
       @modalPanel.item.children(".loading-mask").remove()
