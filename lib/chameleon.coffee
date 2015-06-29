@@ -4,7 +4,10 @@ Login = require './login/login'
 ConfigureModule = require './configure/module/module'
 ConfigureApp = require './configure/application/app'
 ConfigureGlobal = require './configure/global/global'
+Settings = require './settings/settings'
 {CompositeDisposable} = require 'atom'
+
+ChemaleonSettings = require './settings/settings'
 
 module.exports = Chameleon =
   createProject: null
@@ -25,7 +28,7 @@ module.exports = Chameleon =
 
     @subscriptions = new CompositeDisposable
 
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:toggle': => @toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:settings': => @settings()
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @toggleCreateProject(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
@@ -33,16 +36,18 @@ module.exports = Chameleon =
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:application': => @configureAppViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:global' : => @configureGlobalViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:openSource' : => @openSourceFolder()
+
   deactivate: ->
     @subscriptions.dispose()
     @createProject.destroy()
     @login.destroy()
 
+  settings: ->
+    ChemaleonSettings.activate()
+
   serialize: ->
     @createProject.serialize()
     @login.serialize()
-  toggle: ->
-    console.log 'Chameleon was toggled!'
 
   toggleCreateProject:(state) ->
     @createProject.activate(state)

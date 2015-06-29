@@ -92,6 +92,10 @@
             'label':'全局配置'
             'command':'chameleon:configure:global'
           }
+          {
+            'label':'Settings'
+            'command':'chameleon:settings'
+          }
         ]
       }
       {
