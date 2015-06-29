@@ -66,11 +66,12 @@ module.exports = CreateProject =
           appConfig.write(Util.formatAppConfig(info))
           alert '项目创建成功！'
           @closeView()
-          atom.project.setPaths([info.appPath])
+          atom.project.addPath(info.appPath)
         else
           alert '项目创建失败...'
 
   newFrameProject: (options) ->
+    info = options.projectInfo
     success = (state, appPath) ->
       atom.project.setPaths([appPath])
       @modalPanel.item.children(".loading-mask").remove()

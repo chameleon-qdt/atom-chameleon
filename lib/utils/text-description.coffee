@@ -15,6 +15,7 @@ module.exports = TextDescription =
 
   createModule : '创建模块'
   CreateModuleTitle: '请填写要创建的模块信息'
+  modulePath: '模块所在路径'
   moduleId: '模块标识'
   moduleName: '模块名称'
   mainEntry: '模块入口'
@@ -27,8 +28,8 @@ module.exports = TextDescription =
   registerUrl : ''
 
   newProjectDefaultPath: atom.config.get('core').projectHome
-  appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.txt'
-  moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.txt'
+  appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.json'
+  moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.json'
   configPath: atom.project.getPaths()[0]+'\\config'
   iconPath:'atom://chameleon-qdt-atom/images/icon.png'
   mainEntryFileName: 'index.html'
