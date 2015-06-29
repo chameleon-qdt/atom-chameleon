@@ -51,9 +51,11 @@ module.exports =
 				console.log 'save file'
 				file = new File(desc.moduleConfigPath)
 				file.create().then =>
-					configureMessage = '{"moduleName":"' + @moduleName.getText() + '","moduleVersion":"'+ @moduleVersion.getText() + '","moduleDescription":"'+ @moduleDescription.getText() + '","moduleInput":"' + @moduleInput.getText() + '"}'
+					configureMessage = '{\n\t"moduleName":"' + @moduleName.getText() + '",\n\t"moduleVersion":"'+ @moduleVersion.getText() + '",\n\t"moduleDescription":"'+ @moduleDescription.getText() + '",\n\t"moduleInput":"' + @moduleInput.getText() + '"\n}'
 					# console.log configureMessage
 					file.write(configureMessage)
+				alert '保存成功！'
+				@parentView.closeView()
 
 		prevStep: ->
 			@main.removeClass('hide')

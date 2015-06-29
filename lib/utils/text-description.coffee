@@ -27,8 +27,8 @@ module.exports = TextDescription =
   registerUrl : ''
 
   newProjectDefaultPath: atom.config.get('core').projectHome
-  appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.txt'
-  moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.txt'
+  appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.json'
+  moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.json'
   configPath: atom.project.getPaths()[0]+'\\config'
   iconPath:'atom://chameleon-qdt-atom/images/icon.png'
   mainEntryFileName: 'index.html'
