@@ -33,3 +33,4 @@ module.exports = TextDescription =
   configPath: atom.project.getPaths()[0]+'\\config'
   iconPath:'atom://chameleon-qdt-atom/images/icon.png'
   mainEntryFileName: 'index.html'
+  moduleConfigFileName: 'package.json'

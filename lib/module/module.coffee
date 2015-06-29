@@ -1,5 +1,6 @@
 {$, Emitter, Directory, File, GitRepository, BufferedProcess} = require 'atom'
 Util = require '../utils/util'
+pathM = require 'path'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateModuleView = require './create-module-view'
@@ -9,11 +10,8 @@ module.exports = ModuleManager =
   modalPanel: null
 
   activate: (state) ->
-    opt =
-      title : desc.createModule
-      subview : new CreateModuleView()
+    @chameleonBox = new CreateModuleView()
 
-    @chameleonBox = new ChameleonBox(opt)
     @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
     @chameleonBox.move()
 
@@ -35,11 +33,12 @@ module.exports = ModuleManager =
   CreateModule: (options)->
     console.log options
     info = options.moduleInfo
-    filePath = "#{atom.project.getPaths()[0]}/#{info.moduleId}"
-    configFilePath = "#{filePath}/moduleConfig.json"
+    filePath = pathM.join info.modulePath,info.moduleId
+    configFilePath = pathM.join filePath,desc.moduleConfigFileName
     configFile = new File(configFilePath)
     configFileContent = Util.formatModuleConfig(info)
-    entryFile = new File("#{filePath}/#{info.mainEntry}")
+    entryFilePath = pathM.join filePath,info.mainEntry
+    entryFile = new File(entryFilePath)
     htmlString = Util.getIndexHtmlCore()
     console.log JSON.stringify(info),configFileContent
 
