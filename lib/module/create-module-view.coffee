@@ -1,31 +1,57 @@
+desc = require '../utils/text-description'
+pathM = require 'path'
+{Directory} = require 'atom'
+{$, TextEditorView, View} = require 'atom-space-pen-views'
+
 module.exports =
-class CreateModuleView
+class CreateModuleView extends View
 
   @content: ->
     @div class: 'create-module', =>
-      @h2 '请填写要创建的项目信息:'
+      @h2 desc.CreateModuleTitle
       @div class: 'form-horizontal', =>
         @div class: 'form-group', =>
-          @label '请输入应用标识', class: 'col-sm-3 control-label'
+          @label desc.moduleId, class: 'col-sm-3 control-label'
           @div class: 'col-sm-9', =>
-            @subview 'appId', new TextEditorView(mini: true)
+            @subview 'moduleId', new TextEditorView(mini: true)
         @div class: 'form-group', =>
-          @label '请输入应用名称', class: 'col-sm-3 control-label'
+          @label desc.moduleName, class: 'col-sm-3 control-label'
           @div class: 'col-sm-9', =>
-            @subview 'appName', new TextEditorView(mini: true)
+            @subview 'moduleName', new TextEditorView(mini: true)
+        @div class: 'form-group', =>
+          @label desc.mainEntry, class: 'col-sm-3 control-label'
+          @div class: 'col-sm-9', =>
+            @subview 'mainEntry', new TextEditorView(mini: true)
+        @div class: 'col-sm-9 col-sm-offset-3', =>
+          @div desc.createModuleErrorMsg, class: 'text-warning hide', outlet: 'errorMsg'
+
+  initialize: ->
+    @moduleId.getModel().onDidChange => @checkMoudleID()
+    @moduleName.getModel().onDidChange => @checkInput()
+    @mainEntry.getModel().onDidChange => @checkInput()
 
   attached: ->
+    @mainEntry.setText(desc.mainEntryFileName)
+
+    @parentView.setNextBtn('finish')
     @parentView.disableNext()
     @parentView.hidePrevBtn()
+    # console.log @
 
-  destroy: ->
-    @element.remove()
+  # destroy: ->
+  #   @element.remove()
 
   getElement: ->
     @element
 
   serialize: ->
 
+  getModuleInfo: ->
+    info =
+      mainEntry: @mainEntry.getText()
+      moduleId: @moduleId.getText()
+      moduleName: @moduleName.getText()
+    info
 
   onTypeItemClick: (e) ->
     el = e.currentTarget
@@ -34,8 +60,35 @@ class CreateModuleView
     @createType = el.dataset.type
     @parentView.enableNext()
 
+  checkMoudleID: ->
+    path = @moduleId.getText().trim()
+    if path isnt ""
+      projectPath = atom.project.getPaths()[0]
+      # console.log pathM.join atom.project.getPaths()[0],path
+      path = "#{projectPath}/#{path}"
+      console.log path
+      dir = new Directory(path);
+      dir.exists()
+        .then (isExists) =>
+          console.log isExists,@,dir.getRealPathSync()
+          unless isExists
+            @checkInput()
+            @errorMsg.addClass('hide')
+          else
+            @errorMsg.removeClass('hide')
+
+
+  checkInput: ->
+    flag1 = @moduleId.getText().trim() isnt ""
+    flag2 = @moduleName.getText().trim() isnt ""
+    flag3 = @mainEntry.getText().trim() isnt ""
+
+    if flag1 and flag2 and flag3
+      @parentView.enableNext()
+    else
+      @parentView.disableNext()
+
   nextStep: (box)->
-    nextStepView = new @v[@createType]()
     box.setPrevStep @
-    box.mergeOptions {subview:nextStepView}
+    box.mergeOptions {moduleInfo:@getModuleInfo()}
     box.nextStep()

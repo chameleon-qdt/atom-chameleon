@@ -1,4 +1,6 @@
 {$, Emitter, Directory, File, GitRepository, BufferedProcess} = require 'atom'
+pathM = require 'path'
+Util = require '../utils/util'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
@@ -38,32 +40,10 @@ module.exports = CreateProject =
 
   createProject: (options) ->
     console.log options
-
-    info = options.projectInfo
-    appConfig = new File(info.appPath+'/'+'package.json')
-    console.log JSON.stringify(info)
-    console.log options.newType
-    if options.newType is 'empty'
-      appConfig.create()
-        .then (isSuccess,a,b,c) ->
-          console.log isSuccess,a,b,c
-          if isSuccess is yes
-            appConfig.setEncoding('utf8')
-            appConfig.write(JSON.stringify(info))
-            alert '项目创建成功！'
-          else
-            alert '项目创建失败...'
-        .then (a,b,c,d) ->
-          console.log a,b,c,d
-    else
-      success = (state, appPath) ->
-        atom.project.setPaths([appPath])
-        @modalPanel.item.children(".loading-mask").remove()
-        @closeView()
-
-      @gitClone(info.appPath, success.bind(this))
-      LoadingMask = new LoadingMask()
-      @modalPanel.item.append(LoadingMask)
+    switch options.newType
+      when "empty" then @newEmptyProject options
+      when "frame" then @newFrameProject options
+      when "template" then @newTemplateProject options
 
   gitClone: (appPath, cb) ->
     command = 'git'
@@ -71,3 +51,33 @@ module.exports = CreateProject =
     stdout = (output) -> console.log(output)
     exit = (code) -> cb(code, appPath)
     process = new BufferedProcess({command, args, stdout, exit})
+
+  newEmptyProject: (options) ->
+    info = options.projectInfo
+    appConfigFileName = 'appConfig.json'
+    appConfigFilePath = pathM.join info.appPath,appConfigFileName
+    console.log appConfigFilePath
+    appConfig = new File appConfigFilePath
+    appConfig.create()
+      .then (isSuccess) =>
+        console.log isSuccess
+        if isSuccess is yes
+          appConfig.setEncoding('utf8')
+          appConfig.write(Util.formatAppConfig(info))
+          alert '项目创建成功！'
+          @closeView()
+          atom.project.setPaths([info.appPath])
+        else
+          alert '项目创建失败...'
+
+  newFrameProject: (options) ->
+    success = (state, appPath) ->
+      atom.project.setPaths([appPath])
+      @modalPanel.item.children(".loading-mask").remove()
+      @closeView()
+
+    @gitClone(info.appPath, success.bind(this))
+    LoadingMask = new LoadingMask()
+    @modalPanel.item.append(LoadingMask)
+
+  newTemplateProject: (options) ->

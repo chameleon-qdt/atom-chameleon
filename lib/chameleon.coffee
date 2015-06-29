@@ -1,4 +1,5 @@
 CreateProject = require './project/create-project'
+CreateModule = require './module/module'
 Login = require './login/login'
 ConfigureModule = require './configure/module/module'
 ConfigureApp = require './configure/application/app'
@@ -15,35 +16,26 @@ module.exports = Chameleon =
   configureApp: null
   subscriptions: null
   configureGlobal: null
-  workspace: atom.workspace
+  createModule:null
 
   activate: (state) ->
-    # console.log CreateProject,Login
     @createProject = CreateProject
-    @createProject.activate(state)
     @login = Login
-    # @login.activate(state)
     @configureModule = ConfigureModule
-    # @configureModule.activate(state)
     @configureApp = ConfigureApp
-    # @configureApp.activate(state)
     @configureGlobal = ConfigureGlobal
-    # @configureGlobal.activate(state)
-    # @login = Login
-    # @login.activate(state)
+    @createModule = CreateModule
 
-    # @settings = Settings
-
-
-    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:settings': => @settings()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @createProject.openView()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @toggleCreateProject(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:module': => @configureModuleViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:application': => @configureAppViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:global' : => @configureGlobalViewOpen(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:openSource' : => @openSourceFolder()
 
   deactivate: ->
     @subscriptions.dispose()
@@ -57,7 +49,14 @@ module.exports = Chameleon =
     @createProject.serialize()
     @login.serialize()
 
-    # @login.toggle()
+  toggleCreateProject:(state) ->
+    @createProject.activate(state)
+    @createProject.openView()
+
+  toggleCreateModule:(state) ->
+    @createModule.activate(state)
+    @createModule.openView()
+
   loginViewOpen:(state) ->
     @login.activate(state)
     @login.openView()
@@ -74,9 +73,13 @@ module.exports = Chameleon =
     @configureGlobal.activate(state)
     @configureGlobal.openView()
 
-
+  openSourceFolder: ->
+    path = atom.packages.getLoadedPackage('chameleon').path
+    atom.project.setPaths([path])
 
   # createProject: ->
   #   console.log 'create-project'
   #   unless @createProjectView.modalPanel.isVisible()
   #     @createProjectView.modalPanel.show()
+# @eventElement.dispatchEvent(new CustomEvent(name, bubbles: true, cancelable: true))
+# atom.views.getView(atom.workspace).dispatchEvent(new CustomEvent('chameleon:create-module', {bubbles: true, cancelable: true}))

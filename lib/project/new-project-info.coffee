@@ -1,6 +1,6 @@
-_ = require 'underscore-plus'
 desc = require '../utils/text-description'
-{openDirectory} = require '../utils/dialog'
+pathM = require 'path'
+{Directory} = require 'atom'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
 module.exports =
@@ -23,29 +23,35 @@ class NewProjectView extends View
           @div class: 'col-sm-9', =>
             @subview 'appPath', new TextEditorView(mini: true)
             @span class: 'inline-block status-added icon icon-file-directory openFolder', click: 'openFolder'
+        @div class: 'col-sm-9 col-sm-offset-3', =>
+          @div '该目录已存在', class: 'text-warning hide', outlet: 'errorMsg'
+
+  initialize: ->
+    @appId.getModel().onDidChange => @setPath()
+    @appName.getModel().onDidChange => @checkInput()
+    @appPath.getModel().onDidChange => @checkPath()
 
   attached: ->
-    console.log
     @type = @parentView.options.newType
     if @type isnt 'template'
       @parentView.setNextBtn('finish')
-    @appId.setText 'newPackage'
-    @appName.setText '新项目'
-    @appPath.setText desc.newProjectDefaultPath
+    @parentView.disableNext()
+    @appPath.basePath = desc.newProjectDefaultPath
+    @appPath.setText @appPath.basePath
 
   openFolder: ->
-    openDirectory(title: 'Select Path')
-    .then (destPath) =>
-      console.log destPath[0]
-      path = "#{destPath[0]}/#{@appId.getText()}"
-      console.log  path
-      @appPath.setText path
+    atom.pickFolder (paths) =>
+      if paths?
+        console.log paths[0]
+        path = pathM.join paths[0],@appId.getText()
+        console.log  path
+        @appPath.basePath = path
+        @appPath.setText @appPath.basePath
 
   getElement: ->
     @element
 
   getProjectInfo: ->
-    console.log @appId
     projectInfo =
       appId : @appId.getText();
       appName : @appName.getText();
@@ -53,6 +59,36 @@ class NewProjectView extends View
 
     console.log projectInfo
     projectInfo
+
+  checkInput: ->
+    flag1 = @appId.getText().trim() isnt ""
+    flag2 = @appName.getText().trim() isnt ""
+    flag3 = @appPath.getText().trim() isnt ""
+
+    if flag1 and flag2 and flag3
+      @parentView.enableNext()
+    else
+      @parentView.disableNext()
+
+  setPath: ->
+    currPath = @appPath.basePath
+    # console.log currPath
+    @appPath.setText pathM.join currPath,@appId.getText().trim() if currPath isnt ""
+    @checkInput()
+
+  checkPath: ->
+    path = @appPath.getText().trim()
+    @appPath.basePath = path if @appPath.hasFocus()
+    if path isnt ""
+      dir = new Directory(path);
+      dir.exists()
+        .then (isExists) =>
+          # console.log isExists,@,dir.getRealPathSync()
+          unless isExists
+            @checkInput()
+            @errorMsg.addClass('hide')
+          else
+            @errorMsg.removeClass('hide')
 
   nextStep:(box) ->
     # console.log box
