@@ -63,3 +63,6 @@ module.exports = Util =
 
   createDir: (path, cb) ->
     fs.mkdirp(path, cb) 
+
+  isFileExist: (path, cb) ->
+    fs.exists path, cb

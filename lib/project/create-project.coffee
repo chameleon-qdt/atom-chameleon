@@ -6,6 +6,8 @@ ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
 LoadingMask = require '../utils/loadingMask'
 
+fs = require 'fs.extra'
+
 config = require '../../config/config'
 
 module.exports = CreateProject =
@@ -75,26 +77,28 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
-          console.log @repoDir,info.appPath
           targetPath = pathM.join info.appPath,'modules','butterfly-slim'
-          Util.copy @repoDir, targetPath, (err) =>
+          Util.copy @repoDir, targetPath, (err) => # 复制成功后，将框架复制到项目的 modules 下
             throw err if err
             alert '项目创建成功'
             atom.project.addPath(info.appPath)
             @closeView()
 
-        # console.log @projectTempDir, info.appPath
-        Util.copy @projectTempDir, info.appPath, copySuccess
+        Util.copy @projectTempDir, info.appPath, copySuccess # 创建项目根目录成功后 将空白项目的项目内容复制到根目录
 
-    Util.createDir info.appPath, createSuccess
+    # 首先，判断本地是否有框架
+    Util.isFileExist @repoDir, (exists) =>
+      if exists
+        Util.createDir info.appPath, createSuccess # 有，执行第二步：创建项目根目录
+      else
+        success = (state, appPath) =>
+          Util.createDir info.appPath, createSuccess
+          @modalPanel.item.children(".loading-mask").remove()
+        
+        Util.getRepo(@repoDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
+        LoadingMask = new LoadingMask()
+        @modalPanel.item.append(LoadingMask)
+
     # atom.notifications.addSuccess("Success: This is a notification");
-    # success = (state, appPath) ->
-    #   # atom.project.setPaths([appPath])
-    #   @modalPanel.item.children(".loading-mask").remove()
-    #
-
-    # Util.getRepo(@repoDir, config.repoUri, success.bind(this))
-    # LoadingMask = new LoadingMask()
-    # @modalPanel.item.append(LoadingMask)
 
   newTemplateProject: (options) ->
