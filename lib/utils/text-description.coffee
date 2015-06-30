@@ -34,4 +34,10 @@ module.exports = TextDescription =
   configPath: atom.project.getPaths()[0]+'\\config'
   iconPath:'atom://chameleon-qdt-atom/images/icon.png'
   mainEntryFileName: 'index.html'
+
+
+  publishModule: "发布模块"
+  publishModulePageOneTitle: '请选择需要发布的模块：'
+  publishModulePageTwoTitle: '确认发布模块信息'
+
   moduleConfigFileName: 'package.json'

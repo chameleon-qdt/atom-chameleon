@@ -11,6 +11,10 @@ class CreateModuleInfoView extends View
       @h2 desc.CreateModuleTitle
       @div class: 'form-horizontal', =>
         @div class: 'form-group', =>
+          @label '模块所在项目', class: 'col-sm-3 control-label'
+          @div class: 'col-sm-9', =>
+            @select class: 'form-control', outlet: 'selectProject'
+        @div class: 'form-group', =>
           @label desc.modulePath, class: 'col-sm-3 control-label'
           @div class: 'col-sm-9', =>
             @subview 'modulePath', new TextEditorView(mini: true)
@@ -44,10 +48,23 @@ class CreateModuleInfoView extends View
     @parentView.disableNext()
     @parentView.hidePrevBtn()
 
+    projectPaths = atom.project.getPaths()
+    projectNum = projectPaths.length
+    if projectNum isnt 0
+      @setSelectItem path for path in projectPaths
+      @modulePath.parents('.form-group').addClass 'hide'
+      @selectProject.parents('.form-group').removeClass 'hide'
+    else
+      @selectProject.parents('.form-group').addClass 'hide'
+      @modulePath.parents('.form-group').removeClass 'hide'
     # console.log @
 
   # destroy: ->
   #   @element.remove()
+  setSelectItem:(path) ->
+    projectName = pathM.basename path
+    optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
+    @selectProject.append optionStr
 
   getElement: ->
     @element

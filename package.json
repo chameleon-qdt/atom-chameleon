@@ -10,6 +10,7 @@
       "chameleon:toggle",
       "chameleon:create-project",
       "chameleon:create-module",
+      "Chameleon:publish-module",
       "chameleon:login",
       "chameleon:settings",
       "chameleon:openSource"

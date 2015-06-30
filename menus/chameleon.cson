@@ -47,7 +47,8 @@
             'command':'chameleon:create-module'
           }
           {
-            'label':'发布模块'
+            'label':'发布模块',
+            'command':'chameleon:publish-module'
           }
           {
             'label':'下载模块'
