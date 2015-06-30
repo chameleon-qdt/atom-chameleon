@@ -64,11 +64,13 @@ class NewProjectView extends View
     flag1 = @appId.getText().trim() isnt ""
     flag2 = @appName.getText().trim() isnt ""
     flag3 = @appPath.getText().trim() isnt ""
+    flag4 = @errorMsg.hasClass('hide')
 
-    if flag1 and flag2 and flag3
+    if flag1 and flag2 and flag3 and flag4
       @parentView.enableNext()
     else
       @parentView.disableNext()
+
 
   setPath: ->
     currPath = @appPath.basePath
@@ -85,10 +87,10 @@ class NewProjectView extends View
         .then (isExists) =>
           # console.log isExists,@,dir.getRealPathSync()
           unless isExists
-            @checkInput()
             @errorMsg.addClass('hide')
           else
             @errorMsg.removeClass('hide')
+          @checkInput()
 
   nextStep:(box) ->
     # console.log box
