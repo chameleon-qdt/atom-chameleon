@@ -7,8 +7,6 @@ ConfigureGlobal = require './configure/global/global'
 Settings = require './settings/settings'
 {CompositeDisposable} = require 'atom'
 
-ChemaleonSettings = require './settings/settings'
-
 module.exports = Chameleon =
   createProject: null
   login: null
@@ -17,6 +15,7 @@ module.exports = Chameleon =
   subscriptions: null
   configureGlobal: null
   createModule:null
+  settings: null
 
   activate: (state) ->
     @createProject = CreateProject
@@ -25,10 +24,11 @@ module.exports = Chameleon =
     @configureApp = ConfigureApp
     @configureGlobal = ConfigureGlobal
     @createModule = CreateModule
+    @settings = Settings
 
     @subscriptions = new CompositeDisposable
 
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:settings': => @settings()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:settings': => @openSettings()
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @toggleCreateProject(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
@@ -42,12 +42,13 @@ module.exports = Chameleon =
     @createProject.destroy()
     @login.destroy()
 
-  settings: ->
-    ChemaleonSettings.activate()
+  openSettings: ->
+    @settings.activate()
 
   serialize: ->
     @createProject.serialize()
     @login.serialize()
+    @settings.serialize()
 
   toggleCreateProject:(state) ->
     @createProject.activate(state)
