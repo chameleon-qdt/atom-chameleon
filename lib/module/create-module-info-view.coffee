@@ -52,6 +52,7 @@ class CreateModuleInfoView extends View
     projectPaths = atom.project.getPaths()
     projectNum = projectPaths.length
     if projectNum isnt 0
+      @selectProject.empty()
       @setSelectItem path for path in projectPaths
       @modulePath.parents('.form-group').addClass 'hide'
       @selectProject.parents('.form-group').removeClass 'hide'
@@ -90,7 +91,7 @@ class CreateModuleInfoView extends View
 
   onSelectChange: (e) ->
     el = e.currentTarget
-    console.log el.value
+    # console.log el.value
     @modulePath.setText pathM.join el.value,'modules'
 
   checkMoudleID: ->
