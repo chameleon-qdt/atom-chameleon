@@ -11,8 +11,8 @@ config = require '../../config/config'
 module.exports = CreateProject =
   chameleonBox: null
   modalPanel: null
-  repoDir: "#{atom.packages.getLoadedPackage('chameleon').path}/src/butterfly-slim"
-  projectTempDir: "#{atom.packages.getLoadedPackage('chameleon').path}/src/ProjectTemp"
+  repoDir: pathM.join desc.chameleonHome,'src','butterfly-slim'
+  projectTempDir: pathM.join desc.chameleonHome,'src','ProjectTemp'
   repoURI: 'https://git.oschina.net/chameleon/butterfly-slim.git'
 
   activate: (state) ->
@@ -64,7 +64,7 @@ module.exports = CreateProject =
 
         Util.copy(@projectTempDir, info.appPath, copySuccess)
 
-    Util.createDir(info.appPath, createSuccess)
+    Util.createDir info.appPath, createSuccess
 
   # 带框架项目创建
   newFrameProject: (options) ->
@@ -75,12 +75,15 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
-          Util.copy @repoDir, "#{info.appPath}/modules/butterfly-slim", (err) =>
+          console.log @repoDir,info.appPath
+          targetPath = pathM.join info.appPath,'modules','butterfly-slim'
+          Util.copy @repoDir, targetPath, (err) =>
             throw err if err
             alert '项目创建成功'
             atom.project.addPath(info.appPath)
             @closeView()
 
+        # console.log @projectTempDir, info.appPath
         Util.copy @projectTempDir, info.appPath, copySuccess
 
     Util.createDir info.appPath, createSuccess

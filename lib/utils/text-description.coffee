@@ -27,6 +27,7 @@ module.exports = TextDescription =
 
   registerUrl : ''
 
+  chameleonHome: atom.packages.getLoadedPackage('chameleon').path
   newProjectDefaultPath: atom.config.get('core').projectHome
   appConfigPath: atom.project.getPaths()[0]+'\\config\\appconf.json'
   moduleConfigPath: atom.project.getPaths()[0]+'\\config\\moduleconf.json'
