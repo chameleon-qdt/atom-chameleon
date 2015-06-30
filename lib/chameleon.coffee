@@ -1,5 +1,6 @@
 CreateProject = require './project/create-project'
 CreateModule = require './module/module'
+PublishModule = require './module/publish-module'
 Login = require './login/login'
 ConfigureModule = require './configure/module/module'
 ConfigureApp = require './configure/application/app'
@@ -17,6 +18,7 @@ module.exports = Chameleon =
   subscriptions: null
   configureGlobal: null
   createModule:null
+  publishModule: null
 
   activate: (state) ->
     @createProject = CreateProject
@@ -25,12 +27,14 @@ module.exports = Chameleon =
     @configureApp = ConfigureApp
     @configureGlobal = ConfigureGlobal
     @createModule = CreateModule
+    @publishModule = PublishModule
 
     @subscriptions = new CompositeDisposable
 
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:settings': => @settings()
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @toggleCreateProject(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:publish-module' : => @togglePublishModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:module': => @configureModuleViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:application': => @configureAppViewOpen(state)
@@ -56,6 +60,10 @@ module.exports = Chameleon =
   toggleCreateModule:(state) ->
     @createModule.activate(state)
     @createModule.openView()
+
+  togglePublishModule:(state) ->
+    @publishModule.activate(state)
+    @publishModule.openView()
 
   loginViewOpen:(state) ->
     @login.activate(state)
