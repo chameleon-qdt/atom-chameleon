@@ -59,7 +59,7 @@ module.exports = CreateProject =
         copySuccess = (err) =>
           throw err if err
           alert '项目创建成功'
-          atom.project.addPaths([info.appPath])
+          atom.project.addPath(info.appPath)
           @closeView()
 
         Util.copy(@projectTempDir, info.appPath, copySuccess)
@@ -78,7 +78,7 @@ module.exports = CreateProject =
           Util.copy @repoDir, "#{info.appPath}/modules/butterfly-slim", (err) =>
             throw err if err
             alert '项目创建成功'
-            atom.project.addPaths([info.appPath])
+            atom.project.addPath(info.appPath)
             @closeView()
 
         Util.copy @projectTempDir, info.appPath, copySuccess
