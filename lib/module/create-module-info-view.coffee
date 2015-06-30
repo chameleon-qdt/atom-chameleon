@@ -39,6 +39,7 @@ class CreateModuleInfoView extends View
     @moduleId.getModel().onDidChange => @checkMoudleID()
     @moduleName.getModel().onDidChange => @checkInput()
     @mainEntry.getModel().onDidChange => @checkInput()
+    @selectProject.on 'change',(e) => @onSelectChange(e)
 
   attached: ->
     @mainEntry.setText desc.mainEntryFileName
@@ -54,6 +55,7 @@ class CreateModuleInfoView extends View
       @setSelectItem path for path in projectPaths
       @modulePath.parents('.form-group').addClass 'hide'
       @selectProject.parents('.form-group').removeClass 'hide'
+      @modulePath.setText pathM.join @selectProject.val(),'modules'
     else
       @selectProject.parents('.form-group').addClass 'hide'
       @modulePath.parents('.form-group').removeClass 'hide'
@@ -85,6 +87,11 @@ class CreateModuleInfoView extends View
       if paths?
         console.log paths[0]
         @modulePath.setText paths[0]
+
+  onSelectChange: (e) ->
+    el = e.currentTarget
+    console.log el.value
+    @modulePath.setText pathM.join el.value,'modules'
 
   checkMoudleID: ->
     path = @moduleId.getText().trim()
