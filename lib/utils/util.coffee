@@ -34,7 +34,7 @@ module.exports = Util =
       "version": "0.0.1",
       "description": "",
       "dependencies": {},
-      "releaseNote": "module init",
+      "releaseNote": "module #{options.moduleName} init",
     }
     """
 
