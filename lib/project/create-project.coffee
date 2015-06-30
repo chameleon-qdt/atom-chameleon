@@ -4,9 +4,7 @@ Util = require '../utils/util'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
-LoadingMask = require '../utils/loadingMask'
-
-fs = require 'fs.extra'
+loadingMask = require '../utils/loadingMask'
 
 config = require '../../config/config'
 
@@ -16,6 +14,7 @@ module.exports = CreateProject =
   repoDir: pathM.join desc.chameleonHome,'src','butterfly-slim'
   projectTempDir: pathM.join desc.chameleonHome,'src','ProjectTemp'
   repoURI: 'https://git.oschina.net/chameleon/butterfly-slim.git'
+  LoadingMask: loadingMask
 
   activate: (state) ->
     opt =
@@ -89,14 +88,17 @@ module.exports = CreateProject =
     # 首先，判断本地是否有框架
     Util.isFileExist @repoDir, (exists) =>
       if exists
-        Util.createDir info.appPath, createSuccess # 有，执行第二步：创建项目根目录
+        Util.createDir info.appPath, createSuccess #有，执行第二步：创建项目根目录
       else
         success = (state, appPath) =>
-          Util.createDir info.appPath, createSuccess
+          if state is 0
+            Util.createDir info.appPath, createSuccess 
+          else
+            alert '项目创建失败：git clone失败，请检查网络连接'
           @modalPanel.item.children(".loading-mask").remove()
         
         Util.getRepo(@repoDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
-        LoadingMask = new LoadingMask()
+        LoadingMask = new @LoadingMask()
         @modalPanel.item.append(LoadingMask)
 
     # atom.notifications.addSuccess("Success: This is a notification");
