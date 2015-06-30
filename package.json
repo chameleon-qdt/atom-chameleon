@@ -11,9 +11,6 @@
       "chameleon:create-project",
       "chameleon:create-module",
       "chameleon:login",
-      "chameleon:configure:module",
-      "chameleon:configure:application",
-      "chameleon:configure:global",
       "chameleon:settings",
       "chameleon:openSource"
     ]
