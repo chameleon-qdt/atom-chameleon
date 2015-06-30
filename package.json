@@ -13,7 +13,9 @@
       "Chameleon:publish-module",
       "chameleon:login",
       "chameleon:settings",
-      "chameleon:openSource"
+      "chameleon:openSource",
+      "chameleon:configure:module",
+      "chameleon:configure:application"
     ]
   },
   "repository": "https://github.com/OnionStu/atom-chameleon",
