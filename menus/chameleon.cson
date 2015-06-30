@@ -78,26 +78,8 @@
         ]
       }
       {
-        'label':'配置'
-        'submenu':[
-          {
-            'label':'模块配置'
-            'command':'chameleon:configure:module'
-          }
-          {
-            'label':'应用配置'
-            'command':'chameleon:configure:application'
-
-          }
-          {
-            'label':'全局配置'
-            'command':'chameleon:configure:global'
-          }
-          {
-            'label':'Settings'
-            'command':'chameleon:settings'
-          }
-        ]
+        'label':'设置'
+        'command':'chameleon:settings'
       }
       {
         'label':'登录'

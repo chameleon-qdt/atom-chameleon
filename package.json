@@ -12,9 +12,6 @@
       "chameleon:create-module",
       "Chameleon:publish-module",
       "chameleon:login",
-      "chameleon:configure:module",
-      "chameleon:configure:application",
-      "chameleon:configure:global",
       "chameleon:settings",
       "chameleon:openSource"
     ]

@@ -66,3 +66,10 @@ module.exports = Util =
 
   isFileExist: (path, cb) ->
     fs.exists path, cb
+
+  store: (namespace, data) ->
+    if data 
+      return localStorage.setItem(namespace, JSON.stringify(data))
+    else
+     store = localStorage.getItem(namespace)
+     return (store && JSON.parse(store)) || []

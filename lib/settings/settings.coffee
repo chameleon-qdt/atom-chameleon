@@ -19,3 +19,7 @@ module.exports =
       createView(uri: ViewUri) if filePath is ViewUri
 
     atom.workspace.open(ViewUri)
+
+  serialize: ->
+    deserializer: @constructor.name
+    uri: @getURI()
