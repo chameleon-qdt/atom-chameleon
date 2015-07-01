@@ -1,6 +1,7 @@
 pathM = require 'path'
 Util = require '../utils/util'
 desc = require '../utils/text-description'
+_ = require 'underscore-plus'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
 loadingMask = require '../utils/loadingMask'
@@ -58,14 +59,18 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
-          writeCB = (err) ->
-            throw err if err
-            true
           appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
+          writeCB = (err) =>
+            throw err if err
+            atom.workspace.open appConfigPath
+            aft = =>
+              Util.rumAtomCommand('tree-view:reveal-active-file')
+            _.debounce(aft,300)
           Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
-          alert '项目创建成功'
+          # alert '项目创建成功'
           atom.project.addPath(info.appPath)
           @closeView()
+
 
         Util.copy @projectTempDir, info.appPath, copySuccess
 
