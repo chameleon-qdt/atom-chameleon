@@ -42,3 +42,4 @@ module.exports = TextDescription =
   publishModulePageTwoTitle: '确认发布模块信息'
 
   moduleConfigFileName: 'package.json'
+  ProjectConfigFileName: 'appConfig.json'

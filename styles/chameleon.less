@@ -133,6 +133,26 @@ atom-panel.modal > .login-box{
     top: 5px;
     cursor: pointer;
   }
+  select {
+    color: #9da5b4;
+    background-clip: content-box;
+    background-color: #353b45;
+    // border-radius: 5px;
+    border-color: #181a1f;
+    font-size: 1.25em;
+    height: 2em;
+    padding: 0;
+    &:hover{
+      box-shadow: none;
+      background-color: #3a3f4b;
+      border-color: #181a1f;
+    }
+    &:focus{
+      box-shadow: none;
+      background-color: #3a3f4b;
+      border-color: #181a1f;
+    }
+  }
 }
 
 .pic{
@@ -183,5 +203,52 @@ atom-panel.modal > .login-box{
     left: 50%;
     margin-top: -32px;
     margin-left: -32px;
+  }
+}
+
+.chameleonsettingsview{
+  .settings-menu{
+    width: 16em;
+    position: relative;
+    border-width: 0 1px 0 0;
+    border-image: linear-gradient(#282c34 10px, #181a1f 200px) 0 1 0 0 stretch;
+    background: #282c34;
+    height: 100%;
+    float: left;
+    padding: 10px 0 0 0;
+    ul{
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    li{
+      a{
+        display: block;
+        height: 40px;
+        line-height: 30px;
+        text-decoration: none;
+        padding: 5px 15px;
+        color: #9da5b4
+      }
+    }
+    li.active{
+      a{
+        color: #ffffff;
+        background-color: #3a3f4b;
+      }
+    }
+    li:hover{
+      a{
+        color: #d7dae0;
+        background-color: #31363f;
+      }
+    }
+  }
+  .settingsPanel{
+    flex: 8.4;
+    flex-flow: column;
+    display: flex;
+    position: relative;
+    padding: 4em;
   }
 }
