@@ -1,14 +1,14 @@
-ChameleonBox = require '../utils/chameleon-box-view'
+ChameleonBox = require './../utils/chameleon-box-view'
 PublishModelView = require './publish-module-view'
-desc = require '../utils/text-description'
-
+desc = require './../utils/text-description'
+{$} = require 'atom-space-pen-views'
 module.exports = PublishModule =
 	chameleonBox : null
 	modalPanel : null
 
 	activate: (state) ->
 		opt =
-			title: desc.module
+			title: desc.publishModule
 			subview : new PublishModelView()
 
 
@@ -17,6 +17,7 @@ module.exports = PublishModule =
 		@chameleonBox.move()
 		@chameleonBox.cancelBtn.hide()
 		@chameleonBox.prevBtn.addClass('hide')
+
 		@chameleonBox.onCloseClick = => @closeView()
 		@chameleonBox.onCancelClick = => @closeView()
 		@chameleonBox.onPrevClick = => @chameleonBox.contentView.prevStep()
