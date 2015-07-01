@@ -55,8 +55,10 @@ module.exports = ModuleManager =
         else
           console.log 'CreateModule error'
       .then (isSuccess) =>
+
         if isSuccess is yes
           entryFile.writeSync(htmlString)
+          atom.project.addPath(filePath)
           @chameleonBox.closeView()
       # .finally =>
         # console.log 'CreateModule Success',@
