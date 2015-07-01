@@ -19,6 +19,7 @@ class ChameleonSettingsView extends ScrollView
   getTitle: -> '设置'
 
   initialize: ({@uri}) ->
+    # super
     @accountPanel = new AccountPanel()
     @codePanel = new CodePanel()
 
