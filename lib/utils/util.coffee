@@ -94,11 +94,17 @@ module.exports = Util =
   writeJson: (fileName, obj, cb) ->
     fs.writeJson fileName, obj, cb
 
+  readJson: (fileName,cb) ->
+    fs.readJson fileName, cb
+
   copy: (sourcePath, destinationPath, cb) ->
     fs.copy(sourcePath, destinationPath, cb)
 
   createDir: (path, cb) ->
     fs.mkdirp(path, cb)
+
+  delete: (path,callback) ->
+    fs.remove path, callback
 
   isFileExist: (path, cb) ->
     fs.exists path, cb
