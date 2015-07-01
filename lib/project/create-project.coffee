@@ -83,7 +83,12 @@ module.exports = CreateProject =
           targetPath = pathM.join info.appPath,'modules','butterfly-slim'
           Util.copy @repoDir, targetPath, (err) => # 复制成功后，将框架复制到项目的 modules 下
             throw err if err
-            alert '项目创建成功'
+            # alert '项目创建成功'
+            gfp = pathM.join targetPath,'.git'
+            delSuccess = (err) ->
+              throw err if err
+              console.log 'deleted!'
+            Util.delete gfp,delSuccess
             atom.project.addPath(info.appPath)
             @closeView()
 
