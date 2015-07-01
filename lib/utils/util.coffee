@@ -1,6 +1,7 @@
 {BufferedProcess} = require 'atom'
 
-fs = require 'fs.extra'
+fs = require 'fs-extra'
+# fsEX = require 'fs.extra'
 
 module.exports = Util =
 
@@ -34,7 +35,7 @@ module.exports = Util =
       "version": "0.0.1",
       "description": "",
       "dependencies": {},
-      "releaseNote": "module init",
+      "releaseNote": "module #{options.moduleName} init"
     }
     """
 
@@ -47,9 +48,18 @@ module.exports = Util =
       "version": "0.0.1",
       "description": "",
       "dependencies": {},
-      "releaseNote": "app init",
+      "releaseNote": "app init"
     }
     """
+  # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
+  checkProjectName: (str)->
+    regEx = /[\`\~\!\@\#\$\%\^\&\*\(\)\+\=\|\{\}\'\:\;\,\·\\\[\]\<\>\/\?\~\！\@\#\￥\%\…\…\&\*\（\）\—\—\+\|\{\}\【\】\‘\；\：\”\“\’\。\，\、\？]/g
+    strcheck = str.replace(/[^\x00-\xff]/g,"-")
+    strcheck = strcheck.replace(regEx,"-")
+    strcheck = strcheck.replace(/-+/g, '-')
+    # # 特殊处理
+    # strcheck = '...' if strcheck is '.' or strcheck is '..'
+    return strcheck
 
   getRepo: (appPath,repoUri, cb) ->
     command = 'git'
@@ -58,17 +68,23 @@ module.exports = Util =
     exit = (code) -> cb(code, appPath)
     process = new BufferedProcess({command, args, stdout, exit})
 
+  writeFile: (fileName, textContent, cb) ->
+    fs.writeFile fileName, textContent, cb
+
+  writeJson: (fileName, obj, cb) ->
+    fs.writeJson fileName, obj, cb
+
   copy: (sourcePath, destinationPath, cb) ->
-    fs.copyRecursive(sourcePath, destinationPath, cb)
+    fs.copy(sourcePath, destinationPath, cb)
 
   createDir: (path, cb) ->
-    fs.mkdirp(path, cb) 
+    fs.mkdirp(path, cb)
 
   isFileExist: (path, cb) ->
     fs.exists path, cb
 
   store: (namespace, data) ->
-    if data 
+    if data
       return localStorage.setItem(namespace, JSON.stringify(data))
     else
      store = localStorage.getItem(namespace)

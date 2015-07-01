@@ -1,4 +1,3 @@
-{$, Emitter, Directory, File, BufferedProcess, Notification} = require 'atom'
 pathM = require 'path'
 Util = require '../utils/util'
 desc = require '../utils/text-description'
@@ -59,11 +58,16 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
+          writeCB = (err) ->
+            throw err if err
+            true
+          appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
+          Util.writeJson appConfigPath, JSON.parse(Util.formatAppConfig(info)), writeCB
           alert '项目创建成功'
           atom.project.addPath(info.appPath)
           @closeView()
 
-        Util.copy(@projectTempDir, info.appPath, copySuccess)
+        Util.copy @projectTempDir, info.appPath, copySuccess
 
     Util.createDir info.appPath, createSuccess
 
@@ -92,11 +96,11 @@ module.exports = CreateProject =
       else
         success = (state, appPath) =>
           if state is 0
-            Util.createDir info.appPath, createSuccess 
+            Util.createDir info.appPath, createSuccess
           else
             alert '项目创建失败：git clone失败，请检查网络连接'
           @modalPanel.item.children(".loading-mask").remove()
-        
+
         Util.getRepo(@repoDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
         LoadingMask = new @LoadingMask()
         @modalPanel.item.append(LoadingMask)

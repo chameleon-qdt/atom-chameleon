@@ -22,7 +22,7 @@ class ChameleonBoxView extends View
 
 
   initialize: (options) ->
-    console.log options,@options
+    # console.log options,@options
     @order = 0
     @options ?= {}
     @prevStep = []

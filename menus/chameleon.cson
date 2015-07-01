@@ -9,6 +9,15 @@
   '.tree-view': [
     {'type': 'separator'}
     {label: '上传模块'}
+    {
+      'label':'模块配置'
+      'command':'chameleon:configure:module'
+    }
+    {
+      'label':'应用配置'
+      'command':'chameleon:configure:application'
+
+    }
     {'type': 'separator'}
   ]
 'menu': [
