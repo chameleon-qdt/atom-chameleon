@@ -35,8 +35,8 @@ class CreateModuleInfoView extends View
           @div desc.createModuleErrorMsg, class: 'text-warning hide', outlet: 'errorMsg'
 
   initialize: ->
-    @modulePath.getModel().onDidChange => @checkInput()
-    @moduleId.getModel().onDidChange => @checkMoudleID()
+    @modulePath.getModel().onDidChange => @checkPath()
+    @moduleId.getModel().onDidChange => @checkPath()
     @moduleName.getModel().onDidChange => @checkInput()
     @mainEntry.getModel().onDidChange => @checkInput()
     @selectProject.on 'change',(e) => @onSelectChange(e)
@@ -61,6 +61,7 @@ class CreateModuleInfoView extends View
       @selectProject.parents('.form-group').addClass 'hide'
       @modulePath.parents('.form-group').removeClass 'hide'
     # console.log @
+    @checkPath()
 
   # destroy: ->
   #   @element.remove()
@@ -94,23 +95,24 @@ class CreateModuleInfoView extends View
     # console.log el.value
     @modulePath.setText pathM.join el.value,'modules'
 
-  checkMoudleID: ->
+  checkPath: ->
     path = @moduleId.getText().trim()
+    # console.log "path:#{path}"
     if path isnt ""
       # projectPath = atom.project.getPaths()[0]
       projectPath = @modulePath.getText().trim()
       # console.log pathM.join atom.project.getPaths()[0],path
       path = pathM.join projectPath,path
-      console.log path
+      # console.log path
       dir = new Directory(path);
       dir.exists()
         .then (isExists) =>
-          console.log isExists,@,dir.getRealPathSync()
+          # console.log isExists,@,dir.getRealPathSync()
           unless isExists
-            @checkInput()
             @errorMsg.addClass('hide')
           else
             @errorMsg.removeClass('hide')
+          @checkInput()
 
 
   checkInput: ->
@@ -118,8 +120,9 @@ class CreateModuleInfoView extends View
     flag2 = @moduleName.getText().trim() isnt ""
     flag3 = @mainEntry.getText().trim() isnt ""
     flag4 = @modulePath.getText().trim() isnt ""
+    flag5 = @errorMsg.hasClass 'hide'
 
-    if flag1 and flag2 and flag3
+    if flag1 and flag2 and flag3 and flag4 and flag5
       @parentView.enableNext()
     else
       @parentView.disableNext()
