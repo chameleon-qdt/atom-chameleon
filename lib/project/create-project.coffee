@@ -1,6 +1,7 @@
 pathM = require 'path'
 Util = require '../utils/util'
 desc = require '../utils/text-description'
+_ = require 'underscore-plus'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
 loadingMask = require '../utils/loadingMask'
@@ -58,15 +59,19 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
-          writeCB = (err) ->
-            throw err if err
-            true
           appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
-          Util.writeJson appConfigPath, JSON.parse(Util.formatAppConfig(info)), writeCB
+          writeCB = (err) =>
+            throw err if err
+            atom.workspace.open appConfigPath
+            aft = =>
+              Util.rumAtomCommand('tree-view:reveal-active-file')
+            _.debounce(aft,300)
+          Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
           @modalPanel.item.children(".loading-mask").remove()
           alert '项目创建成功'
           atom.project.addPath(info.appPath)
           @closeView()
+
 
         Util.copy @projectTempDir, info.appPath, copySuccess
 
@@ -86,8 +91,13 @@ module.exports = CreateProject =
           targetPath = pathM.join info.appPath,'modules','butterfly-slim'
           Util.copy @repoDir, targetPath, (err) => # 复制成功后，将框架复制到项目的 modules 下
             throw err if err
-            @modalPanel.item.children(".loading-mask").remove()
             alert '项目创建成功'
+            gfp = pathM.join targetPath,'.git'
+            delSuccess = (err) ->
+              throw err if err
+              console.log 'deleted!'
+            Util.delete gfp,delSuccess
+            @modalPanel.item.children(".loading-mask").remove()
             atom.project.addPath(info.appPath)
             @closeView()
             
