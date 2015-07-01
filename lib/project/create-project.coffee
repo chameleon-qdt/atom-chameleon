@@ -1,4 +1,3 @@
-{$, Emitter, Directory, File, BufferedProcess, Notification} = require 'atom'
 pathM = require 'path'
 Util = require '../utils/util'
 desc = require '../utils/text-description'
@@ -59,9 +58,11 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
-          appConfig = new File pathM.join info.appPath,desc.ProjectConfigFileName
-          appConfig.setEncoding('utf8')
-          appConfig.write(Util.formatAppConfig(info))
+          writeCB = (err) ->
+            throw err if err
+            true
+          appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
+          Util.writeJson appConfigPath, JSON.parse(Util.formatAppConfig(info)), writeCB
           alert '项目创建成功'
           atom.project.addPath(info.appPath)
           @closeView()
