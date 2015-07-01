@@ -62,7 +62,7 @@ module.exports = CreateProject =
             throw err if err
             true
           appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
-          Util.writeJson appConfigPath, JSON.parse(Util.formatAppConfig(info)), writeCB
+          Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
           alert '项目创建成功'
           atom.project.addPath(info.appPath)
           @closeView()

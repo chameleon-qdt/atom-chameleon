@@ -36,7 +36,7 @@ module.exports = ModuleManager =
     filePath = pathM.join info.modulePath,info.moduleId
     configFilePath = pathM.join filePath,desc.moduleConfigFileName
     configFile = new File(configFilePath)
-    configFileContent = Util.formatModuleConfig(info)
+    configFileContent = Util.formatModuleConfigToStr(info)
     entryFilePath = pathM.join filePath,info.mainEntry
     entryFile = new File(entryFilePath)
     htmlString = Util.getIndexHtmlCore()

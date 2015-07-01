@@ -26,7 +26,7 @@ module.exports = Util =
     </html>
     """
 
-  formatModuleConfig:(options) ->
+  formatModuleConfigToStr:(options) ->
     """
     {
       "name": "#{options.moduleName}",
@@ -39,7 +39,7 @@ module.exports = Util =
     }
     """
 
-  formatAppConfig:(options) ->
+  formatAppConfigToStr:(options) ->
     """
     {
       "name": "#{options.appName}",
@@ -51,6 +51,26 @@ module.exports = Util =
       "releaseNote": "app init"
     }
     """
+
+  formatModuleConfigToObj: (options) ->
+    name: options.moduleName
+    identifier: options.moduleId
+    main: options.mainEntry
+    version: '0.0.1'
+    description: ''
+    dependencies: {}
+    releaseNote: "module #{options.moduleName} init"
+
+  formatAppConfigToObj:(options) ->
+      name: options.appName
+      identifier: options.appId
+      mainModule: ''
+      version: '0.0.1'
+      description: ''
+      dependencies: {}
+      releaseNote: "app #{options.appName} init"
+
+
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
   checkProjectName: (str)->
     regEx = /[\`\~\!\@\#\$\%\^\&\*\(\)\+\=\|\{\}\'\:\;\,\·\\\[\]\<\>\/\?\~\！\@\#\￥\%\…\…\&\*\（\）\—\—\+\|\{\}\【\】\‘\；\：\”\“\’\。\，\、\？]/g
