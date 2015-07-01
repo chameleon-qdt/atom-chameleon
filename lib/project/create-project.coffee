@@ -63,6 +63,7 @@ module.exports = CreateProject =
             true
           appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
           Util.writeJson appConfigPath, JSON.parse(Util.formatAppConfig(info)), writeCB
+          @modalPanel.item.children(".loading-mask").remove()
           alert '项目创建成功'
           atom.project.addPath(info.appPath)
           @closeView()
@@ -70,6 +71,8 @@ module.exports = CreateProject =
         Util.copy @projectTempDir, info.appPath, copySuccess
 
     Util.createDir info.appPath, createSuccess
+    LoadingMask = new @LoadingMask()
+    @modalPanel.item.append(LoadingMask)
 
   # 带框架项目创建
   newFrameProject: (options) ->
@@ -83,9 +86,11 @@ module.exports = CreateProject =
           targetPath = pathM.join info.appPath,'modules','butterfly-slim'
           Util.copy @repoDir, targetPath, (err) => # 复制成功后，将框架复制到项目的 modules 下
             throw err if err
+            @modalPanel.item.children(".loading-mask").remove()
             alert '项目创建成功'
             atom.project.addPath(info.appPath)
             @closeView()
+            
 
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建项目根目录成功后 将空白项目的项目内容复制到根目录
 
@@ -99,11 +104,12 @@ module.exports = CreateProject =
             Util.createDir info.appPath, createSuccess
           else
             alert '项目创建失败：git clone失败，请检查网络连接'
-          @modalPanel.item.children(".loading-mask").remove()
+            @modalPanel.item.children(".loading-mask").remove()
 
         Util.getRepo(@repoDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
-        LoadingMask = new @LoadingMask()
-        @modalPanel.item.append(LoadingMask)
+    
+    LoadingMask = new @LoadingMask()
+    @modalPanel.item.append(LoadingMask)
 
     # atom.notifications.addSuccess("Success: This is a notification");
 
