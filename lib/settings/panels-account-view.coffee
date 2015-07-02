@@ -13,9 +13,8 @@ class AccountPanel extends View
       @div class: 'accountMessage' ,outlet: 'accountMessage'
 
   initialize: () =>
-    account = Util.store('chameleon')
-    console.log account
-    shownSection = if account.length is 0 then new notFoundAccount else new hadAccount(account)
+    account = Util.store('chameleon').account
+    shownSection = if account? then new hadAccount(account) else new notFoundAccount()
     @accountMessage.html shownSection
     shownSection = null
 
@@ -32,10 +31,11 @@ class notFoundAccount extends View
     @LoginView.openView()
 
 class hadAccount extends View
-  @content: ->
+  @content: (account) ->
     @div =>
-      @h3 '你好'
+      @h3 "你好, #{account}"
       @button '退出', class: 'btn', click: 'logout'
 
   logout: ->
-    console.log 'logout'
+    Util.removeStore('chameleon')
+    $('.accountMessage').html(new notFoundAccount)

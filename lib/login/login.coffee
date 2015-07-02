@@ -3,6 +3,8 @@ desc = require '../utils/text-description'
 LoginView = require './login-view'
 Settings = require '../settings/settings'
 
+util = require '../utils/util'
+
 module.exports = Login =
   loginView: null
   modalPanel: null
@@ -15,10 +17,11 @@ module.exports = Login =
     @loginView.on 'click', 'button[name=loginBtn]', =>
       console.log "E-mail: #{_thisLoginView.loginEmail.getText()}"
       console.log "password: #{_thisLoginView.find('#loginPassword').text()}"
+      util.store('chameleon', {account: _thisLoginView.loginEmail.getText()})
       alert "登录成功"
-      atom.workspace.getActivePane().destroy()
+      @closeView()
+      atom.workspace.getPanes()[0].destroyActiveItem()
       @settings.activate()
-      @closeView
 
     # 密码框 输入时加密处理
     @loginView.on 'keydown', @loginView.loginPassword, ->

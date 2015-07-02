@@ -3,4 +3,5 @@
 module.exports =
 class CodePanel extends View
   @content: ->
-    @p 'code'
+    @div class: 'container', =>
+    	@div 'hi'
