@@ -90,5 +90,6 @@ module.exports = Chameleon =
   #   console.log 'create-project'
   #   unless @createProjectView.modalPanel.isVisible()
   #     @createProjectView.modalPanel.show()
+  # $('.tree-view-resizer') 'tree-view:toggle'
 # @eventElement.dispatchEvent(new CustomEvent(name, bubbles: true, cancelable: true))
 # atom.views.getView(atom.workspace).dispatchEvent(new CustomEvent('chameleon:create-module', {bubbles: true, cancelable: true}))

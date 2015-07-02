@@ -3,7 +3,7 @@ _ = require 'underscore-plus'
 desc = require './text-description'
 {$, View} = require 'atom-space-pen-views'
 
-module.exports =
+module.exports = ChameleonBox =
 class ChameleonBoxView extends View
 
   modalPanel : null
@@ -130,3 +130,5 @@ class ChameleonBoxView extends View
       @modalPanel.hide()
     else
       @hide()
+
+module.exports.$ = $

@@ -19,14 +19,13 @@ class ChameleonSettingsView extends ScrollView
   getTitle: -> '设置'
 
   initialize: ({@uri}) ->
+    # super
     @accountPanel = new AccountPanel()
-    @codePanel = new CodePanel()
-
     @settingsPanel.html @accountPanel
-
+    @accountPanel = null
     @on 'click', '.settingsItem', (e) =>
       @menuClick(e.currentTarget)
-
+    
   menuClick: (target) =>
     $target = $(target)
     $settingsMenu = $('.settings-menu')
@@ -34,7 +33,13 @@ class ChameleonSettingsView extends ScrollView
     $target.addClass('active')
     type = $target.attr('panelType')
     switch type
-      when "account" then @settingsPanel.html @accountPanel
-      when "code" then @settingsPanel.html @codePanel
+      when "account"
+        @accountPanel = new AccountPanel()
+        @settingsPanel.html @accountPanel
+        @accountPanel = null
+      when "code"
+        @codePanel = new CodePanel()
+        @settingsPanel.html @codePanel
+        @codePanel = null
       else
         @settingsPanel.html @accountPanel

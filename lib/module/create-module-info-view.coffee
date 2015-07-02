@@ -42,6 +42,8 @@ class CreateModuleInfoView extends View
     @selectProject.on 'change',(e) => @onSelectChange(e)
 
   attached: ->
+    @moduleName.setText ''
+    @moduleId.setText ''
     @mainEntry.setText desc.mainEntryFileName
     @modulePath.setText desc.newProjectDefaultPath
 

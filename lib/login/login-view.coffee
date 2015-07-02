@@ -23,6 +23,7 @@ module.exports =
 				@div class: 'col-sm-12 col-md-12 text-right', =>
 					@a '注册', href :desc.registerUrl
 					@input id:'loginPassword', type: "password", style: "display: none"
+
 	  serialize: ->
 
 	  initialize: ->
