@@ -1,4 +1,5 @@
 desc = require '../utils/text-description'
+Util = require '../utils/util'
 pathM = require 'path'
 {Directory} = require 'atom'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
@@ -68,7 +69,9 @@ class CreateModuleInfoView extends View
   # destroy: ->
   #   @element.remove()
   setSelectItem:(path) ->
-    projectName = pathM.basename path
+    filePath = pathM.join path,desc.ProjectConfigFileName
+    obj = Util.readJsonSync filePath
+    projectName = if obj? then obj.name else pathM.basename path
     optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
     @selectProject.append optionStr
 
