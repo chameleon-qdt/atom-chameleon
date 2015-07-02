@@ -1,19 +1,24 @@
-{$,Emitter} = require 'atom-space-pen-views'
+{$} = require 'atom-space-pen-views'
 desc = require '../utils/text-description'
 LoginView = require './login-view'
+Settings = require '../settings/settings'
 
 module.exports = Login =
   loginView: null
   modalPanel: null
 
   activate: (state) ->
+    @settings = Settings
     @loginView = new LoginView()
     _thisLoginView = @loginView
     #登录按钮 需要 调用接口
-    @loginView.on 'click', 'button[name=loginBtn]', ->
+    @loginView.on 'click', 'button[name=loginBtn]', =>
       console.log "E-mail: #{_thisLoginView.loginEmail.getText()}"
       console.log "password: #{_thisLoginView.find('#loginPassword').text()}"
       alert "登录成功"
+      atom.workspace.getActivePane().destroy()
+      @settings.activate()
+      @closeView
 
     # 密码框 输入时加密处理
     @loginView.on 'keydown', @loginView.loginPassword, ->

@@ -23,3 +23,6 @@ module.exports =
   serialize: ->
     deserializer: @constructor.name
     uri: @getURI()
+
+  refresh: ->
+  	console.log 'hi'
