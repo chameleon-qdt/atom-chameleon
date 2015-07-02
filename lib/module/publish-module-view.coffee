@@ -1,7 +1,7 @@
 desc = require '../utils/text-description'
 {$,TextEditorView,View} = require 'atom-space-pen-views'
 {File,Directory} = require 'atom'
-
+PathM = require 'path'
 
 module.exports =
 class PublishModuleView extends View
@@ -27,9 +27,11 @@ class PublishModuleView extends View
 			if this.find('input[type=checkbox]').is(':checked')
 				console.log 'has checked'
 			else
+				alert '你还没有选择模块。'
 				return
 			checkboxList = this.find('input[type=checkbox]')
 			_moduleMessageList = @moduleMessageList
+			_moduleMessageList.empty()
 			printModuleMessage = (checkbox) ->
 				if $(checkbox).is(':checked')
 					console.log $(checkbox).attr('value')
@@ -38,8 +40,8 @@ class PublishModuleView extends View
 						contentList = JSON.parse(content)
 						obj =
 							moduleName : contentList['name']
-							# uploadVersion : contentList['uploadVersion']
-							# version : contentList['version']
+							uploadVersion : contentList['version']
+							version : contentList['serviceVersion']
 						item = new ModuleMessageItem(obj)
 						console.log item
 						_moduleMessageList.append(item)
@@ -53,16 +55,17 @@ class PublishModuleView extends View
 
 	initialize: ->
 		# console.log 'module publish'
-		directory = new Directory(desc.moduleSavePath,false)
-		# console.log directory.getPath()
+		project_path = PathM.join $('.entry.selected span').attr('data-path'),'modules'
+		directory = new Directory(project_path,false)
+		console.log directory.getPath()
 		list = directory.getEntriesSync()
 		_moduleList = @moduleList
 		_moduleList.empty()
 		printName = (file) ->
 			# console.log file.getBaseName()
 			if file.isDirectory()
-				# console.log file.getPath()
-				path = file.getPath() + "\\package.json"
+				console.log file.getPath()
+				path = PathM.join file.getPath(),"package.json"
 				file = new File(path)
 				file.read(false).then (content) =>
 					contentList = JSON.parse(content)
@@ -81,24 +84,24 @@ class PublishModuleView extends View
 
 class ModuleMessageItem extends View
 	@content: (obj) ->
-		@div class: 'col-md-12',=>
-			@div class: 'col-md-12', =>
+		@div class: 'col-sm-12 col-md-12',=>
+			@div class: 'col-sm-12 col-md-12', =>
 				@label '模块名称: '
 				@label obj.moduleName
-			@div class : 'col-md-12', =>
-				@div class : 'col-md-6', =>
+			@div class : 'col-sm-12 col-md-12', =>
+				@div class : 'col-sm-6 col-md-6', =>
 					@label '上传版本: '
 					@label obj.uplaodVersion
-				@div class : 'col-md-6', =>
+				@div class : 'col-sm-6 col-md-6', =>
 					@label '服务器版本:'
 					@label obj.version
 
-			@div class : 'col-md-12', =>
-				@div class : 'col-md-2', =>
+			@div class : 'col-sm-12 col-md-12', =>
+				@div class : 'col-sm-2 col-md-2', =>
 					@label '跟新日志:'
-				@div class : 'col-md-6', =>
+				@div class : 'col-sm-6 col-md-6', =>
 					@subview 'moduleDescription', new TextEditorView(mini: true,placeholderText: 'update log...')
-				@div class : 'col-md-4', =>
+				@div class : 'col-sm-4 col-md-4', =>
 					@button '上传'
 					@button '上传并应用'
 
