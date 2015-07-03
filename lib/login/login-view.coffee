@@ -20,9 +20,6 @@ module.exports =
 				@div class: 'col-md-12 text-right', =>
 					@button  "登 录",name: 'loginBtn', class:'btn loginBtn'
 					@button  "取 消", outlet:'cancelBtn', click: 'onCancelClick',name: 'loginCancelBtn', class:'btn cancelBtn'
-				@div class: 'col-sm-12 col-md-12 text-right', =>
-					@a '注册', href :desc.registerUrl
-					@input id:'loginPassword', type: "password", style: "display: none"
 
 	  serialize: ->
 

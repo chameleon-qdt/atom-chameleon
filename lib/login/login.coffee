@@ -5,6 +5,8 @@ Settings = require '../settings/settings'
 
 util = require '../utils/util'
 
+client = require '../utils/client'
+
 module.exports = Login =
   loginView: null
   modalPanel: null
@@ -15,13 +17,34 @@ module.exports = Login =
     _thisLoginView = @loginView
     #登录按钮 需要 调用接口
     @loginView.on 'click', 'button[name=loginBtn]', =>
-      console.log "E-mail: #{_thisLoginView.loginEmail.getText()}"
-      console.log "password: #{_thisLoginView.find('#loginPassword').text()}"
-      util.store('chameleon', {account: _thisLoginView.loginEmail.getText()})
-      alert "登录成功"
-      @closeView()
-      atom.workspace.getPanes()[0].destroyActiveItem()
-      @settings.activate()
+      mail = $.trim(_thisLoginView.loginEmail.getText())
+      password = _thisLoginView.find('#loginPassword').text()
+      params = 
+        path: 'usermanger/login'
+        data: {
+          mail: mail,
+          password: password
+        }
+        type: 'POST'
+        success: (data) =>
+          console.log data
+          switch data
+            when 0
+              alert "登录失败：用户名或密码错误"
+            when 1
+              util.store('chameleon', {account: _thisLoginView.loginEmail.getText()})
+              alert "登录成功"
+              @closeView()
+              atom.workspace.getPanes()[0].destroyActiveItem()
+              @settings.activate()
+            when 2
+              alert "登录失败：用户名未激活"
+
+      if mail is '' and password is ''
+        alert "邮箱或密码不能为空"
+      else
+        client.request(params)
+      
 
     # 密码框 输入时加密处理
     @loginView.on 'keydown', @loginView.loginPassword, ->
@@ -31,7 +54,6 @@ module.exports = Login =
         str = _thisLoginView.find('#loginPassword').text()
         #当输入长度小于 实际保存密码的长度时需要截取实际保存长度的子串
         if inputStr.length>=0 && inputStr.length <= str.length
-          console.log "length : #{str.length}"
           str = str.substring(0,inputStr.length)
           _thisLoginView.find('#loginPassword').text(str)
           console.log "length : #{str.length}"
