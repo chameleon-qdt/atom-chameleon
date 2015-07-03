@@ -70,6 +70,7 @@ module.exports = CreateProject =
           @modalPanel.item.children(".loading-mask").remove()
           alert '项目创建成功'
           atom.project.addPath(info.appPath)
+          Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
           @closeView()
 
 
@@ -99,8 +100,9 @@ module.exports = CreateProject =
             Util.delete gfp,delSuccess
             @modalPanel.item.children(".loading-mask").remove()
             atom.project.addPath(info.appPath)
+            Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
             @closeView()
-            
+
 
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建项目根目录成功后 将空白项目的项目内容复制到根目录
 
@@ -117,7 +119,7 @@ module.exports = CreateProject =
             @modalPanel.item.children(".loading-mask").remove()
 
         Util.getRepo(@repoDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
-    
+
     LoadingMask = new @LoadingMask()
     @modalPanel.item.append(LoadingMask)
 

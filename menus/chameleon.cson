@@ -1,14 +1,17 @@
 # See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
 'context-menu':
-  'atom-text-editor': [
-    {
-      'label': 'Toggle chameleon'
-      'command': 'chameleon:toggle'
-    }
-  ]
+  # 'atom-text-editor': [
+  #   {
+  #     'label': 'Toggle chameleon'
+  #     'command': 'chameleon:toggle'
+  #   }
+  # ]
   '.tree-view': [
     {'type': 'separator'}
-    {label: '上传模块'}
+    {
+      'label': '上传模块'
+      'command':'chameleon:publish-module'
+    }
     {
       'label':'模块配置'
       'command':'chameleon:configure:module'
