@@ -3,5 +3,5 @@
 module.exports =
 class CodePanel extends View
   @content: ->
-    @div class: 'container', =>
-    	@div 'hi'
+    @div =>
+    	@div class: 'codePack-card', style: 'max-width: 60em'

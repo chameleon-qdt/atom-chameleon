@@ -1,7 +1,6 @@
 {BufferedProcess} = require 'atom'
 
 fs = require 'fs-extra'
-# fsEX = require 'fs.extra'
 
 module.exports = Util =
 
