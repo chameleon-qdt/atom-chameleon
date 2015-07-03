@@ -7,23 +7,23 @@ module.exports =
 	class AppView extends View
 		@content: ->
 			@div class: 'container', =>
-				@div class: "col-xs-12 text-center", =>
+				@div class: "col-xs-12", =>
 					@label class: 'col-sm-3 col-md-3', "应用标识"
 					@div class: 'col-sm-9 col-md-9', =>
 						@subview 'appId', new TextEditorView(mini: true,placeholderText: 'appId...')
-				@div class: "col-xs-12 text-center", =>
+				@div class: "col-xs-12 ", =>
 					@label class: 'col-sm-3 col-md-3', "应用名称"
 					@div class: 'col-sm-9 col-md-9', =>
 						@subview 'appName', new TextEditorView(mini: true,placeholderText: 'appName...')
-				@div class: "col-xs-12 text-center", =>
+				@div class: "col-xs-12 ", =>
 					@label class: 'col-sm-3 col-md-3', "应用版本"
 					@div class: 'col-sm-9 col-md-9', =>
 						@subview 'appVersion', new TextEditorView(mini: true,placeholderText: 'appVersion...')
-				@div class: "col-xs-12 text-center", =>
+				@div class: "col-xs-12 ", =>
 					@label class: 'col-sm-3 col-md-3', "启动模块"
 					@div class: 'col-sm-9 col-md-9', =>
 						@subview 'appStartModule', new TextEditorView(mini: true,placeholderText: 'appStartModule...')
-				@div class: "col-xs-12 text-center", =>
+				@div class: "col-xs-12 ", =>
 					@label class: 'col-sm-3 col-md-3', "模块下载位置"
 					@div class: 'col-sm-9 col-md-9', =>
 						@subview 'appDownloadUrl', new TextEditorView(mini: true,placeholderText: 'appDownloadUrl...')
@@ -58,16 +58,17 @@ module.exports =
 			project_path = PathM.join $('.entry.selected span').attr('data-path'),'appConfig.json'
 			console.log project_path
 			file = new File(project_path)
-			file.setEncoding('UTF-8')
-			#读取文件中的内容
-			file.read(false).then (contents) =>
-				console.log JSON.parse(contents)
-				contentList = JSON.parse(contents)
-				@appId.setText(contentList['identifier'])
-				@appName.setText(contentList['name'])
-				@appVersion.setText(contentList['version'])
-				@appStartModule.setText(contentList['mainModule'])
-				@appDownloadUrl.setText(contentList['downloadUrl'])
+			file.exists().then (resolve, reject) =>
+				if resolve
+					console.log 'open file'
+					file.read(false).then (contents) =>
+						console.log JSON.parse(contents)
+						contentList = JSON.parse(contents)
+						@appId.setText(contentList['identifier'])
+						@appName.setText(contentList['name'])
+						@appVersion.setText(contentList['version'])
+						@appStartModule.setText(contentList['mainModule'])
+						@appDownloadUrl.setText(contentList['downloadUrl'])
 
 		initialize: ->
 
