@@ -4,4 +4,7 @@ module.exports =
 class CodePanel extends View
   @content: ->
     @div =>
-    	@div class: 'codePack-card', style: 'max-width: 60em'
+    	@h2 '已下载框架', =>
+    		@span class: 'icon icon-repo'
+    	@div class: 'codePack-card', =>
+    		@h3 'butterfly-slim'
