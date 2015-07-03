@@ -99,17 +99,12 @@ class CreateModuleInfoView extends View
 
   checkPath: ->
     path = @moduleId.getText().trim()
-    # console.log "path:#{path}"
     if path isnt ""
-      # projectPath = atom.project.getPaths()[0]
       projectPath = @modulePath.getText().trim()
-      # console.log pathM.join atom.project.getPaths()[0],path
       path = pathM.join projectPath,path
-      # console.log path
       dir = new Directory(path);
       dir.exists()
         .then (isExists) =>
-          # console.log isExists,@,dir.getRealPathSync()
           unless isExists
             @errorMsg.addClass('hide')
           else
