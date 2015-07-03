@@ -51,7 +51,9 @@ class PublishModuleView extends View
 			@second.removeClass('hide')
 			@first.addClass('hide')
 			@parentView.prevBtn.removeClass('hide')
-			@parentView.nextBtn.text('取消')
+			@parentView.nextBtn.text('完成')
+		else
+			@parentView.closeView()
 
 	initialize: ->
 		# console.log 'module publish'

@@ -64,6 +64,7 @@ module.exports = Util =
       name: options.appName
       identifier: options.appId
       mainModule: ''
+      modules:[]
       version: '0.0.1'
       description: ''
       dependencies: {}
@@ -87,14 +88,17 @@ module.exports = Util =
     exit = (code) -> cb(code, appPath)
     process = new BufferedProcess({command, args, stdout, exit})
 
-  writeFile: (fileName, textContent, cb) ->
-    fs.writeFile fileName, textContent, cb
+  writeFile: (file, textContent, cb) ->
+    fs.writeFile file, textContent, cb
 
-  writeJson: (fileName, obj, cb) ->
-    fs.writeJson fileName, obj, cb
+  writeJson: (file, obj, cb) ->
+    fs.writeJson file, obj, cb
 
-  readJson: (fileName,cb) ->
-    fs.readJson fileName, cb
+  readJson: (file,cb) ->
+    fs.readJson file, cb
+
+  readJsonSync: (file) ->
+    fs.readJsonSync file, throws: false
 
   copy: (sourcePath, destinationPath, cb) ->
     fs.copy(sourcePath, destinationPath, cb)

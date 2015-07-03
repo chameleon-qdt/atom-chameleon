@@ -14,19 +14,19 @@ module.exports =
 						@label '选择要配置的模块'
 					@div outlet : 'moduleList'
 				@div class: 'row hide',outlet: "second", =>
-					@div class: "col-xs-12 text-center", =>
+					@div class: "col-xs-12", =>
 						@label class: 'col-sm-3 col-md-3', "模块名称"
 						@div class: 'col-sm-9 col-md-9', =>
 				      @subview 'moduleName', new TextEditorView(mini: true,placeholderText: 'moduleName...')
-					@div class: "col-xs-12 text-center", =>
+					@div class: "col-xs-12 ", =>
 						@label class: 'col-sm-3 col-md-3', "模块版本"
 						@div class: 'col-sm-9 col-md-9', =>
 				      @subview 'moduleVersion', new TextEditorView(mini: true,placeholderText: 'moduleVersion...')
-					@div class: "col-xs-12 text-center", =>
+					@div class: "col-xs-12 ", =>
 						@label class: 'col-sm-3 col-md-3', "模块描述"
 						@div class: 'col-sm-9 col-md-9', =>
 				      @subview 'moduleDescription', new TextEditorView(mini: true,placeholderText: 'moduleDescription...')
-					@div class: "col-xs-12 text-center", =>
+					@div class: "col-xs-12 ", =>
 						@label class: 'col-sm-3 col-md-3', "模块入口"
 						@div class: 'col-sm-9 col-md-9', =>
 				      @subview 'moduleInput', new TextEditorView(mini: true,placeholderText: 'moduleInput...')
@@ -42,12 +42,16 @@ module.exports =
 		nextStep: ->
 			if @second.hasClass('hide')
 				console.log 'second has hide'
+				flag = @getInitInput()
+				if flag
+					console.log 'true'
+				else
+					return
 				@main.addClass('hide')
 				@second.removeClass('hide')
 				@nextBtn.text('保存')
 				@prevBtn.removeClass('hide')
 				@cancelBtn.text('还原')
-				@getInitInput()
 			else
 				real_path = $('input[type=checkbox]:checked').attr('value')
 				file = new File(real_path)
@@ -70,7 +74,12 @@ module.exports =
 			@cancelBtn.text('取消')
 
 		getInitInput: ->
-			real_path = $('input[type=checkbox]:checked').attr('value')
+			if this.find('input[type=checkbox]').is(':checked')
+				real_path = $('input[type=checkbox]:checked').attr('value')
+			else
+				alert('请选择模块')
+				return false
+			console.log real_path
 			file = new File(real_path)
 			file.setEncoding('UTF-8')
 			#读取文件中的内容
