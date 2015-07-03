@@ -52,11 +52,16 @@ module.exports = ModuleManager =
         else
           console.log 'CreateModule error'
       .then (isSuccess) =>
-
         if isSuccess is yes
           entryFile.writeSync(htmlString)
+          @addProjectModule info
           atom.project.addPath(filePath)
           Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
           @chameleonBox.closeView()
       # .finally =>
         # console.log 'CreateModule Success',@
+
+  addProjectModule: (moduleInfo) ->
+
+    if moduleInfo.modulePath.lastIndexOf 'modules' isnt -1
+      console.log moduleInfo.modulePath
