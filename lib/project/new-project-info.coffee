@@ -2,6 +2,7 @@ desc = require '../utils/text-description'
 pathM = require 'path'
 {Directory} = require 'atom'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
+SelectTemplate = require './select-template-view'
 
 module.exports =
 class NewProjectView extends View
@@ -99,5 +100,6 @@ class NewProjectView extends View
     if @type isnt 'template'
       box.mergeOptions {projectInfo:info}
     else
-      # box.mergeOptions {subview:'',projectInfo:info}
+      box.disableNext()
+      box.mergeOptions {subview:new SelectTemplate(),projectInfo:info}
     box.nextStep()
