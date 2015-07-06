@@ -11,7 +11,7 @@ module.exports =
 					@div class: 'col-sm-9 col-md-9', =>
 			      @subview 'loginEmail', new TextEditorView(mini: true,placeholderText: 'E-mail...')
 				@div class: 'col-sm-12 col-md-12', =>
-					@label "密码：", class: 'col-md-3 label_view'
+					@label "密码：", class: 'col-sm-3 col-md-3 label_view'
 					@div class: 'col-sm-9 col-md-9 ', =>
 			      @subview 'loginPassword', new TextEditorView(mini: true,placeholderText: 'password...')
 				@div class: 'col-sm-12 col-md-12 ', =>

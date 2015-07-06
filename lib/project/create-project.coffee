@@ -98,6 +98,16 @@ module.exports = CreateProject =
               throw err if err
               console.log 'deleted!'
             Util.delete gfp,delSuccess
+
+            appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
+            writeCB = (err) =>
+              throw err if err
+              atom.workspace.open appConfigPath
+              aft = =>
+                Util.rumAtomCommand('tree-view:reveal-active-file')
+              _.debounce(aft,300)
+            Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
+
             @modalPanel.item.children(".loading-mask").remove()
             atom.project.addPath(info.appPath)
             Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0

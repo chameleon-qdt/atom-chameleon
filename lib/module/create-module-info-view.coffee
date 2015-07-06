@@ -81,11 +81,21 @@ class CreateModuleInfoView extends View
   serialize: ->
 
   getModuleInfo: ->
+    modulePath = @modulePath.getText()
+    hasModulesFolder = modulePath.lastIndexOf('modules') isnt '-1'
+    if hasModulesFolder
+      projectHome = pathM.dirname modulePath
+    else
+      projectHome = modulePath
+    configPath = pathM.join projectHome,desc.ProjectConfigFileName
+    isProject = Util.isFileExist configPath,'sync'
+
     info =
       mainEntry: @mainEntry.getText()
       moduleId: @moduleId.getText()
       moduleName: @moduleName.getText()
-      modulePath: @modulePath.getText()
+      modulePath: modulePath
+      isChameleonProject:isProject
     info
 
   openFolder: (e) ->

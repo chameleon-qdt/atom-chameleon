@@ -110,7 +110,10 @@ module.exports = Util =
     fs.remove path, callback
 
   isFileExist: (path, cb) ->
-    fs.exists path, cb
+    if typeof cb is 'function'
+      fs.exists path, cb
+    else
+      fs.existsSync path
 
   store: (namespace, data) ->
     if data
