@@ -11,8 +11,8 @@ config = require '../../config/config'
 module.exports = CreateProject =
   chameleonBox: null
   modalPanel: null
-  repoDir: pathM.join desc.chameleonHome,'src','butterfly-slim'
-  projectTempDir: pathM.join desc.chameleonHome,'src','ProjectTemp'
+  repoDir: pathM.join desc.chameleonHome,'src','frameworks','butterfly-slim'
+  projectTempDir: pathM.join desc.chameleonHome,'src','templates','ProjectTemp'
   repoURI: 'https://git.oschina.net/chameleon/butterfly-slim.git'
   LoadingMask: loadingMask
 
