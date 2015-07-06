@@ -21,6 +21,9 @@ module.exports =
 					@div class : 'template-item text-center', 'data-type' : 'empty', =>
 						@img class: 'pic', src:'atom://chameleon-qdt-atom/images/5.jpg'
 
-     attached: ->
-			# @parentView.disableNext()
-			# @parentView.disableNext()
+    initialize: ->
+			# 调获取样板的接口  获取 样板列表
+			temp =
+				count : 2
+				
+			console.log temp
