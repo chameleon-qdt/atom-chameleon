@@ -7,12 +7,12 @@ module.exports = PublishModule =
 	modalPanel : null
 
 	activate: (state) ->
-		opt =
-			title: desc.publishModule
-			subview : new PublishModelView()
+		# opt =
+		# 	title: desc.publishModule
+		# 	subview : new PublishModelView()
 
 
-		@chameleonBox = new ChameleonBox(opt)
+		@chameleonBox = new PublishModelView()
 		@chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
 		@chameleonBox.move()
 		@chameleonBox.cancelBtn.hide()
