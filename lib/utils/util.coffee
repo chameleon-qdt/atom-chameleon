@@ -115,6 +115,9 @@ module.exports = Util =
     else
       fs.existsSync path
 
+  readDir: (path, cb) ->
+    fs.readdir path, cb
+
   store: (namespace, data) ->
     if data
       return localStorage.setItem(namespace, JSON.stringify(data))

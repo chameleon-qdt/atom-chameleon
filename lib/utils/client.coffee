@@ -8,5 +8,8 @@ module.exports =
 			type: 'GET'
 
 		parmas = $.extend(defaultsParams, parmas)
-		
+
 		$.ajax(parmas)
+
+	contentGit: (parmas) ->
+		@request parmas
