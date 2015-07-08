@@ -52,7 +52,7 @@ class addNewFrameworkView extends View
           url:  @inputAddress
           success: =>
             console.log 'success'
-            gitsuccess: (state, appPath) =>
+            gitsuccess = (state, appPath) =>
               console.log state
               if state is 0
                 alert '添加成功'
@@ -82,4 +82,3 @@ class addNewFrameworkView extends View
     @element.parentElement.classList.add('down')
 
   onCancelClick: ->
-    console.log 'hi'

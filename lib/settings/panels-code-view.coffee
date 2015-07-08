@@ -47,23 +47,35 @@ class CodePanel extends View
               @button class: 'btn icon icon-cloud-download inline-block', '更新'
               @button class: 'btn icon icon-trashcan inline-block', '删除'
 
-  initialize: -> 
+  initialize: ->
+    @renderCodePackList()
+
+  renderCodePackList: =>
     repoDir =  pathM.join desc.chameleonHome,'src','frameworks'
     util.readDir repoDir, (err, files) =>
       console.log files
+      if files.indexOf('.githolder') >= 0
+        files.splice(files.indexOf('.githolder'),1)
       if files.length > 0
         files.forEach (file) =>
           packageDir = pathM.join repoDir,file,'package.json'
           util.isFileExist packageDir, (exists) =>
             if exists
               util.readJson packageDir, (err, packageObj) =>
-                @renderCodePackList packageObj, file
+                codeListTemp = new CodeListTemp(packageObj, file)
+                @codePackList.append(codeListTemp)
+                codeListTemp.deleteCodePack = (event, element) =>
+                  fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
+                  console.log fileDir
+                  util.delete fileDir, (err) =>
+                    if err
+                     console.error err
+                    else
+                     @renderCodePackList()
       else
         @codePackList.html '<li class="nothing">没有找到任何框架</li>'
 
-  renderCodePackList: (packageObj, fileName) =>
-    codeListTemp = new CodeListTemp(packageObj, fileName)
-    @codePackList.append(codeListTemp)
+    
 
   addNewCode: ->
     console.log 'hi'
@@ -83,10 +95,4 @@ class CodeListTemp extends View
         @button class: 'btn icon icon-trashcan inline-block', click: 'deleteCodePack', filename: fileName, '删除'
 
   deleteCodePack: (event, element) ->
-    fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
-    console.log fileDir
-    util.delete fileDir, (err) =>
-      if err
-       console.error err
-      else
-       $('.' + element.attr('filename')).remove()
+    
