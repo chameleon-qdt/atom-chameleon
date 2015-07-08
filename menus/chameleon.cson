@@ -14,11 +14,11 @@
     }
     {
       'label':'模块配置'
-      'command':'chameleon:configure:module'
+      'command':'chameleon:configure-module'
     }
     {
       'label':'应用配置'
-      'command':'chameleon:configure:application'
+      'command':'chameleon:configure-application'
     }
     {
       'label':'构建应用'
@@ -61,7 +61,7 @@
             'command':'chameleon:create-module'
           }
           {
-            'label':'发布模块',
+            'label':'上传模块',
             'command':'chameleon:publish-module'
           }
           # {

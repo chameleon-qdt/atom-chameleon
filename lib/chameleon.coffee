@@ -4,7 +4,7 @@ PublishModule = require './module/publish-module'
 Login = require './login/login'
 ConfigureModule = require './configure/module/module'
 ConfigureApp = require './configure/application/app'
-ConfigureGlobal = require './configure/global/global'
+# ConfigureGlobal = require './configure/global/global'
 Settings = require './settings/settings'
 {CompositeDisposable} = require 'atom'
 
@@ -14,7 +14,7 @@ module.exports = Chameleon =
   configureModule: null
   configureApp: null
   subscriptions: null
-  configureGlobal: null
+  # configureGlobal: null
   createModule:null
   settings: null
   publishModule: null
@@ -24,7 +24,7 @@ module.exports = Chameleon =
     @login = Login
     @configureModule = ConfigureModule
     @configureApp = ConfigureApp
-    @configureGlobal = ConfigureGlobal
+    # @configureGlobal = ConfigureGlobal
     @createModule = CreateModule
     @settings = Settings
     @publishModule = PublishModule
@@ -36,9 +36,9 @@ module.exports = Chameleon =
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:publish-module' : => @togglePublishModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:module': => @configureModuleViewOpen(state)
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:application': => @configureAppViewOpen(state)
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure:global' : => @configureGlobalViewOpen(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure-module': => @configureModuleViewOpen(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure-application': => @configureAppViewOpen(state)
+    # @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure-global' : => @configureGlobalViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:openSource' : => @openSourceFolder()
 
   deactivate: ->
@@ -78,9 +78,9 @@ module.exports = Chameleon =
     @configureApp.activate(state)
     @configureApp.openView()
 
-  configureGlobalViewOpen:(state) ->
-    @configureGlobal.activate(state)
-    @configureGlobal.openView()
+  # configureGlobalViewOpen:(state) ->
+  #   @configureGlobal.activate(state)
+  #   @configureGlobal.openView()
 
   openSourceFolder: ->
     path = atom.packages.getLoadedPackage('chameleon').path
