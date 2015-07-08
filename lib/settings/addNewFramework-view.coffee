@@ -4,7 +4,6 @@ loadingMask = require '../utils/loadingMask'
 client = require '../utils/client'
 pathM = require 'path'
 desc = require '../utils/text-description'
-
 Util = require '../utils/util'
 
 module.exports =
@@ -57,6 +56,8 @@ class addNewFrameworkView extends View
               if state is 0
                 alert '添加成功'
                 @.children(".loading-mask").remove()
+                @onCancelClick()
+                @rerenderList()
               else
                 alert '项目创建失败：git clone失败，请检查网络连接'
                 @.children(".loading-mask").remove()
@@ -82,3 +83,5 @@ class addNewFrameworkView extends View
     @element.parentElement.classList.add('down')
 
   onCancelClick: ->
+
+  rerenderList: ->
