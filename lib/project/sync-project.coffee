@@ -12,9 +12,9 @@ class SyncProjectView extends View
           @div class: 'sync-item inline-block text-center', =>
             @img class: 'pic', src: desc.iconPath
             @h3 '测试项目',class: 'project-name'
-          @div class: 'sync-item inline-block add text-center', =>
-            @div class: 'add-icon icon icon-plus'
-            @h3 '新建同步项目', class: 'project-name'
+          # @div class: 'sync-item inline-block add text-center', =>
+          #   @div class: 'add-icon icon icon-plus'
+          #   @h3 '新建同步项目', class: 'project-name'
 
 
   getElement: ->

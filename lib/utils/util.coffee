@@ -89,6 +89,19 @@ module.exports = Util =
     exit = (code) -> cb(code, appPath)
     process = new BufferedProcess({command, args, stdout, exit})
 
+  updateRepo: (fileDir) ->
+    options =
+      cwd: fileDir
+      env: process.env
+    console.log process.env
+    command = 'git'
+    args = ['pull']
+    stdout = (output) -> console.log output
+    stderr = (output) -> console.log("stderr", output)
+    exit = (code) => 
+      console.log code
+    bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
+
   writeFile: (file, textContent, cb) ->
     fs.writeFile file, textContent, cb
 
@@ -115,6 +128,9 @@ module.exports = Util =
       fs.exists path, cb
     else
       fs.existsSync path
+
+  readDir: (path, cb) ->
+    fs.readdir path, cb
 
   store: (namespace, data) ->
     if data

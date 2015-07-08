@@ -1,5 +1,11 @@
 {$, View} = require 'atom-space-pen-views'
 
+pathM = require 'path'
+util = require '../utils/util'
+desc = require '../utils/text-description'
+
+addNewFramework = require './addNewFramework'
+
 module.exports =
 class CodePanel extends View
   @content: ->
@@ -8,14 +14,8 @@ class CodePanel extends View
         @header class: 'code-panel-header', =>
           @h2 '框架', =>
             @span class: 'icon icon-repo'
-          @button class: 'btn icon icon-plus addNewCode', '添加'
-        @div class: 'codePack-card', =>
-          @h2 'butterflyjs'
-          @p 'version: 1.0.0'
-          @p 'butterfly.js grunt product'
-          @div class: 'btn-group', =>
-            @button class: 'btn icon icon-cloud-download inline-block', '更新'
-            @button class: 'btn icon icon-trashcan inline-block', '删除'
+          @button class: 'btn icon icon-plus addNewCode',click: 'addNewCode', '添加'
+        @ul outlet: 'codePackList'
       @div class: 'tempList', =>
         @header class: 'code-panel-header', =>
           @h2 '模板', =>
@@ -46,3 +46,64 @@ class CodePanel extends View
             @div class: 'btn-group', =>
               @button class: 'btn icon icon-cloud-download inline-block', '更新'
               @button class: 'btn icon icon-trashcan inline-block', '删除'
+
+  initialize: ->
+    @renderCodePackList()
+
+
+  renderCodePackList: =>
+    repoDir =  pathM.join desc.chameleonHome,'src','frameworks'
+    util.readDir repoDir, (err, files) =>
+      console.log files
+      if files.indexOf('.githolder') >= 0
+        files.splice(files.indexOf('.githolder'),1)
+      if files.length > 0
+        @codePackList.html ''
+        files.forEach (file) =>
+          packageDir = pathM.join repoDir,file,'package.json'
+          util.isFileExist packageDir, (exists) =>
+            if exists
+              util.readJson packageDir, (err, packageObj) =>
+                codeListTemp = new CodeListTemp(packageObj, file)
+                @codePackList.append(codeListTemp)
+                codeListTemp.deleteCodePack = (event, element) =>
+                  fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
+                  console.log fileDir
+                  if confirm("是否删除这个框架")
+                    util.delete fileDir, (err) =>
+                      if err
+                       console.error err
+                      else
+                       @renderCodePackList()
+                codeListTemp.updateCode = (event, element) =>
+                  
+                  fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
+                  console.log fileDir
+                  util.updateRepo(fileDir)
+      else
+        @codePackList.html '<li class="nothing">没有找到任何框架</li>'
+
+    
+
+  addNewCode: ->
+    console.log 'hi'
+    addNewFramework.activate();
+    addNewFramework.openView();
+    addNewFramework.rerenderList = => @renderCodePackList()
+
+
+class CodeListTemp extends View
+  @content: (data, fileName) ->
+    @li class: "codePack-card #{data.name}", =>
+      @h2 =>
+        @a data.name, href: data.repository
+      @p "version: #{data.version}"
+      @p data.description
+      @div class: 'btn-group', =>
+        @button class: 'btn icon icon-cloud-download inline-block', click: 'updateCode', filename: fileName, '更新'
+        @button class: 'btn icon icon-trashcan inline-block', click: 'deleteCodePack', filename: fileName, '删除'
+
+  deleteCodePack: (event, element) ->
+
+  updateCode: (event, element) ->
+    

@@ -2,6 +2,8 @@ AccountPanel = require './panels-account-view'
 CodePanel = require './panels-code-view'
 {$, ScrollView} = require 'atom-space-pen-views'
 
+desc = require '../utils/text-description'
+
 module.exports =
 class ChameleonSettingsView extends ScrollView
   @content: ->
@@ -9,14 +11,14 @@ class ChameleonSettingsView extends ScrollView
       @div class: 'settings-menu', =>
         @ul =>
           @li class: 'settingsItem active', panelType: 'account', =>
-            @a class: 'icon icon-organization', '开发者账号'
+            @a class: 'icon icon-organization', desc.menuAccount
           @li class: 'settingsItem', panelType: 'code', =>
-            @a class: 'icon icon-file-code', '框架、模版'
+            @a class: 'icon icon-file-code', desc.menuCode
       @div class: 'settingsPanel',outlet: "settingsPanel"
 
   getURI: -> @uri
 
-  getTitle: -> '设置'
+  getTitle: -> desc.panelTitle
 
   initialize: ({@uri}) ->
     # super

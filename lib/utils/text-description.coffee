@@ -39,3 +39,9 @@ module.exports = TextDescription =
 
   moduleConfigFileName: 'package.json'
   ProjectConfigFileName: 'appConfig.json'
+
+  # 设置模块
+  panelTitle: '设置'
+  menuAccount: '开发者账号'
+  menuCode: '框架、模版'
+  

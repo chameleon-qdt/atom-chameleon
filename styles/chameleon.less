@@ -302,6 +302,7 @@ atom-panel.modal > .login-box{
     padding: 5px 20px;
     overflow: hidden;
     margin-bottom: 10px;
+    list-style: none;
     h2{
       a{
         color: #fff;
@@ -326,12 +327,40 @@ atom-panel.modal > .login-box{
       top: 17px;
     }
   }
-  .tempList{
-    margin-top: 50px;
+  .tempList,.frameworkList{
     ul{
       margin: 0;
       padding: 0;
+      max-width: 60em;
+      li{
+        list-style: none;
+      }
+      li.nothing{
+        font-size: 16px;
+        text-align: center;
+        padding: 10px 20px;
+      }
     }
   }
+  .tempList{
+    margin-top: 50px;
+  }
 
+}
+
+.addnewframework-view{
+  .inputContianer{
+    margin: 20px 0;
+  }
+  .btn-group{
+    float: right;
+  }
+}
+.textInput{
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  color: #d7dae0;
+  border: 1px solid #181a1f;
+  width: 100%;
+  padding: 5px;
 }
