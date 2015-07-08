@@ -19,23 +19,25 @@
     {
       'label':'应用配置'
       'command':'chameleon:configure:application'
-
+    }
+    {
+      'label':'构建应用'
     }
     {'type': 'separator'}
   ]
 'menu': [
-  {
-    'label': 'Packages'
-    'submenu': [
-      'label': 'chameleon'
-      'submenu': [
-        {
-          'label': 'Toggle'
-          'command': 'chameleon:toggle'
-        }
-      ]
-    ]
-  }
+  # {
+  #   'label': 'Packages'
+  #   'submenu': [
+  #     'label': 'chameleon'
+  #     'submenu': [
+  #       {
+  #         'label': 'Toggle'
+  #         'command': 'chameleon:toggle'
+  #       }
+  #     ]
+  #   ]
+  # }
   {
     'label':'变色龙QDT'
     'submenu':[
@@ -62,33 +64,33 @@
             'label':'发布模块',
             'command':'chameleon:publish-module'
           }
-          {
-            'label':'下载模块'
-          }
+          # {
+          #   'label':'下载模块'
+          # }
         ]
       }
-      {
-        'label':'调试'
-        'submenu':[
-          {
-            'label':'启动模拟器调试'
-          }
-        ]
-      }
-      {
-        'label':'工具'
-        'submenu':[
-          {
-            'label':'包依赖下载'
-          }
-          {
-            'label':'webpack'
-          }
-          {
-            'label':'自动化集成'
-          }
-        ]
-      }
+      # {
+      #   'label':'调试'
+      #   'submenu':[
+      #     {
+      #       'label':'启动模拟器调试'
+      #     }
+      #   ]
+      # }
+      # {
+      #   'label':'工具'
+      #   'submenu':[
+      #     {
+      #       'label':'包依赖下载'
+      #     }
+      #     {
+      #       'label':'webpack'
+      #     }
+      #     {
+      #       'label':'自动化集成'
+      #     }
+      #   ]
+      # }
       {
         'label':'设置'
         'command':'chameleon:settings'
