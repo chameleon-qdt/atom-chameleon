@@ -1,6 +1,7 @@
 {BufferedProcess} = require 'atom'
-
+JSZip = require 'jszip'
 fs = require 'fs-extra'
+zlib = require 'zlib'
 
 module.exports = Util =
 
@@ -124,3 +125,16 @@ module.exports = Util =
 
   removeStore: (namespace) ->
     localStorage.removeItem(namespace)
+
+  fileCompression: (folderPath) ->
+    zip = new JSZip()
+    zip.file("software.txt","B:\\software.txt")
+    img = zip.folder("images")
+    content = zip.generate({type:"nodebuffer"})
+    fs.writeFile('B:\\software.zip',content,null)
+    #
+    # gzip = zlib.createGzip()
+    # inp = fs.createReadStream('B:\\tmp\\yuzhe')
+    # out = fs.createWriteStream('B:\\tmp\\yuzhe.zip')
+    # inp.pipe(gzip).pipe(out)
+    # console.log 'hello'
