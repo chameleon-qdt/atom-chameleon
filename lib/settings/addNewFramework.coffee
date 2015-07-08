@@ -14,6 +14,7 @@ module.exports =
     @addNewFrameworkView.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @addNewFrameworkView, visible: false)
     @addNewFrameworkView.move()
     @addNewFrameworkView.onCancelClick = => @closeView()
+    @addNewFrameworkView.rerenderList = => @rerenderList()
 
   deactivate: ->
     @modalPanel.destroy()
@@ -29,4 +30,6 @@ module.exports =
       @modalPanel.hide()
       @addNewFrameworkView.hide()
       @addNewFrameworkView = null
+
+  rerenderList: ->
 

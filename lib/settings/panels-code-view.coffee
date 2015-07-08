@@ -50,6 +50,7 @@ class CodePanel extends View
   initialize: ->
     @renderCodePackList()
 
+
   renderCodePackList: =>
     repoDir =  pathM.join desc.chameleonHome,'src','frameworks'
     util.readDir repoDir, (err, files) =>
@@ -57,6 +58,7 @@ class CodePanel extends View
       if files.indexOf('.githolder') >= 0
         files.splice(files.indexOf('.githolder'),1)
       if files.length > 0
+        @codePackList.html ''
         files.forEach (file) =>
           packageDir = pathM.join repoDir,file,'package.json'
           util.isFileExist packageDir, (exists) =>
@@ -67,11 +69,17 @@ class CodePanel extends View
                 codeListTemp.deleteCodePack = (event, element) =>
                   fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
                   console.log fileDir
-                  util.delete fileDir, (err) =>
-                    if err
-                     console.error err
-                    else
-                     @renderCodePackList()
+                  if confirm("是否删除这个框架")
+                    util.delete fileDir, (err) =>
+                      if err
+                       console.error err
+                      else
+                       @renderCodePackList()
+                codeListTemp.updateCode = (event, element) =>
+                  
+                  fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
+                  console.log fileDir
+                  util.updateRepo(fileDir)
       else
         @codePackList.html '<li class="nothing">没有找到任何框架</li>'
 
@@ -81,6 +89,7 @@ class CodePanel extends View
     console.log 'hi'
     addNewFramework.activate();
     addNewFramework.openView();
+    addNewFramework.rerenderList = => @renderCodePackList()
 
 
 class CodeListTemp extends View
@@ -91,8 +100,10 @@ class CodeListTemp extends View
       @p "version: #{data.version}"
       @p data.description
       @div class: 'btn-group', =>
-        @button class: 'btn icon icon-cloud-download inline-block', '更新'
+        @button class: 'btn icon icon-cloud-download inline-block', click: 'updateCode', filename: fileName, '更新'
         @button class: 'btn icon icon-trashcan inline-block', click: 'deleteCodePack', filename: fileName, '删除'
 
   deleteCodePack: (event, element) ->
+
+  updateCode: (event, element) ->
     
