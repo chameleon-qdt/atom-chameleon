@@ -88,17 +88,36 @@ module.exports = Util =
     exit = (code) -> cb(code, appPath)
     process = new BufferedProcess({command, args, stdout, exit})
 
-  updateRepo: (fileDir) ->
+  updateRepo: (fileDir, cb) ->
     options =
       cwd: fileDir
       env: process.env
     console.log process.env
     command = 'git'
-    args = ['pull']
+    args = ['fetch']
     stdout = (output) -> console.log output
     stderr = (output) -> console.log("stderr", output)
     exit = (code) => 
-      console.log code
+      if code is 0
+        @mergeRepo fileDir, cb
+      else
+        alert '代码拉取失败'
+    bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
+
+  mergeRepo: (fileDir, cb) ->
+    options =
+      cwd: fileDir
+      env: process.env
+    console.log process.env
+    command = 'git'
+    args = ['merge']
+    stdout = (output) -> console.log output
+    stderr = (output) -> console.log("stderr", output)
+    exit = (code) => 
+      if code is 0
+        cb()
+      else
+        alert '代码合并失败'
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
 
   writeFile: (file, textContent, cb) ->
