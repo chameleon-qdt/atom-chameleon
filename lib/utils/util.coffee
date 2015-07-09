@@ -82,41 +82,42 @@ module.exports = Util =
     return strcheck
 
   getRepo: (appPath,repoUri, cb) ->
+    options =
+      cwd: appPath
+      env: process.env
     command = 'git'
-    args = ['clone', repoUri, appPath]
+    args = ['clone', repoUri]
     stdout = (output) -> console.log(output)
     exit = (code) -> cb(code, appPath)
-    process = new BufferedProcess({command, args, stdout, exit})
+    bp = new BufferedProcess({command, args, options, stdout, exit})
 
   updateRepo: (fileDir, cb) ->
     options =
       cwd: fileDir
       env: process.env
-    console.log process.env
     command = 'git'
     args = ['fetch']
-    stdout = (output) -> console.log output
-    stderr = (output) -> console.log("stderr", output)
+    stdout = (output) => 
+      alert(output)
+    stderr = (output) => 
+      alert(output)
     exit = (code) => 
       if code is 0
         @mergeRepo fileDir, cb
-      else
-        alert '代码拉取失败'
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
 
   mergeRepo: (fileDir, cb) ->
     options =
       cwd: fileDir
       env: process.env
-    console.log process.env
     command = 'git'
     args = ['merge']
-    stdout = (output) -> console.log output
-    stderr = (output) -> console.log("stderr", output)
+    stdout = (output) => 
+      cb(output)
+    stderr = (output) => 
+      cb(output)
     exit = (code) => 
-      if code is 0
-        cb()
-      else
+      if code isnt 0
         alert '代码合并失败'
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
 

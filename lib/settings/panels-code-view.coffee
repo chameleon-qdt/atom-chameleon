@@ -78,8 +78,8 @@ class CodePanel extends View
                        @renderCodePackList()
                 codeListTemp.updateCode = (event, element) =>
                   fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
-                  success = =>
-                    alert '更新成功'
+                  success = (tips) =>
+                    alert "更新成功: #{tips}"
                     @renderCodePackList()
 
                   $('.' + projectName).find('.loading-mask').removeClass('hidden')
