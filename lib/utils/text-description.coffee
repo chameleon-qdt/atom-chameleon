@@ -6,6 +6,8 @@ module.exports = TextDescription =
   upload : '上传'
   back : '返回'
   finish : '完成'
+  save : '保存'
+  recovery : '还原'
   login : '登录'
   logout : '退出登录'
   email : '邮箱'
@@ -40,8 +42,9 @@ module.exports = TextDescription =
   moduleConfigFileName: 'package.json'
   ProjectConfigFileName: 'appConfig.json'
 
+  projectConfig : '应用配置'
+
   # 设置模块
   panelTitle: '设置'
   menuAccount: '开发者账号'
   menuCode: '框架、模版'
-  
