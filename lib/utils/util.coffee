@@ -187,20 +187,3 @@ module.exports = Util =
       else
         console.log "compressionZip success"
     fs.writeFile(zipPath,content,null)
-
-  # getFileListAndeFolderList: (folderPath) ->
-  #   fileList = []
-  #   folderList = []
-  #   walk = (folderPath,fileList,folderList) ->
-  #     files = fs.readdirSync(path)
-  #     loopMethod = (item) ->
-  #       tmpPath = pathM.join path,item
-  #       stats = fs.statSync(tmpPath)
-  #       if stats.isFile()
-  #         fileName = pathM.basename(filePath)
-  #         fileZipPath = pathM.join node,fileName
-  #         zip.file(fileZipPath,fs.readFileSync(filePath))
-  #       else
-  #         folderZipPath = pathM.join node,pathM.basename(filePath)
-  #         zip.folder(folderZipPath)
-  #         fileList = fs.readdirSync(filePath)
