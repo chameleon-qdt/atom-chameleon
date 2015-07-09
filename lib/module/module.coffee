@@ -11,7 +11,6 @@ module.exports = ModuleManager =
   modalPanel: null
 
   activate: (state) ->
-    Util.fileCompression("xxx")
     @chameleonBox = new CreateModuleView()
 
     @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)

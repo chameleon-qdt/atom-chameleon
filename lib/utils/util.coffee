@@ -2,7 +2,8 @@
 JSZip = require 'jszip'
 fs = require 'fs-extra'
 zlib = require 'zlib'
-
+pathM = require 'path'
+{File,Directory} = require 'atom'
 module.exports = Util =
 
   rumAtomCommand: (command) ->
@@ -98,7 +99,7 @@ module.exports = Util =
     args = ['pull']
     stdout = (output) -> console.log output
     stderr = (output) -> console.log("stderr", output)
-    exit = (code) => 
+    exit = (code) =>
       console.log code
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
 
@@ -144,13 +145,42 @@ module.exports = Util =
 
   fileCompression: (folderPath) ->
     zip = new JSZip()
-    zip.file("software.txt","B:\\software.txt")
-    img = zip.folder("images")
+    zipPath = pathM.join folderPath,'..',pathM.basename(folderPath)+'.zip'
+    compressionZip= (node,filePath) ->
+      # console.log filePath
+      stats = fs.statSync(filePath)
+      if stats.isFile()
+        fileName = pathM.basename(filePath)
+        fileZipPath = pathM.join node,fileName
+        zip.file(fileZipPath,fs.readFileSync(filePath))
+      else
+        folderZipPath = pathM.join node,pathM.basename(filePath)
+        zip.folder(folderZipPath)
+        fileList = fs.readdirSync(filePath)
+        if fileList isnt null and fileList.length isnt 0
+          compressionZip folderZipPath,pathM.join filePath,filePathItem for  filePathItem in fileList
+    compressionZip ".",folderPath
     content = zip.generate({type:"nodebuffer"})
-    fs.writeFile('B:\\software.zip',content,null)
-    #
-    # gzip = zlib.createGzip()
-    # inp = fs.createReadStream('B:\\tmp\\yuzhe')
-    # out = fs.createWriteStream('B:\\tmp\\yuzhe.zip')
-    # inp.pipe(gzip).pipe(out)
-    # console.log 'hello'
+    writeCallBack = (err) ->
+      if err
+        throw err
+      else
+        console.log "compressionZip success"
+    fs.writeFile(zipPath,content,null)
+
+  # getFileListAndeFolderList: (folderPath) ->
+  #   fileList = []
+  #   folderList = []
+  #   walk = (folderPath,fileList,folderList) ->
+  #     files = fs.readdirSync(path)
+  #     loopMethod = (item) ->
+  #       tmpPath = pathM.join path,item
+  #       stats = fs.statSync(tmpPath)
+  #       if stats.isFile()
+  #         fileName = pathM.basename(filePath)
+  #         fileZipPath = pathM.join node,fileName
+  #         zip.file(fileZipPath,fs.readFileSync(filePath))
+  #       else
+  #         folderZipPath = pathM.join node,pathM.basename(filePath)
+  #         zip.folder(folderZipPath)
+  #         fileList = fs.readdirSync(filePath)
