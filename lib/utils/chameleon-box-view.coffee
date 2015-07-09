@@ -77,10 +77,13 @@ class ChameleonBoxView extends View
     @contentView.nextStep(@);
 
   onPrevClick: ->
-    @order--
-    console.log @options,@prevStep
-    @mergeOptions {subview:prevView} if prevView = @getPrevStep()
-    @_refresh()
+    if @prevBtn.hasClass('other')
+      @contentView.prevStep(@);
+    else
+      @order--
+      console.log @options,@prevStep
+      @mergeOptions {subview:prevView} if prevView = @getPrevStep()
+      @_refresh()
 
   onFinish: (callback) ->
     @emitter.on 'finish', callback
@@ -93,18 +96,22 @@ class ChameleonBoxView extends View
       @_refresh(@options)
 
 
-  setNextBtn: (type = 'normal') ->
+  setNextBtn: (type = 'normal',text) ->
     if type is 'finish'
-      @nextBtn.text(desc.finish).addClass('finish')
+      text?=desc.finish
+      @nextBtn.text(text).addClass('finish')
     else
-      @nextBtn.text(desc.next).removeClass('finish')
+      text?=desc.next
+      @nextBtn.text(text).removeClass('finish')
     @showNextBtn()
 
-  setPrevBtn: (type = 'normal') ->
+  setPrevBtn: (type = 'normal',text) ->
     if type is 'back'
-      @prevBtn.text(desc.back).addClass('back')
+      text?=desc.back
+      @prevBtn.text(text).addClass('back')
     else
-      @prevBtn.text(desc.prev).removeClass('back')
+      text?=desc.prev
+      @prevBtn.text(text).removeClass('back')
     @showPrevBtn()
 
   enableNext: ->

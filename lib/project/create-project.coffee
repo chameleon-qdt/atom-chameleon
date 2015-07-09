@@ -12,7 +12,8 @@ module.exports = CreateProject =
   chameleonBox: null
   modalPanel: null
   repoDir: pathM.join desc.chameleonHome,'src','frameworks','butterfly-slim'
-  projectTempDir: pathM.join desc.chameleonHome,'src','templates','ProjectTemp'
+  frameworksDir: pathM.join desc.chameleonHome,'src','frameworks'
+  projectTempDir: pathM.join desc.chameleonHome,'src','ProjectTemp'
   repoURI: 'https://git.oschina.net/chameleon/butterfly-slim.git'
   LoadingMask: loadingMask
 
@@ -117,7 +118,7 @@ module.exports = CreateProject =
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建项目根目录成功后 将空白项目的项目内容复制到根目录
 
     # 首先，判断本地是否有框架
-    Util.isFileExist @repoDir, (exists) =>
+    Util.isFileExist pathM.join(@frameworksDir, 'butterfly-slim'), (exists) =>
       if exists
         Util.createDir info.appPath, createSuccess #有，执行第二步：创建项目根目录
       else
@@ -128,7 +129,8 @@ module.exports = CreateProject =
             alert '项目创建失败：git clone失败，请检查网络连接'
             @modalPanel.item.children(".loading-mask").remove()
 
-        Util.getRepo(@repoDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
+        Util.getRepo(@frameworksDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
+
 
     LoadingMask = new @LoadingMask()
     @modalPanel.item.append(LoadingMask)

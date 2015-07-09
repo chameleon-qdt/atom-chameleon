@@ -60,11 +60,12 @@ class CodePanel extends View
       if files.length > 0
         @codePackList.html ''
         files.forEach (file) =>
-          packageDir = pathM.join repoDir,file,'package.json'
+          packageDir = pathM.join repoDir, file, 'package.json'
           util.isFileExist packageDir, (exists) =>
             if exists
               util.readJson packageDir, (err, packageObj) =>
                 codeListTemp = new CodeListTemp(packageObj, file)
+                projectName = packageObj.name
                 @codePackList.append(codeListTemp)
                 codeListTemp.deleteCodePack = (event, element) =>
                   fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
@@ -76,17 +77,17 @@ class CodePanel extends View
                       else
                        @renderCodePackList()
                 codeListTemp.updateCode = (event, element) =>
-                  
                   fileDir = pathM.join desc.chameleonHome,'src','frameworks',element.attr('filename')
-                  console.log fileDir
-                  util.updateRepo(fileDir)
+                  success = (tips) =>
+                    alert "更新成功: #{tips}"
+                    @renderCodePackList()
+
+                  $('.' + projectName).find('.loading-mask').removeClass('hidden')
+                  util.updateRepo(fileDir, success)
       else
         @codePackList.html '<li class="nothing">没有找到任何框架</li>'
 
-    
-
   addNewCode: ->
-    console.log 'hi'
     addNewFramework.activate();
     addNewFramework.openView();
     addNewFramework.rerenderList = => @renderCodePackList()
@@ -102,6 +103,8 @@ class CodeListTemp extends View
       @div class: 'btn-group', =>
         @button class: 'btn icon icon-cloud-download inline-block', click: 'updateCode', filename: fileName, '更新'
         @button class: 'btn icon icon-trashcan inline-block', click: 'deleteCodePack', filename: fileName, '删除'
+      @div class: 'loading-mask hidden', =>
+        @span class: "loading loading-spinner-large inline-block"
 
   deleteCodePack: (event, element) ->
 

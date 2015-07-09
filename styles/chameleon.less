@@ -222,7 +222,7 @@ atom-panel.modal > .login-box{
   width: 100%;
   height: 100%;
   border-radius: 5px;
-
+  z-index: 99;
   .loading{
     position: absolute;
     top: 50%;
@@ -334,12 +334,16 @@ atom-panel.modal > .login-box{
       max-width: 60em;
       li{
         list-style: none;
+        position: relative;
       }
       li.nothing{
         font-size: 16px;
         text-align: center;
         padding: 10px 20px;
       }
+    }
+    .loading-mask{
+      background: rgba(0, 0, 0, .3)
     }
   }
   .tempList{
