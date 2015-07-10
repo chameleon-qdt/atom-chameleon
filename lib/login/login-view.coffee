@@ -14,23 +14,15 @@ module.exports =
 					@label "密码：", class: 'col-sm-3 col-md-3 label_view'
 					@div class: 'col-sm-9 col-md-9 ', =>
 			      @subview 'loginPassword', new TextEditorView(mini: true,placeholderText: 'password...')
+			      @input type: 'hidden', id: 'loginPassword'
 				@div class: 'col-sm-12 col-md-12 ', =>
 					@input type:'checkbox',style:'margin-right:2px;margin-left:18px;'
 					@label  "记住密码" ,class:'checkBox_label_view'
 				@div class: 'col-md-12 text-right', =>
 					@button  "登 录",name: 'loginBtn', class:'btn loginBtn'
 					@button  "取 消", outlet:'cancelBtn', click: 'onCancelClick',name: 'loginCancelBtn', class:'btn cancelBtn'
+	      
 
-	  serialize: ->
-
-	  initialize: ->
-
-	  # Tear down any state and detach
-	  # destroy: ->
-	  #   if @modalPanel?
-	  #     @modalPanel.destroy()
-	  #   @element.remove()
-	  #
 	  getElement: ->
 	    @element
 

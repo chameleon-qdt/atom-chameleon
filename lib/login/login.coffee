@@ -10,40 +10,75 @@ client = require '../utils/client'
 module.exports = Login =
   loginView: null
   modalPanel: null
+  password: ''
+  
 
   activate: (state) ->
     @settings = Settings
     @loginView = new LoginView()
     _thisLoginView = @loginView
+
+
+    # @loginView.loginPassword.model.emitter.on 'did-change', () =>
+    #   coverText = ''
+    #   inputPassword = @loginView.loginPassword.getText()
+    #   # console.log @loginView.loginPassword
+    #   passwordLength = inputPassword.length
+    #   if inputPassword.charAt(passwordLength-1) isnt '*'
+    #     console.log @password.length < passwordLength
+    #     if @password.length < passwordLength
+    #       @password += inputPassword.charAt(passwordLength-1)
+    #       for str in @password
+    #         do (str) =>
+    #           coverText = coverText + '*'
+    #           setTimeout =>
+    #             @loginView.loginPassword.setText(coverText)
+    #           , 300
+
+    #       console.log @password
+    #     else
+    #       @password = @password.slice(passwordLength-1)
+    #       console.log @password
+    #       for str in @password
+    #         do (str) =>
+    #           coverText = coverText + '*'
+    #           setTimeout =>
+    #             @loginView.loginPassword.setText(coverText)
+    #           , 300
+    #   else 
+    #     @password = @password.slice(passwordLength-1)
+    #     console.log @password
     #登录按钮 需要 调用接口
     @loginView.on 'click', 'button[name=loginBtn]', =>
       mail = $.trim(_thisLoginView.loginEmail.getText())
       password = _thisLoginView.find('#loginPassword').text()
       params = 
-        path: 'usermanger/login'
         data: {
           mail: mail,
           password: password
         }
-        type: 'POST'
         success: (data) =>
           console.log data
-          switch data
-            when 0
-              alert "登录失败：用户名或密码错误"
-            when 1
-              util.store('chameleon', {account: _thisLoginView.loginEmail.getText()})
+          switch data.flag
+            when '0'
+              alert "登录失败：邮箱或密码不正确"
+            when '1'
+              util.store('chameleon', data)
               alert "登录成功"
               @closeView()
               atom.workspace.getPanes()[0].destroyActiveItem()
               @settings.activate()
-            when 2
-              alert "登录失败：用户名未激活"
+            when '2'
+              alert "登录失败：用户未激活"
+            when '4'
+              alert "登录失败：用户被禁用"
+            when '5'
+              alert "邮箱或密码不正确"
 
       if mail is '' and password is ''
         alert "邮箱或密码不能为空"
       else
-        client.request(params)
+        client.login(params)
       
 
     # 密码框 输入时加密处理
@@ -87,9 +122,6 @@ module.exports = Login =
   deactivate: ->
     @modalPanel.destroy()
     @loginView.destroy()
-
-  serialize: ->
-    chameleonBoxState: @chameleonBox.serialize()
 
   openView: ->
     unless @modalPanel.isVisible()

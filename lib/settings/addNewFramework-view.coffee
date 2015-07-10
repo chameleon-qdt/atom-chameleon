@@ -20,6 +20,7 @@ class addNewFrameworkView extends View
       @div class: 'btn-group', =>
         @button class: 'btn icon icon-x inline-block', click: 'onCancelClick', '取消'
         @button class: 'btn icon icon-check inline-block', disabled: true, id: 'sure', click: 'getThisRepo', '确定'
+      
 
   initialize: ->
     @.gitAddress.model.emitter.on 'did-change', () =>

@@ -13,7 +13,7 @@ class AccountPanel extends View
       @div class: 'accountMessage' ,outlet: 'accountMessage'
 
   initialize: () =>
-    account = Util.store('chameleon').account
+    account = Util.store('chameleon').uname
     shownSection = if account? then new hadAccount(account) else new notFoundAccount()
     @accountMessage.html shownSection
     shownSection = null

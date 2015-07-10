@@ -2,14 +2,20 @@
 config = require '../../config/config'
 
 module.exports = 
-	request: (parmas) ->
-		defaultsParams = 
-			url: config.serverUrl + parmas.path
-			type: 'GET'
+  request: (params) ->
+    defaultsParams = 
+      url: config.serverUrl + params.path
+      type: 'GET'
 
-		parmas = $.extend(defaultsParams, parmas)
+    params = $.extend(defaultsParams, params)
+    console.log params
+    $.ajax(params)
 
-		$.ajax(parmas)
+  login: (params) ->
+    params.path = 'usermanger/login'
+    params.contentType = 'x-www-form-urlencoded'
+    params.type = 'POST'
+    @request(params)
 
-	contentGit: (parmas) ->
-		@request parmas
+  contentGit: (params) ->
+    @request params
