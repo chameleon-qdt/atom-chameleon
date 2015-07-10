@@ -183,7 +183,9 @@ module.exports = Util =
     content = zip.generate({type:"nodebuffer"})
     writeCallBack = (err) ->
       if err
-        throw err
+        console.log "write error"
+        false
       else
         console.log "compressionZip success"
-    fs.writeFile(zipPath,content,null)
+        true
+    fs.writeFile(zipPath,content,writeCallBack)
