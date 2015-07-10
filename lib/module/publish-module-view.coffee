@@ -161,7 +161,7 @@ class PublishModuleInfoView extends View
 					_moduleList.empty()
 					printName file for file in list
 				else
-					alert '不存在路径['+project_path+']'
+					alert '请选择变色龙'
 					@parentView.closeView()
 
 

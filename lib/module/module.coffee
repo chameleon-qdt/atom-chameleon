@@ -4,6 +4,7 @@ pathM = require 'path'
 desc = require '../utils/text-description'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateModuleView = require './create-module-view'
+fs = require 'fs-extra'
 
 module.exports = ModuleManager =
   chameleonBox: null
@@ -40,7 +41,7 @@ module.exports = ModuleManager =
     entryFilePath = pathM.join filePath,info.mainEntry
     entryFile = new File(entryFilePath)
     htmlString = Util.getIndexHtmlCore()
-
+    isProject = options.isChameleonProject
     configFile.create()
       .then (isSuccess) =>
         console.log isSuccess
@@ -54,6 +55,21 @@ module.exports = ModuleManager =
       .then (isSuccess) =>
         if isSuccess is yes
           entryFile.writeSync(htmlString)
+          # console.log 'begin'
+          if info.isChameleonProject
+            # console.log info.moduleId
+            projectConfigPath = pathM.join info.modulePath,'..','appConfig.json'
+            # console.log projectConfigPath
+            appConfig = new File(projectConfigPath)
+            appConfig.exists().then (resolve,reject) =>
+              if resolve
+                appConfig.read(false).then (content) =>
+                  contentList = JSON.parse(content)
+                  contentList['modules'][info.moduleId] = "0.0.1"
+                  if contentList['mainModule'] == ""
+                    contentList['mainModule'] = info.moduleId
+                  fs.writeJson projectConfigPath,contentList,null
+          # console.log 'end'
           @addProjectModule info
           atom.project.addPath(filePath)
           Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0

@@ -1,7 +1,9 @@
 {BufferedProcess} = require 'atom'
-
+JSZip = require 'jszip'
 fs = require 'fs-extra'
-
+zlib = require 'zlib'
+pathM = require 'path'
+{File,Directory} = require 'atom'
 module.exports = Util =
 
   rumAtomCommand: (command) ->
@@ -97,11 +99,11 @@ module.exports = Util =
       env: process.env
     command = 'git'
     args = ['fetch']
-    stdout = (output) => 
+    stdout = (output) =>
       alert(output)
-    stderr = (output) => 
+    stderr = (output) =>
       alert(output)
-    exit = (code) => 
+    exit = (code) =>
       if code is 0
         @mergeRepo fileDir, cb
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
@@ -112,11 +114,11 @@ module.exports = Util =
       env: process.env
     command = 'git'
     args = ['merge']
-    stdout = (output) => 
+    stdout = (output) =>
       cb(output)
-    stderr = (output) => 
+    stderr = (output) =>
       cb(output)
-    exit = (code) => 
+    exit = (code) =>
       if code isnt 0
         alert '代码合并失败'
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
@@ -167,3 +169,28 @@ module.exports = Util =
 
   removeStore: (namespace) ->
     localStorage.removeItem(namespace)
+
+  fileCompression: (folderPath) ->
+    zip = new JSZip()
+    zipPath = pathM.join folderPath,'..',pathM.basename(folderPath)+'.zip'
+    compressionZip= (node,filePath) ->
+      # console.log filePath
+      stats = fs.statSync(filePath)
+      if stats.isFile()
+        fileName = pathM.basename(filePath)
+        fileZipPath = pathM.join node,fileName
+        zip.file(fileZipPath,fs.readFileSync(filePath))
+      else
+        folderZipPath = pathM.join node,pathM.basename(filePath)
+        zip.folder(folderZipPath)
+        fileList = fs.readdirSync(filePath)
+        if fileList isnt null and fileList.length isnt 0
+          compressionZip folderZipPath,pathM.join filePath,filePathItem for  filePathItem in fileList
+    compressionZip ".",folderPath
+    content = zip.generate({type:"nodebuffer"})
+    writeCallBack = (err) ->
+      if err
+        throw err
+      else
+        console.log "compressionZip success"
+    fs.writeFile(zipPath,content,null)
