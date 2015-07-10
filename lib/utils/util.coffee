@@ -121,6 +121,13 @@ module.exports = Util =
         alert '代码合并失败'
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
 
+  isLogin: () ->
+    user = @store('chameleon').account
+    if typeof user is 'undefined'
+      return false
+    else 
+      return true
+
   writeFile: (file, textContent, cb) ->
     fs.writeFile file, textContent, cb
 
