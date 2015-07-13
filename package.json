@@ -1,10 +1,10 @@
 {
-  "name": "chameleon",
+  "name": "chameleon-test",
   "main": "./lib/chameleon",
   "version": "0.0.0",
-  "author": "OnionStu",
+  "author": "chameleon-qdt",
   "description": "Atom package for Chameleon Quick Development Tool",
-  "keywords": [],
+  "keywords": ["chameleon", "QDT"],
   "activationCommands": {
     "atom-workspace": [
       "chameleon:toggle",
@@ -18,7 +18,7 @@
       "chameleon:configure-application"
     ]
   },
-  "repository": "https://github.com/OnionStu/atom-chameleon",
+  "repository": "https://github.com/chameleon-qdt/atom-chameleon.git",
   "license": "MIT",
   "engines": {
     "atom": ">=0.174.0 <2.0.0"
