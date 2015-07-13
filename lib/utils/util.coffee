@@ -112,7 +112,7 @@ module.exports = Util =
       cwd: fileDir
       env: process.env
     command = 'git'
-    args = ['merge']
+    args = ['merge', 'origin/master']
     stdout = (output) =>
       cb(output)
     stderr = (output) =>
