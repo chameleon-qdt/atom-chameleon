@@ -53,27 +53,29 @@ module.exports = Login =
       mail = $.trim(_thisLoginView.loginEmail.getText())
       password = _thisLoginView.find('#loginPassword').text()
       params = 
-        data: {
+        form: {
           mail: mail,
           password: password
         }
-        success: (data) =>
-          console.log data
-          switch data.flag
-            when '0'
-              alert "登录失败：邮箱或密码不正确"
-            when '1'
-              util.store('chameleon', data)
-              alert "登录成功"
-              @closeView()
-              atom.workspace.getPanes()[0].destroyActiveItem()
-              @settings.activate()
-            when '2'
-              alert "登录失败：用户未激活"
-            when '4'
-              alert "登录失败：用户被禁用"
-            when '5'
-              alert "邮箱或密码不正确"
+        cb: (err,httpResponse,body) =>
+          if !err && httpResponse.statusCode is 200 
+            data = JSON.parse(body)
+            console.log data
+            switch data.flag
+              when '0'
+                alert "登录失败：邮箱或密码不正确"
+              when '1'
+                util.store('chameleon', data)
+                alert "登录成功"
+                @closeView()
+                atom.workspace.getPanes()[0].destroyActiveItem()
+                @settings.activate()
+              when '2'
+                alert "登录失败：用户未激活"
+              when '4'
+                alert "登录失败：用户被禁用"
+              when '5'
+                alert "邮箱或密码不正确"
 
       if mail is '' and password is ''
         alert "邮箱或密码不能为空"

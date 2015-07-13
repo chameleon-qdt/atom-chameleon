@@ -1,21 +1,29 @@
 {$} = require 'atom-space-pen-views'
 config = require '../../config/config'
+request = require 'request'
+util = require './util'
+j = request.jar()
 
 module.exports = 
-  request: (params) ->
+  
+  send: (params) ->
     defaultsParams = 
-      url: config.serverUrl + params.path
-      type: 'GET'
+      baseUrl: config.serverUrl
+      method: 'GET'
 
-    params = $.extend(defaultsParams, params)
-    console.log params
-    $.ajax(params)
+    if params.sendCookie 
+      cookie = request.cookie("session=#{util.store('chameleon').session_id}")
+      j.setCookie(cookie, config.serverUrl)
+      params.jar = j
+    params = $.extend defaultsParams, params
+    request params, params.cb
 
   login: (params) ->
-    params.path = 'usermanger/login'
-    params.contentType = 'x-www-form-urlencoded'
-    params.type = 'POST'
-    @request(params)
+    params.url = 'usermanger/login'
+    params.method = 'POST'
+    @send params
 
-  contentGit: (params) ->
-    @request params
+  getUserProjects: (params) ->
+    console.log util.store('chameleon').session_id
+    params.url = 'app/list'
+    @send params
