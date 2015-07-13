@@ -111,24 +111,24 @@ class PublishModuleInfoView extends View
 											modulePath: $(checkbox).attr('value')
 										#获取模板最新版本
 										params =
-											success: (data) =>
+											cb: (err, httpResponse, body) =>
 												console.log data
-												contentList = JSON.parse(data)
-												console.log contentList
-												if data['version'] == ""
-													obj['version'] = contetnList['version']
+												if !err && httpResponse.statusCode is 200
+													data = JSON.parse(body)
+													if data['version'] == ""
+														obj['version'] = contetnList['version']
+													else
+														obj['version'] = "0.0.0"
+														console.log obj['version']
+													item = new ModuleMessageItem(obj)
+													item.find('button').attr("disabled",true)
+													_moduleMessageList.append(item)
+													util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
+													callbackOper = ->
+														item.find('button').attr("disabled",false)
+													$(".#{obj.identifier}").fadeOut(3000,callbackOper)
 												else
-													obj['version'] = "0.0.0"
-													console.log obj['version']
-												item = new ModuleMessageItem(obj)
-												item.find('button').attr("disabled",true)
-												_moduleMessageList.append(item)
-												util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
-												callbackOper = ->
-													item.find('button').attr("disabled",false)
-												$(".#{obj.identifier}").fadeOut(3000,callbackOper)
-											error: =>
-												console.log "获取模板最新版本 的url 调不通"
+													console.log "获取模板最新版本 的url 调不通"
 										#调用 获取模块最新版本接口，成功：则返回最新版本【其中空表示为无版本】并显示模块部分信息
 										#失败 则提示 url 调用不成功
 										client.getModuleLastVersion(params,obj.identifier)
