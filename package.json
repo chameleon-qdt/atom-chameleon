@@ -26,6 +26,7 @@
   "dependencies": {
     "atom-space-pen-views": "^2.0.3",
     "fs-extra":"^0.20.1",
-    "underscore-plus": "^1.0.0"
+    "underscore-plus": "^1.0.0",
+    "jszip":"^2.5.0"
   }
 }
