@@ -65,7 +65,7 @@ module.exports = Util =
       name: options.appName
       identifier: options.appId
       mainModule: ''
-      modules:[]
+      modules: {}
       version: '0.0.1'
       description: ''
       dependencies: {}
