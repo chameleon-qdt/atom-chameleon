@@ -109,40 +109,29 @@ class PublishModuleInfoView extends View
 											identifier: contentList['identifier']
 											version : contentList['serviceVersion']
 											modulePath: $(checkbox).attr('value')
-										#获取模板最新版本
 										params =
-											success: (data) =>
-												console.log data
-												contentList = JSON.parse(data)
-												console.log contentList
-												if data['version'] == ""
-													obj['version'] = contetnList['version']
+											cb: (err, httpResponse, body) =>
+												console.log body
+												if !err && httpResponse.statusCode is 200
+													data = JSON.parse(body)
+													if data['version'] != ""
+														obj['version'] = contentList['version']
+													else
+														obj['version'] = "0.0.0"
+														console.log obj['version']
+													item = new ModuleMessageItem(obj)
+													item.find('button').attr("disabled",true)
+													_moduleMessageList.append(item)
+													util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
+													callbackOper = ->
+														item.find('button').attr("disabled",false)
+													$(".#{obj.identifier}").fadeOut(3000,callbackOper)
 												else
-													obj['version'] = "0.0.0"
-													console.log obj['version']
-												item = new ModuleMessageItem(obj)
-												item.find('button').attr("disabled",true)
-												_moduleMessageList.append(item)
-												util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
-												callbackOper = ->
-													item.find('button').attr("disabled",false)
-												$(".#{obj.identifier}").fadeOut(3000,callbackOper)
-											error: =>
-												console.log "获取模板最新版本 的url 调不通"
-										#调用 获取模块最新版本接口，成功：则返回最新版本【其中空表示为无版本】并显示模块部分信息
-										#失败 则提示 url 调用不成功
+													console.log "获取模板最新版本 的url 调不通"
 										client.getModuleLastVersion(params,obj.identifier)
-
-										# item = new ModuleMessageItem(obj)
-										# console.log item.find('button')
-										# item.find('button').attr("disabled",true)
-										# _moduleMessageList.append(item)
-										# util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
-										# console.log "============================="
-										# callbackOper = ->
-										# 	item.find('button').attr("disabled",false)
-										# $(".#{obj.identifier}").fadeOut(3000,callbackOper)
-
+										console.log "moduleConfigCallBack"
+										#获取模板最新版本
+							console.log "Hello"
 							configFilePath = PathM.join $(checkbox).attr('value')
 							fs.exists(configFilePath,moduleConfigCallBack)
 					folderPath = PathM.join $(checkbox).attr('value'),'..'
@@ -259,12 +248,6 @@ class ModuleMessageItem extends View
 					@button '上传并应用',value:obj.modulePath,class:'btn'
 			@div class : 'col-sm-12 col-md-12 ', =>
 				@label "正在打包文件......",class:"#{obj.identifier}"
-			# 	@form name:obj.modulePath,method:"POST",enctype:"multipart/form-data", =>
-			# 		@div class: 'form-group', =>
-			# 			@label "浏览zip包所在目录:", class: 'col-sm-4 control-label'
-			# 			@div class:"col-sm-8", =>
-			# 				@input type:"file",change: 'fileChange',class:"upload_file"
-			# 				@subview 'zipPath', new TextEditorView(mini: true)
 
 	fileChange: (param1,param2) ->
 		console.log $(param2).val()
@@ -294,7 +277,7 @@ class ModuleMessageItem extends View
 				file.read(false).then (content) =>
 					contentList = JSON.parse(content)
 					params =
-						data:{
+						form:{
 							module_tag: contentList['identifier'],
 							module_name: contentList['name'],
 							module_desc: contentList['description'],
@@ -303,11 +286,14 @@ class ModuleMessageItem extends View
 							update_log: '还没调上传文件的接口',
 							create_by: 'chenyuzhe'
 						}
-						success: (data) =>
-							console.log data
-							alert 'result_code: ' + data.result_code + "   message: "+data.message
-						error: =>
-							console.log 'error'
+						cb: (err,httpResponse,body) =>
+							if !err and httpResponse.statusCode is 200
+								console.log body
+								data = JSON.parse(body)
+								alert 'result_code: ' + data['result_code'] + "   message: "+data['message']
+							else
+								console.log 'error'
+								console.log
 					client.postModuleMessage(params)
 		fs.exists($(btn2).val(),configFilePathCallBack)
 

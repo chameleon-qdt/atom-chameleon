@@ -47,25 +47,18 @@ class addNewFrameworkView extends View
     #     alert '框架已存在'
     #     @.children(".loading-mask").remove()
     #   else
-    params =
-      url:  @inputAddress
-      success: =>
-        gitsuccess = (state, appPath) =>
-          console.log state
-          if state is 0
-            alert '添加成功'
-            @.children(".loading-mask").remove()
-            @onCancelClick()
-            @rerenderList()
-          else
-            alert '项目创建失败：git clone失败，请检查网络连接或者已存在同名框架'
-            @.children(".loading-mask").remove()
-        Util.getRepo @frameworksDir, @inputAddress, gitsuccess
-      error: (error, state) =>
-        @showErrorAddress()
-        @.children(".loading-mask").remove()
 
-    client.contentGit params
+    gitsuccess = (state, appPath) =>
+      console.log state
+      if state is 0
+        alert '添加成功'
+        @.children(".loading-mask").remove()
+        @onCancelClick()
+        @rerenderList()
+      else
+        alert '项目创建失败：git clone失败，请检查网络连接、git地址或者已存在同名框架'
+        @.children(".loading-mask").remove()
+    Util.getRepo @frameworksDir, @inputAddress, gitsuccess
 
 
   showErrorAddress: ->

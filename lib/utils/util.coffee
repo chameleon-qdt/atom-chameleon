@@ -123,7 +123,7 @@ module.exports = Util =
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
 
   isLogin: () ->
-    user = @store('chameleon').account
+    user = @store('chameleon').account_id
     if typeof user is 'undefined'
       return false
     else
