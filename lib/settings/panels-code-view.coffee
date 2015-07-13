@@ -97,7 +97,7 @@ class CodePanel extends View
                 #   $('.' + projectName).find('.loading-mask').removeClass('hidden')
                 #   util.updateRepo(fileDir, success)
       else
-        @templatesList.html '<li class="nothing">没有找到任何框架</li>'
+        @templatesList.html '<li class="nothing">没有找到任何模板</li>'
 
   addNewCode: ->
     addNewFramework.activate();

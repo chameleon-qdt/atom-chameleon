@@ -4,14 +4,14 @@ request = require 'request'
 util = require './util'
 j = request.jar()
 
-module.exports = 
-  
+module.exports =
+
   send: (params) ->
-    defaultsParams = 
+    defaultsParams =
       baseUrl: config.serverUrl
       method: 'GET'
 
-    if params.sendCookie 
+    if params.sendCookie
       cookie = request.cookie("session=#{util.store('chameleon').session_id}")
       j.setCookie(cookie, config.serverUrl)
       params.jar = j
@@ -31,9 +31,9 @@ module.exports =
   getModuleLastVersion: (params,identifier) ->
     console.log identifier
     params.url = "app_update/get_lastversion/#{identifier}/d"
-    @request(params)
+    @send params
 
   postModuleMessage: (params) ->
-    params.path = 'module/upload_module'
-    params.type = 'POST'
-    @request(params)
+    params.url = 'module/upload_module'
+    params.method = 'POST'
+    @send params
