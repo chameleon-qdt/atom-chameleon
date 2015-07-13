@@ -27,3 +27,13 @@ module.exports =
     console.log util.store('chameleon').session_id
     params.url = 'app/list'
     @send params
+
+  getModuleLastVersion: (params,identifier) ->
+    console.log identifier
+    params.url = "app_update/get_lastversion/#{identifier}/d"
+    @request(params)
+
+  postModuleMessage: (params) ->
+    params.path = 'module/upload_module'
+    params.type = 'POST'
+    @request(params)
