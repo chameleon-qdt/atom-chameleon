@@ -37,3 +37,8 @@ module.exports =
     params.url = 'module/upload_module'
     params.method = 'POST'
     @send params
+
+  uploadFile: (params,type,user) ->
+    params.url = "file/upload/#{type}/#{user}"
+    params.method = 'POST'
+    @send params
