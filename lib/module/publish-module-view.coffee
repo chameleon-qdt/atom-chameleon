@@ -335,6 +335,8 @@ class ModuleMessageItem extends View
 		console.log zipPath
 		zipName = PathM.basename(PathM.join $(btn2).val(),"..") + '.zip'
 		console.log zipName
+		_version = @version
+		_uploadVersion = @uploadVersion
 		uploadVersion = @uploadVersion.text().split('.')
 		version = @version.text().split('.')
 		if uploadVersion[0] < version[0]
@@ -377,6 +379,7 @@ class ModuleMessageItem extends View
 										if !err and httpResponse.statusCode  is 200
 											console.log body
 											data = JSON.parse(body)
+											_version.text(_uploadVersion.text())
 											alert body
 										else
 											alert "error"
