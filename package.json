@@ -1,10 +1,13 @@
 {
   "name": "chameleon-test",
   "main": "./lib/chameleon",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": "chameleon-qdt",
   "description": "Atom package for Chameleon Quick Development Tool",
-  "keywords": ["chameleon", "QDT"],
+  "keywords": [
+    "chameleon",
+    "QDT"
+  ],
   "activationCommands": {
     "atom-workspace": [
       "chameleon:toggle",
