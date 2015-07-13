@@ -65,7 +65,7 @@ module.exports = Util =
       name: options.appName
       identifier: options.appId
       mainModule: ''
-      modules:[]
+      modules: {}
       version: '0.0.1'
       description: ''
       dependencies: {}
@@ -112,7 +112,7 @@ module.exports = Util =
       cwd: fileDir
       env: process.env
     command = 'git'
-    args = ['merge']
+    args = ['merge', 'origin/master']
     stdout = (output) =>
       cb(output)
     stderr = (output) =>
