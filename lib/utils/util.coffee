@@ -1,7 +1,6 @@
 {BufferedProcess} = require 'atom'
 JSZip = require 'jszip'
 fs = require 'fs-extra'
-zlib = require 'zlib'
 pathM = require 'path'
 {File,Directory} = require 'atom'
 module.exports = Util =
@@ -127,7 +126,7 @@ module.exports = Util =
     user = @store('chameleon').account
     if typeof user is 'undefined'
       return false
-    else 
+    else
       return true
 
   writeFile: (file, textContent, cb) ->
@@ -188,11 +187,5 @@ module.exports = Util =
           compressionZip folderZipPath,pathM.join filePath,filePathItem for  filePathItem in fileList
     compressionZip ".",folderPath
     content = zip.generate({type:"nodebuffer"})
-    writeCallBack = (err) ->
-      if err
-        console.log "write error"
-        false
-      else
-        console.log "compressionZip success"
-        true
-    fs.writeFile(zipPath,content,writeCallBack)
+    fs.writeFileSync(zipPath,content)
+    console.log "打包完了"

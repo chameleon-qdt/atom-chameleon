@@ -1,9 +1,9 @@
 {$} = require 'atom-space-pen-views'
 config = require '../../config/config'
 
-module.exports = 
+module.exports =
   request: (params) ->
-    defaultsParams = 
+    defaultsParams =
       url: config.serverUrl + params.path
       type: 'GET'
 
@@ -19,3 +19,14 @@ module.exports =
 
   contentGit: (params) ->
     @request params
+
+  getModuleLastVersion: (params,identifier) ->
+    console.log identifier
+    params.path = "app_update/get_lastversion/#{identifier}/d"
+    params.type = 'GET'
+    @request(params)
+
+  postModuleMessage: (params) ->
+    params.path = 'module/upload_module'
+    params.type = 'POST'
+    @request(params)
