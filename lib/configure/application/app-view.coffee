@@ -2,7 +2,8 @@
 desc = require '../../utils/text-description'
 {File,Directory} = require 'atom'
 PathM = require 'path'
-fs = require 'fs-extra'
+# fs = require 'fs-extra'
+Util = '../../utils/util'
 ChameleonBox = require './../../utils/chameleon-box-view'
 
 # module.exports =
@@ -50,7 +51,7 @@ class AppView extends View
 			contentList['version'] = @appVersion.getText()
 			contentList['mainModule'] = @appStartModule.getText()
 			# contentList['downloadUrl'] = @appDownloadUrl.getText()
-			fs.writeJson project_path,contentList,null
+			Util.writeJson project_path,contentList,null
 
 	clearInput: ->
 		@appId.setText('')
@@ -60,7 +61,12 @@ class AppView extends View
 
 	searchAppConfig: ->
 		select_path = $('.entry.selected span').attr('data-path')
+		projects = atom.project.getDirectories()
 		console.log select_path
+		currProject = (dir for dir in atom.project.getDirectories() when dir.path is select_path or dir.contains(select_path))[0]
+		console.log currProject
+		appConfigPath = PathM.join currProject.path, desc.ProjectConfigFileName if currProject?
+		Util.isFileExist(appConfigPath,'sync') if appConfigPath?
 
 
 	getInitInput: ->
