@@ -1,5 +1,8 @@
 desc = require '../utils/text-description'
 {$, View} = require 'atom-space-pen-views'
+Settings = require '../settings/settings'
+Util = require '../utils/util'
+client = require '../utils/client'
 
 module.exports =
 class SyncProjectView extends View
@@ -9,23 +12,69 @@ class SyncProjectView extends View
       @div class: 'row', =>
         @div class: 'col-md-12', =>
           @h2 '导入项目'
-          @div class: 'sync-item inline-block text-center', =>
-            @img class: 'pic', src: desc.iconPath
-            @h3 '测试项目',class: 'project-name'
-          # @div class: 'sync-item inline-block add text-center', =>
-          #   @div class: 'add-icon icon icon-plus'
-          #   @h3 '新建同步项目', class: 'project-name'
+          @ul class: 'projectList', outlet: 'projectList'
 
+  pageSize: 10
+  page: 1
 
   getElement: ->
     @element
 
   attached: ->
-    # ################
-    #  判断是否已登录
-    # ################
-    @parentView.setNextBtn('finish');
-    @parentView.setPrevBtn('back');
+    @settings = Settings
+    @parentView.disableNext()
+
+    if !Util.isLogin()
+      @settings.activate()
+      @parentView.closeView()
+      alert '请先登录'
+    else
+      @parentView.setNextBtn('finish');
+      @parentView.setPrevBtn('back');
+      account_id = Util.store('chameleon').account_id
+      params = 
+        qs:
+          account: account_id
+          pageSize: @pageSize
+          page: @page
+        sendCookie: true
+        cb: (err,httpResponse,body) =>
+          console.log err
+          console.log httpResponse
+          if !err && httpResponse.statusCode is 200 
+            data = JSON.parse(body)
+            dataLength = data.length
+            if dataLength > 0
+              data.forEach (item)=>
+                projectItem = new ProjectItem(item)
+                @projectList.append projectItem
+              $('.sync-item').on 'click', (e) => @onItemClick(e)
+            else
+              projectItem = new notProjectItem()
+              @projectList.append projectItem
+        error: (err) =>
+          console.log err
+
+      client.getUserProjects params
 
   nextStep: (box)->
     box.nextStep()
+
+  onItemClick: (e) ->
+    el = e.currentTarget
+    $('.sync-item.select').removeClass 'select'
+    el.classList.add 'select'
+    @createType = el.dataset.type
+    @parentView.enableNext()
+
+class ProjectItem extends View
+  @content: (data) ->
+    @li class: 'sync-item inline-block new-item text-center',  =>
+      @img class: 'pic', src: desc.iconPath
+      @h3 data.name, class: 'project-name'
+
+class notProjectItem extends View
+  @content: ->
+    @li class: 'sync-item inline-block new-item text-center',  =>
+      @div class: 'add-icon icon icon-octoface'
+      @h3 '暂无项目', class: 'project-name'
