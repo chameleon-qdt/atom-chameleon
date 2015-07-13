@@ -30,6 +30,11 @@ class AppView extends View
 
 	attached: ->
 		# 首先检查 是否有应用的配置文件
+		@searchAppConfig()
+		# alert '没有找到应用的配置文件'
+		# @parentView.enable = false
+		# @parentView.closeView()
+		# ==================
 		@getInitInput()
 		@parentView.setNextBtn('finish',desc.save)
 		@parentView.setPrevBtn('normal',desc.recovery)
@@ -52,6 +57,11 @@ class AppView extends View
 		@appName.setText('')
 		@appVersion.setText('')
 		@appStartModule.setText('')
+
+	searchAppConfig: ->
+		select_path = $('.entry.selected span').attr('data-path')
+		console.log select_path
+
 
 	getInitInput: ->
 		project_path = PathM.join $('.entry.selected span').attr('data-path'),'appConfig.json'
