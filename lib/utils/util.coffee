@@ -1,5 +1,6 @@
 {BufferedProcess} = require 'atom'
 JSZip = require 'jszip'
+zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
 {File,Directory} = require 'atom'
@@ -189,3 +190,26 @@ module.exports = Util =
     content = zip.generate({type:"nodebuffer"})
     fs.writeFileSync(zipPath,content)
     console.log "打包完了"
+
+  UnCompressFile: (zipPath) ->
+    unzipPath = pathM.join zipPath,".."
+    cb = (err, data) ->
+      if err
+        throw err
+      object = new JSZip(data)
+      console.log object.files
+      readAndwrite = (zipObject) ->
+        # console.log zipObject.name
+        savePath = pathM.join unzipPath,zipObject.name
+        if zipObject.dir
+          console.log zipObject.name + " is dir"
+          if fs.existsSync(savePath)
+            alert "文件夹已存在,文件夹中的相同文件将被覆盖"
+          else
+            fs.mkdirSync(savePath)
+        else
+          console.log zipObject.name + " is a file"
+          fs.writeFileSync(savePath,zipObject._data.getContent())
+      readAndwrite zipObject for fileName , zipObject of object.files
+      # console.log "!"
+    fs.readFile(zipPath,cb)
