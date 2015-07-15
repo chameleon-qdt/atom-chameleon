@@ -30,9 +30,11 @@ module.exports = PublishModule =
 	serialize: ->
 		chameleonBoxState: @chameleonBox.serialize()
 	openView: ->
-    unless @modalPanel.isVisible()
-      console.log 'PublishModuleView was opened!'
-      @modalPanel.show()
+		@chameleonBox.openView();
+    # unless @modalPanel.isVisible()
+    #   console.log 'PublishModuleView was opened!'
+    #   @modalPanel.show()
 	closeView: ->
+		# @chameleonBox.closeView();
 		if @modalPanel.isVisible()
 			@modalPanel.hide()

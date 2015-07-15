@@ -4,6 +4,7 @@ util = require '../utils/util'
 {File,Directory} = require 'atom'
 PathM = require 'path'
 ChameleonBox = require '../utils/chameleon-box-view'
+Settings = require '../settings/settings'
 fs = require 'fs-extra'
 client = require '../utils/client'
 
@@ -148,11 +149,19 @@ class PublishModuleInfoView extends View
 		else
 			@parentView.closeView()
 
-
 	attached: ->
+		@settings = Settings
+
+		if !util.isLogin()
+			@settings.activate()
+			@parentView.enable = false
+			alert '请先登录'
+		else
+			@attached2()
+
+	attached2: ->
 		$('#tips').fadeOut()
 		test = $('.entry.selected span')
-		console.log @parentView
 		_parentView = @parentView
 		_moduleList = @moduleList
 		if test.length == 0
@@ -229,22 +238,24 @@ class PublishModuleInfoView extends View
 								$('#projectIdentifier').attr('value',contentList['identifier'])
 							project_path = PathM.join project_path,"modules"
 							if !fs.existsSync(project_path)
+								@parentView.enable = false
 								alert "请选择变色龙项目（不存在modules文件）"
 								return
 							modulesStats = fs.statSync(project_path)
 							if modulesStats.isFile()
+								@parentView.enable = false
 								alert "请选择变色龙项目（不存在modules文件）"
 								return
 						else
-							_parentView.closeView()
+							@parentView.enable = false
 							alert "请选择变色龙项目(不存在 appConfig.json)"
 							return
 					else
-						_parentView.closeView()
+						@parentView.enable = false
 						alert "请选择变色龙项目"
 						return
 				else
-					_parentView.closeView()
+					@parentView.enable = false
 					alert "文件不存在"
 					return
 				# directory = new Directory(project_path,false)

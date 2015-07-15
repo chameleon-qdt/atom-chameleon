@@ -4,6 +4,7 @@ zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
 {File,Directory} = require 'atom'
+client = require './client'
 module.exports = Util =
 
   rumAtomCommand: (command) ->
@@ -213,3 +214,32 @@ module.exports = Util =
       readAndwrite zipObject for fileName , zipObject of object.files
       # console.log "!"
     fs.readFile(zipPath,cb)
+  # 回调函数必须包含三个参数 cb(err,httpResponse,body)
+  upload_file: (filePath, type, userAccount, cb) ->
+    fileParams =
+      formData:{
+        up_file: fs.createReadStream(PathM.join zipPath,zipName)
+      }
+      cb: cb
+    client.uploadFile(fileParams,type,userAccount)
+
+  addModule: (appConfigPath, moduleIdentifer, version) ->
+    if fs.existsSync(appConfigPath)
+      stats = fs.statSync(appConfigPath)
+      if stats.isFile()
+        options =
+          encoding: "UTF-8"
+        cb = (err, data) ->
+          if err
+            throw err
+          else
+            contentList = JSON.parse(data)
+            contentList["modules"][moduleIdentifer] = version
+            if contentList['mainModule'] == ""
+              contentList['mainModule'] = moduleIdentifer
+            fs.writeJson appConfigPath,contentList,null
+        fs.readFile(appConfigPath,options,cb)
+      else
+        console.log "not a file"
+    else
+      console.log "is not exists"
