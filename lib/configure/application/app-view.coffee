@@ -31,14 +31,14 @@ class AppView extends View
 
   attached: ->
     # 首先检查 是否有应用的配置文件
-    isExist = @searchAppConfig()
-    console.log isExist
-    unless isExist
+    result = @searchAppConfig()
+    console.log result
+    unless result.isExist
       alert '没有找到应用的配置文件'
       @parentView.enable = false
     # ==================
     else
-      @getInitInput()
+      @readConfig result.path
       @parentView.setNextBtn('finish',desc.save)
       @parentView.setPrevBtn('normal',desc.recovery)
       @parentView.prevBtn.addClass('other')
@@ -63,29 +63,32 @@ class AppView extends View
 
   searchAppConfig: ->
     select_path = $('.entry.selected span').attr('data-path')
-    projects = atom.project.getDirectories()
-    # console.log select_path
-    currProject = (dir for dir in atom.project.getDirectories() when dir.path is select_path or dir.contains(select_path))[0]
-    # console.log currProject
-    appConfigPath = PathM.join currProject.path, desc.ProjectConfigFileName if currProject?
-    # console.log select_path,currProject,appConfigPath
-    Util.isFileExist(appConfigPath,'sync') if appConfigPath?
+    if PathM.basename(select_path) is desc.ProjectConfigFileName
+      result =
+        isExist: true
+        path: select_path
+    else
+      projects = atom.project.getDirectories()
+      # console.log select_path
+      currProject = (dir for dir in atom.project.getDirectories() when dir.path is select_path or dir.contains(select_path))[0]
+      # console.log currProject
+      appConfigPath = PathM.join currProject.path, desc.ProjectConfigFileName if currProject?
+      # console.log select_path,currProject,appConfigPath
+      isExist = Util.isFileExist(appConfigPath,'sync') if appConfigPath?
+      result =
+        isExist: if isExist? then isExist else false
+        path:  appConfigPath if isExist is yes
 
-
-  getInitInput: ->
-    project_path = PathM.join $('.entry.selected span').attr('data-path'),'appConfig.json'
-    console.log project_path
-    file = new File(project_path)
-    file.exists().then (resolve, reject) =>
-      if resolve
-        console.log 'open file'
-        file.read(false).then (contents) =>
-          console.log JSON.parse(contents)
-          contentList = JSON.parse(contents)
-          @appId.setText(contentList['identifier'])
-          @appName.setText(contentList['name'])
-          @appVersion.setText(contentList['version'])
-          @appStartModule.setText(contentList['mainModule'])
+  readConfig: (configPath) ->
+    config = Util.readJsonSync(configPath)
+    if config?
+      console.log config
+      @appId.setText(config['identifier'])
+      @appName.setText(config['name'])
+      @appVersion.setText(config['version'])
+      @appStartModule.setText(config['mainModule'])
+    else
+      console.log '读取文件失败'
 
   initialize: ->
 
