@@ -7,6 +7,7 @@ module.exports = ChameleonBox =
 class ChameleonBoxView extends View
 
   modalPanel : null
+  enable : true
 
   @content : (options) ->
     @div class: 'chameleon', =>
@@ -133,9 +134,31 @@ class ChameleonBoxView extends View
     @prevBtn.addClass 'hide'
 
   closeView: ->
-    if @modalPanel.isVisible()
+
+    # console.log @modalPanel,atom.workspace.getModalPanels(),@,atom.workspace.getModalPanels()[0].item is @
+    # console.dir @element.parentElement
+    @findModalPanel()
+    # console.log @modalPanel,@modalPanel?.isVisible()
+    if @modalPanel?.isVisible()
       @modalPanel.hide()
-    else
+    else unless @modalPanel?
       @hide()
+
+  openView: ->
+    if @enable isnt yes
+      return
+    @findModalPanel()
+    if @modalPanel?.isVisible() is no
+      @modalPanel.show()
+      return @modalPanel.isVisible()
+    else
+      return false
+
+  findModalPanel: ->
+    @modalPanel?= _.find atom.workspace.getModalPanels(), (modalPanel) =>
+      # console.log modalPanel.item,@,modalPanel.item is @
+      return modalPanel.item is @
+
+
 
 module.exports.$ = $

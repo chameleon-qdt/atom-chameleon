@@ -4,10 +4,10 @@ request = require 'request'
 util = require './util'
 j = request.jar()
 
-module.exports = 
-  
+module.exports =
+
   send: (params) ->
-    defaultsParams = 
+    defaultsParams =
       baseUrl: config.serverUrl
       method: 'GET'
 
@@ -31,9 +31,14 @@ module.exports =
   getModuleLastVersion: (params,identifier) ->
     console.log identifier
     params.url = "app_update/get_lastversion/#{identifier}/d"
-    @request(params)
+    @send params
 
   postModuleMessage: (params) ->
-    params.path = 'module/upload_module'
-    params.type = 'POST'
-    @request(params)
+    params.url = 'module/upload_module'
+    params.method = 'POST'
+    @send params
+
+  uploadFile: (params,type,user) ->
+    params.url = "file/upload/#{type}/#{user}"
+    params.method = 'POST'
+    @send params
