@@ -114,6 +114,7 @@ class PublishModuleInfoView extends View
 										cb: (err,httpResponse,body) =>
 											if !err and httpResponse.statusCode is 200
 												data = JSON.parse(body)
+												console.log data["version"],obj.identifier,obj.uploadVersion
 												if data['version'] != ""
 													obj['version'] = data['version']
 												else
@@ -124,7 +125,7 @@ class PublishModuleInfoView extends View
 												_moduleMessageList.append(item)
 												util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
 												callbackOper = ->
-													# item.find('button').attr("disabled",false)
+													item.find('button').attr("disabled",false)
 												$(".#{obj.identifier}").fadeOut(3000,callbackOper)
 											else
 												console.log "获取模板最新版本 的url 调不通"
@@ -178,54 +179,12 @@ class PublishModuleInfoView extends View
 			if @first.hasClass('hide')
 				@first.removeClass('hide')
 				@second.addClass('hide')
-
-			# if fs.existsSync(project_path)
-			# 	projectStats = fs.statSync(project_path)
-			# 	if projectStats.isDirectory()
-			# 		configFilePath = PathM.join project_path,"appConfig.json"
-			# 		#判断  appConfig.json 是否存在
-			# 		if fs.existsSync(configFilePath)
-			# 			configFileStats = fs.statSync(configFilePath)
-			# 			file = new File(configFilePath)
-			# 			file.read(false).then (content) =>
-			# 				contentList = JSON.parse(content)
-			# 				$('#projectIdentifier').attr('value',contentList['identifier'])
-			# 			project_path = PathM.join project_path,"modules"
-			# 		else
-			# 			@parentView.closeView()
-			# 			_showView.attr('value','hide')
-			# 			alert "请选择变色龙项目"
-			# 			return
-			# 	else
-			# 		@parentView.closeView()
-			# 		_showView.attr('value','hide')
-			# 		alert "请选择变色龙项目"
-			# 		return
-			# else
-			# 	alert "文件不存在"
-			# 	return
-			# directory = new Directory(project_path,false)
-			# printName = (file) ->
-			# 	if file.isDirectory()
-			# 		path = PathM.join file.getPath(),"package.json"
-			# 		file2 = new File(path)
-			# 		moduleFolderCallBack = (exists) ->
-			# 			if exists
-			# 				moduleConfigCallBack = (exists) ->
-			# 					if exists
-			# 						file2.read(false).then (content) =>
-			# 							contentList = JSON.parse(content)
-			# 							_moduleList.append('<div class="col-md-3"><input value="'+file2.getPath()+'" type="checkbox"><label>'+contentList['name']+'</label></div>')
-			# 				fs.exists(path,moduleConfigCallBack)
-			# 		fs.exists(file.getPath(), moduleFolderCallBack)
-			# list = directory.getEntriesSync()
-			# _moduleList.empty()
-			# printName file for file in list
-
 			#这是一个回调函数 的开始
-			console.log "hello"
-			callbackDirectory = (exists) =>
-				if exists
+			# console.log "hello"
+			if fs.existsSync(project_path)
+			#
+			# callbackDirectory = (exists) ->
+				if true
 					projectStats = fs.statSync(project_path)
 					#判断是否目录
 					if projectStats.isDirectory()
@@ -239,45 +198,26 @@ class PublishModuleInfoView extends View
 								$('#projectIdentifier').attr('value',contentList['identifier'])
 							project_path = PathM.join project_path,"modules"
 							if !fs.existsSync(project_path)
-								@parentView.enable = false
+								_parentView.enable = false
 								alert "请选择变色龙项目（不存在modules文件）"
 								return
 							modulesStats = fs.statSync(project_path)
 							if modulesStats.isFile()
-								@parentView.enable = false
+								_parentView.enable = false
 								alert "请选择变色龙项目（不存在modules文件）"
 								return
 						else
-							@parentView.enable = false
+							_parentView.enable = false
 							alert "请选择变色龙项目(不存在 appConfig.json)"
 							return
 					else
-						console.log @
-						@parentView.enable = false
+						_parentView.enable = false
 						alert "请选择变色龙项目"
 						return
 				else
-					@parentView.enable = false
+					_parentView.enable = false
 					alert "文件不存在"
 					return
-				# directory = new Directory(project_path,false)
-				# list = directory.getEntriesSync()
-				#
-				# printName = (file) ->
-				# 	if file.isDirectory()
-				# 		path = PathM.join file.getPath(),"package.json"
-				# 		file2 = new File(path)
-				# 		moduleFolderCallBack = (exists) ->
-				# 			if exists
-				# 			  moduleConfigCallBack = (exists) ->
-				# 					if exists
-				# 						file2.read(false).then (content) =>
-				# 							contentList = JSON.parse(content)
-				# 							_moduleList.append('<div class="col-md-3"><input value="'+file2.getPath()+'" type="checkbox"><label>'+contentList['name']+'</label></div>')
-				# 				fs.exists(path,moduleConfigCallBack)
-				# 		fs.exists(file.getPath(), moduleFolderCallBack)
-				# _moduleList.empty()
-				# printName file for file in list
 				modulesCount = 0
 				list = fs.readdirSync(project_path)
 				fileLength = 0
@@ -303,7 +243,7 @@ class PublishModuleInfoView extends View
 				_moduleList.empty()
 				printName PathM.join project_path,fileName for fileName in list
 			#回调函数 的结束
-			fs.exists(project_path,callbackDirectory)
+			# fs.exists(project_path,callbackDirectory)
 
 	getElement: ->
 		@element
@@ -362,12 +302,14 @@ class ModuleMessageItem extends View
 			else if uploadVersion[1] == version[1]
 				if uploadVersion[2] <= version[2]
 					alert "上传版本不大于服务器版本"
+					return
 			  # body...
 		# console.log "success"
 		fileParams =
 			formData: {
 				up_file: fs.createReadStream(PathM.join zipPath,zipName)
 			}
+			sendCookie: true
 			cb: (err,httpResponse,body) =>
 				if !err and httpResponse.statusCode is 200
 					data = JSON.parse(body)
@@ -377,6 +319,7 @@ class ModuleMessageItem extends View
 							file = new File($(btn2).val())
 							file.read(false).then (content) =>
 								contentList = JSON.parse(content)
+								console.log contentList['version'],contentList['identifier']
 								params =
 									form:{
 										module_tag: contentList['identifier'],
@@ -403,32 +346,6 @@ class ModuleMessageItem extends View
 				else
 					alert "上传文件失败"
 		client.uploadFile(fileParams,"module","yuzhe@163.com")
-		# configFilePathCallBack = (exists) ->
-		# 	if exists
-		# 		file = new File($(btn2).val())
-		# 		file.read(false).then (content) =>
-		# 			contentList = JSON.parse(content)
-		# 			params =
-		# 				form:{
-		# 					module_tag: contentList['identifier'],
-		# 					module_name: contentList['name'],
-		# 					module_desc: contentList['description'],
-		# 					version: contentList['version'],
-		# 					url_id: 'test',
-		# 					update_log: '还没调上传文件的接口',
-		# 					create_by: 'chenyuzhe'
-		# 				}
-		# 				sendCookie: true
-		# 				cb: (err,httpResponse,body) =>
-		# 					if !err and httpResponse.statusCode  is 200
-		# 						console.log body
-		# 						data = JSON.parse(body)
-		# 						alert 'result_code: ' + data['result_code'] + "   message: "+data['message']
-		# 					else
-		# 						console.log 'error'
-		# 						console.log
-		# 			client.postModuleMessage(params)
-		# fs.exists($(btn2).val(),configFilePathCallBack)
 
 module.exports =
 class PublishModuleView extends ChameleonBox
