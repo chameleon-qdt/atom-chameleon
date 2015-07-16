@@ -12,7 +12,7 @@ module.exports =
       method: 'GET'
 
     if params.sendCookie and util.store('chameleon-cookie').length > 0
-      console.log util.store('chameleon-cookie')
+      
       cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
       params.jar = j
