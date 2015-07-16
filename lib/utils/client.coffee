@@ -19,7 +19,7 @@ module.exports =
     request params, params.cb
 
   login: (params) ->
-    params.url = 'usermanger/login'
+    params.url = 'anonymous/login'
     params.method = 'POST'
     @send params
 
