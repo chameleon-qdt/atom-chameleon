@@ -58,12 +58,8 @@ module.exports = Login =
           password: password
         }
         cb: (err,httpResponse,body) =>
-<<<<<<< HEAD
-          if !err && httpResponse.statusCode is 200
-=======
           console.log httpResponse.headers['set-cookie']
-          if !err && httpResponse.statusCode is 200 
->>>>>>> 0c4b09e244c6141baa988329937b76e43ab8e65a
+          if !err && httpResponse.statusCode is 200
             data = JSON.parse(body)
             console.log data
             switch data.flag

@@ -165,8 +165,8 @@ module.exports = Util =
     if data
       return localStorage.setItem(namespace, JSON.stringify(data))
     else
-     store = localStorage.getItem(namespace)
-     return (store && JSON.parse(store)) || []
+     aa = localStorage.getItem(namespace)
+     return (aa && JSON.parse(aa)) || []
 
   removeStore: (namespace) ->
     localStorage.removeItem(namespace)
