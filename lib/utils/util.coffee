@@ -4,7 +4,7 @@ zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
 {File,Directory} = require 'atom'
-client = require './client'
+# client = require './client'
 module.exports = Util =
 
   rumAtomCommand: (command) ->
@@ -221,7 +221,7 @@ module.exports = Util =
         up_file: fs.createReadStream(PathM.join zipPath,zipName)
       }
       cb: cb
-    client.uploadFile(fileParams,type,userAccount)
+    # client.uploadFile(fileParams,type,userAccount)
 
   addModule: (appConfigPath, moduleIdentifer, version) ->
     if fs.existsSync(appConfigPath)
