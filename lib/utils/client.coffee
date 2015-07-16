@@ -11,8 +11,9 @@ module.exports =
       baseUrl: config.serverUrl
       method: 'GET'
 
-    if params.sendCookie 
-      cookie = request.cookie("session=#{util.store('chameleon').session_id}")
+    if params.sendCookie and util.store('chameleon-cookie').length > 0
+      console.log util.store('chameleon-cookie')
+      cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
       params.jar = j
     params = $.extend defaultsParams, params
@@ -24,7 +25,6 @@ module.exports =
     @send params
 
   getUserProjects: (params) ->
-    console.log util.store('chameleon').session_id
     params.url = 'app/list'
     @send params
 
