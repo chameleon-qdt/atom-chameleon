@@ -223,7 +223,7 @@ class PublishModuleInfoView extends View
 
 			#这是一个回调函数 的开始
 			console.log "hello"
-			callbackDirectory = (exists) ->
+			callbackDirectory = (exists) =>
 				if exists
 					projectStats = fs.statSync(project_path)
 					#判断是否目录
@@ -251,6 +251,7 @@ class PublishModuleInfoView extends View
 							alert "请选择变色龙项目(不存在 appConfig.json)"
 							return
 					else
+						console.log @
 						@parentView.enable = false
 						alert "请选择变色龙项目"
 						return
