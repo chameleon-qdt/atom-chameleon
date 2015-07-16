@@ -110,6 +110,7 @@ class PublishModuleInfoView extends View
 										version: contentList['serviceVersion']
 										modulePath: $(checkbox).attr('value')
 									params =
+										sendCookie: true
 										cb: (err,httpResponse,body) =>
 											if !err and httpResponse.statusCode is 200
 												data = JSON.parse(body)
