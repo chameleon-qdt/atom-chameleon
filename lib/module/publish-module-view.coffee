@@ -327,8 +327,7 @@ class ModuleMessageItem extends View
 										module_desc: contentList['description'],
 										version: contentList['version'],
 										url_id: data['url_id'],
-										update_log: '还没调上传文件的接口',
-										create_by: 'chenyuzhe'
+										update_log: '还没调上传文件的接口'
 									}
 									sendCookie: true
 									cb: (err,httpResponse,body) =>

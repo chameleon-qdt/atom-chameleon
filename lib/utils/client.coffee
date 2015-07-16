@@ -12,7 +12,6 @@ module.exports =
       method: 'GET'
 
     if params.sendCookie and util.store('chameleon-cookie').length > 0
-
       cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
       params.jar = j
@@ -32,10 +31,13 @@ module.exports =
     userId = util.store('chameleon').account_id
     console.log userId,identifier
     params.url = "app_update/get_lastversion/#{identifier}/#{userId}"
+    # params.url = "app_update/get_lastversion/#{identifier}"
     @send params
 
   postModuleMessage: (params) ->
     params.url = 'module/upload_module'
+    params.form.create_by = util.store('chameleon').account_id
+    console.log params.form
     params.method = 'POST'
     @send params
 
