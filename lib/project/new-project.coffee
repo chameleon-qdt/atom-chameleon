@@ -1,6 +1,7 @@
 _ = require 'underscore-plus'
 desc = require '../utils/text-description'
 infoView = require './new-project-info'
+SelectTemplate = require './select-template-view'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
 module.exports =
@@ -36,7 +37,10 @@ class NewProjectView extends View
     @parentView.enableNext()
 
   nextStep:(box) ->
-    nextStepView = new infoView()
+    if @newType is 'template'
+      nextStepView = new SelectTemplate()
+    else
+      nextStepView = new infoView()
     box.setPrevStep @
     box.mergeOptions {subview:nextStepView,newType:@newType}
     box.nextStep()
