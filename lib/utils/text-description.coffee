@@ -43,6 +43,7 @@ module.exports = TextDescription =
   ProjectConfigFileName: 'appConfig.json'
 
   projectConfig : '应用配置'
+  moduleConfig : '模块配置'
 
   # 设置模块
   panelTitle: '设置'

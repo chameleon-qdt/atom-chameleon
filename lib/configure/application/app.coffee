@@ -1,9 +1,7 @@
 {$} = require 'atom-space-pen-views'
 AppConfigView = require './app-view'
-ChameleonBox = require './../../utils/chameleon-box-view'
 
 module.exports = ConfigureApp =
-  appView: null
   modalPanel: null
 
   activate:(state) ->
