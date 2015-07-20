@@ -1,6 +1,8 @@
 _ = require 'underscore-plus'
+Path = require 'path'
 desc = require '../utils/text-description'
 infoView = require './new-project-info'
+SelectTemplate = require './select-template-view'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
 module.exports =
@@ -21,6 +23,7 @@ class NewProjectView extends View
           @h3 '业务模板',class: 'project-name'
 
   attached: ->
+    @addFrameworks()
     @parentView.setPrevBtn('back')
     @parentView.disableNext()
     $('.new-item').on 'click',(e) => @onItemClick(e)
@@ -36,7 +39,13 @@ class NewProjectView extends View
     @parentView.enableNext()
 
   nextStep:(box) ->
-    nextStepView = new infoView()
+    if @newType is 'template'
+      nextStepView = new SelectTemplate()
+    else
+      nextStepView = new infoView()
     box.setPrevStep @
     box.mergeOptions {subview:nextStepView,newType:@newType}
     box.nextStep()
+
+  addFrameworks: ->
+    console.log desc.frameworkPath
