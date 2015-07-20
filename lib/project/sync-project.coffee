@@ -3,10 +3,11 @@ desc = require '../utils/text-description'
 Settings = require '../settings/settings'
 Util = require '../utils/util'
 client = require '../utils/client'
+loadingMask = require '../utils/loadingMask'
 
 module.exports =
 class SyncProjectView extends View
-
+  LoadingMask: loadingMask
   @content: ->
     @div class: 'sync-project container', =>
       @div class: 'row', =>
@@ -29,6 +30,7 @@ class SyncProjectView extends View
       @parentView.closeView()
       alert '请先登录'
     else
+      LoadingMask = new @LoadingMask()
       @parentView.setNextBtn('finish');
       @parentView.setPrevBtn('back');
       account_id = Util.store('chameleon').account_id
@@ -39,7 +41,6 @@ class SyncProjectView extends View
           page: @page
         sendCookie: true
         cb: (err,httpResponse,body) =>
-          console.log err
           console.log httpResponse
           if !err && httpResponse.statusCode is 200 
             data = JSON.parse(body)
@@ -55,6 +56,7 @@ class SyncProjectView extends View
         error: (err) =>
           console.log err
 
+      @.append(LoadingMask)
       client.getUserProjects params
 
   nextStep: (box)->

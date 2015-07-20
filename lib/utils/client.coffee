@@ -16,10 +16,22 @@ module.exports =
       j.setCookie(cookie, config.serverUrl)
       params.jar = j
     params = $.extend defaultsParams, params
-    request params, params.cb
+    cb = (err, httpResponse, body) =>
+      if !err && httpResponse.statusCode is 200
+        params.success(body, httpResponse.headers['set-cookie'][0])
+      else if httpResponse.statusCode is 403
+        alert '没有登录或登录超时，请重新登录'
+      else
+        params.error(err)
+    request params, cb
 
   login: (params) ->
     params.url = 'anonymous/login'
+    params.method = 'POST'
+    @send params
+
+  loggout: (params) ->
+    params.url = 'anonymous/logout'
     params.method = 'POST'
     @send params
 

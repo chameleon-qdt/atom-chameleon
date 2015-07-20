@@ -57,29 +57,27 @@ module.exports = Login =
           mail: mail,
           password: password
         }
-        cb: (err,httpResponse,body) =>
-          console.log httpResponse.headers['set-cookie']
-          if !err && httpResponse.statusCode is 200
-            data = JSON.parse(body)
-            console.log data
-            switch data.flag
-              when '0'
-                alert "登录失败：邮箱或密码不正确"
-              when '1'
-                util.store('chameleon', data)
-                util.store('chameleon-cookie', httpResponse.headers['set-cookie'][0])
-                alert "登录成功"
-                @closeView()
-                atom.workspace.getPanes()[0].destroyActiveItem()
-                @settings.activate()
-              when '2'
-                alert "登录失败：用户未激活"
-              when '4'
-                alert "登录失败：用户被禁用"
-              when '5'
-                alert "邮箱或密码不正确"
-          else
-            alert "登录接口调不通"
+        success: (body, cookie) =>
+          data = JSON.parse(body)
+          console.log data
+          switch data.flag
+            when '0'
+              alert "登录失败：邮箱或密码不正确"
+            when '1'
+              util.store('chameleon', data)
+              util.store('chameleon-cookie', cookie)
+              alert "登录成功"
+              @closeView()
+              atom.workspace.getPanes()[0].destroyActiveItem()
+              @settings.activate()
+            when '2'
+              alert "登录失败：用户未激活"
+            when '4'
+              alert "登录失败：用户被禁用"
+            when '5'
+              alert "邮箱或密码不正确"
+        error: (err) =>
+          alert err
 
       if mail is '' and password is ''
         alert "邮箱或密码不能为空"
