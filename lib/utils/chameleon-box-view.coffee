@@ -162,3 +162,4 @@ class ChameleonBoxView extends View
 
 
 module.exports.$ = $
+module.exports._ = _

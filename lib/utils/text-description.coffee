@@ -1,3 +1,5 @@
+Path = require 'path'
+
 module.exports = TextDescription =
   headtitle : '标题'
   cancel : '取消'
@@ -30,6 +32,7 @@ module.exports = TextDescription =
   registerUrl : 'http://www.baidu.com'
 
   chameleonHome: atom.packages.getLoadedPackage('chameleon').path
+  frameworkPath: Path.join atom.packages.getLoadedPackage('chameleon').path,'src','frameworks'
   newProjectDefaultPath: atom.config.get('core').projectHome
   iconPath:'atom://chameleon-qdt-atom/images/icon.png'
   mainEntryFileName: 'index.html'
@@ -43,6 +46,7 @@ module.exports = TextDescription =
   ProjectConfigFileName: 'appConfig.json'
 
   projectConfig : '应用配置'
+  moduleConfig : '模块配置'
 
   # 设置模块
   panelTitle: '设置'
