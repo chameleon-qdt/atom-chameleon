@@ -57,8 +57,7 @@ module.exports = Login =
           mail: mail,
           password: password
         }
-        success: (body, cookie) =>
-          data = JSON.parse(body)
+        success: (data, cookie) =>
           console.log data
           switch data.flag
             when '0'
