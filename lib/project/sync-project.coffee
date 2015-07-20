@@ -40,19 +40,16 @@ class SyncProjectView extends View
           pageSize: @pageSize
           page: @page
         sendCookie: true
-        cb: (err,httpResponse,body) =>
-          console.log httpResponse
-          if !err && httpResponse.statusCode is 200 
-            data = JSON.parse(body)
-            dataLength = data.length
-            if dataLength > 0
-              data.forEach (item)=>
-                projectItem = new ProjectItem(item)
-                @projectList.append projectItem
-              $('.sync-item').on 'click', (e) => @onItemClick(e)
-            else
-              projectItem = new notProjectItem()
+        success: (data) =>
+          dataLength = data.length
+          if dataLength > 0
+            data.forEach (item)=>
+              projectItem = new ProjectItem(item)
               @projectList.append projectItem
+            $('.sync-item').on 'click', (e) => @onItemClick(e)
+          else
+            projectItem = new notProjectItem()
+            @projectList.append projectItem
         error: (err) =>
           console.log err
 

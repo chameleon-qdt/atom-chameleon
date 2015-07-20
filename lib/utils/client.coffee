@@ -14,12 +14,16 @@ module.exports =
     if params.sendCookie and util.store('chameleon-cookie').length > 0
       cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
+      console.log cookie
       params.jar = j
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
       if !err && httpResponse.statusCode is 200
-        params.success(body, httpResponse.headers['set-cookie'][0])
+        headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
+        params.success(JSON.parse(body), headerCookie)
       else if httpResponse.statusCode is 403
+        util.removeStore('chameleon-cookie')
+        util.removeStore('chameleon')
         alert '没有登录或登录超时，请重新登录'
       else
         params.error(err)
@@ -31,7 +35,7 @@ module.exports =
     @send params
 
   loggout: (params) ->
-    params.url = 'anonymous/logout'
+    params.url = 'usermanger/logout'
     params.method = 'POST'
     @send params
 
