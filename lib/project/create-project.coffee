@@ -5,7 +5,7 @@ _ = require 'underscore-plus'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
 loadingMask = require '../utils/loadingMask'
-
+client = require '../utils/client'
 config = require '../../config/config'
 
 module.exports = CreateProject =
@@ -50,6 +50,7 @@ module.exports = CreateProject =
       when "empty" then @newEmptyProject options
       when "frame" then @newFrameProject options
       when "template" then @newTemplateProject options
+      when "syncProject" then @syncProject options
 
   # 空白项目创建
   newEmptyProject: (options) ->
@@ -138,3 +139,29 @@ module.exports = CreateProject =
     # atom.notifications.addSuccess("Success: This is a notification");
 
   newTemplateProject: (options) ->
+
+  syncProject: (options) ->
+    console.log options.projectInfo
+    params = 
+      sendCookie: true
+      qs:
+        account: Util.store('chameleon').account_id
+        identifier: options.projectId
+      success: (data) ->
+        console.log data
+      error: (err) ->
+        console.log err
+    # client.getProjectDetail params
+    urlList = []
+    for name, url of options.projectInfo.moduleUrlMap
+      urlList.push({name: name, url: url})
+    
+    cb = (err, httpresponse, data) =>
+      console.log httpresponse.headers['content-type']
+      abc = (datac) ->
+        console.log datac
+      Util.createFile('/Users/xylitol_lin/Documents/work/a.png', data, abc)
+
+
+    Util.getFileData(urlList[1].url, cb)
+      

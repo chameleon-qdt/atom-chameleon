@@ -4,7 +4,7 @@ zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
 {File,Directory} = require 'atom'
-# client = require './client'
+request = require 'request'
 module.exports = Util =
 
   rumAtomCommand: (command) ->
@@ -151,6 +151,16 @@ module.exports = Util =
 
   delete: (path,callback) ->
     fs.remove path, callback
+
+  createFile: (file, data, cb) ->
+    fs.outputFile file, data, 'binary', cb
+
+  getFileData: (url, cb) ->
+    params = 
+      url: url
+      method: 'GET'
+      encoding: 'binary'
+    request params, cb
 
   isFileExist: (path, cb) ->
     if typeof cb is 'function'

@@ -1,5 +1,3 @@
-_ = require 'underscore-plus'
-Path = require 'path'
 desc = require '../utils/text-description'
 infoView = require './new-project-info'
 SelectTemplate = require './select-template-view'
