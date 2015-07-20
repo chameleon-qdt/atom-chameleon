@@ -111,24 +111,25 @@ class PublishModuleInfoView extends View
 										modulePath: $(checkbox).attr('value')
 									params =
 										sendCookie: true
-										cb: (err,httpResponse,body) =>
-											if !err and httpResponse.statusCode is 200
-												data = JSON.parse(body)
-												console.log data["version"],obj.identifier,obj.uploadVersion
+										success: (data) =>
+											if true
+												console.log "check version success"
+												# data = JSON.parse(body)
+												# console.log data["version"],obj.identifier,obj.uploadVersion
 												if data['version'] != ""
 													obj['version'] = data['version']
 												else
 													obj['version'] = "0.0.0"
 												item = new ModuleMessageItem(obj)
 												item.find('button').attr('disabled',true)
-												console.log item.find('button')
+												# console.log item.find('button')
 												_moduleMessageList.append(item)
 												util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
 												callbackOper = ->
 													item.find('button').attr("disabled",false)
 												$(".#{obj.identifier}").fadeOut(3000,callbackOper)
-											else
-												console.log "获取模板最新版本 的url 调不通"
+										error : =>
+											console.log "获取模板最新版本 的url 调不通"
 									client.getModuleLastVersion(params,obj.identifier)
 									# item = new ModuleMessageItem(obj)
 									# item.find('button').attr('disabled',true)
@@ -310,40 +311,39 @@ class ModuleMessageItem extends View
 				up_file: fs.createReadStream(PathM.join zipPath,zipName)
 			}
 			sendCookie: true
-			cb: (err,httpResponse,body) =>
-				if !err and httpResponse.statusCode is 200
-					data = JSON.parse(body)
-					alert body
-					configFilePathCallBack = (exists) ->
-						if exists
-							file = new File($(btn2).val())
-							file.read(false).then (content) =>
-								contentList = JSON.parse(content)
-								console.log contentList['version'],contentList['identifier']
-								params =
-									form:{
-										module_tag: contentList['identifier'],
-										module_name: contentList['name'],
-										module_desc: contentList['description'],
-										version: contentList['version'],
-										url_id: data['url_id'],
-										update_log: '还没调上传文件的接口'
-									}
-									sendCookie: true
-									cb: (err,httpResponse,body) =>
-										if !err and httpResponse.statusCode  is 200
-											console.log body
-											data = JSON.parse(body)
-											_version.text(_uploadVersion.text())
-											alert body
-										else
-											alert "error"
-								client.postModuleMessage(params)
-						else
-							console.log "文件不存在#{$(btn2).val()}"
-					fs.exists($(btn2).val(),configFilePathCallBack)
-				else
-					alert "上传文件失败"
+			success: (data) =>
+				# data = JSON.parse(body)
+				console.log "上传文件成功"
+				configFilePathCallBack = (exists) ->
+					if exists
+						file = new File($(btn2).val())
+						file.read(false).then (content) =>
+							contentList = JSON.parse(content)
+							console.log contentList['version'],contentList['identifier']
+							params =
+								form:{
+									module_tag: contentList['identifier'],
+									module_name: contentList['name'],
+									module_desc: contentList['description'],
+									version: contentList['version'],
+									url_id: data['url_id'],
+									update_log: '还没调上传文件的接口'
+								}
+								sendCookie: true
+								success: (data) =>
+									console.log data
+									# data = JSON.parse(body)
+									_version.text(_uploadVersion.text())
+									alert "上传模块成功"
+									console.log "upload success"
+								error: =>
+								  alert "error"
+							client.postModuleMessage(params)
+					else
+						console.log "文件不存在#{$(btn2).val()}"
+				fs.exists($(btn2).val(),configFilePathCallBack)
+			error: =>
+				alert "上传文件失败"
 		client.uploadFile(fileParams,"module","yuzhe@163.com")
 
 module.exports =

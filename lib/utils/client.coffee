@@ -49,7 +49,7 @@ module.exports =
   getModuleLastVersion: (params,identifier) ->
     userId = util.store('chameleon').account_id
     console.log userId,identifier
-    params.url = "app_update/get_lastversion/#{identifier}/#{userId}"
+    params.url = "app_update/get_lastversion/#{identifier}"
     # params.url = "app_update/get_lastversion/#{identifier}"
     @send params
 
