@@ -112,10 +112,10 @@ module.exports = Login =
         else
           #获取最新输入的字符
           _thisLoginView.find('#loginPassword').text(str+inputStr.charAt(inputStr.length - 1))
-      for str in inputStr
-        do (str) ->
-          strOuput = strOuput + '*'
-      _thisLoginView.loginPassword.setText(strOuput)
+        for str in inputStr
+          do (str) ->
+            strOuput = strOuput + '*'
+        _thisLoginView.loginPassword.setText(strOuput)
     # 密码框处理结束
     @loginView.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @loginView, visible: false)
     @loginView.move()
