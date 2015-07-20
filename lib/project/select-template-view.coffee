@@ -4,7 +4,6 @@ infoView = require './new-project-info'
 _ = require 'underscore-plus'
 module.exports =
   class SelectTemplate extends View
-
     @content: ->
       @div class: 'new-project', =>
         @h2 '请选择业务模板:'
