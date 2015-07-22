@@ -10,14 +10,14 @@ module.exports =
     defaultsParams =
       baseUrl: config.serverUrl
       method: 'GET'
-    console.log defaultsParams.baseUrl+params.url
+    # console.log defaultsParams.baseUrl+params.url
     if params.sendCookie and util.store('chameleon-cookie').length > 0
       cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
       params.jar = j
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
-      console.log httpResponse
+      # console.log httpResponse
       if !err && httpResponse.statusCode is 200
 
         headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
