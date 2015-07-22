@@ -5,6 +5,8 @@ Util = require '../utils/util'
 client = require '../utils/client'
 loadingMask = require '../utils/loadingMask'
 
+syncInfoView = require './sync-project-info'
+
 module.exports =
 class SyncProjectView extends View
   LoadingMask: loadingMask
@@ -17,6 +19,7 @@ class SyncProjectView extends View
 
   pageSize: 10
   page: 1
+  account_id: ''
 
   getElement: ->
     @element
@@ -31,12 +34,12 @@ class SyncProjectView extends View
       alert '请先登录'
     else
       LoadingMask = new @LoadingMask()
-      @parentView.setNextBtn('finish');
+      @parentView.setNextBtn();
       @parentView.setPrevBtn('back');
-      account_id = Util.store('chameleon').account_id
+      @account_id = Util.store('chameleon').account_id
       params = 
         qs:
-          account: account_id
+          account: @account_id
           pageSize: @pageSize
           page: @page
         sendCookie: true
@@ -44,20 +47,28 @@ class SyncProjectView extends View
           dataLength = data.length
           if dataLength > 0
             data.forEach (item)=>
+              console.log item
               projectItem = new ProjectItem(item)
               @projectList.append projectItem
             $('.sync-item').on 'click', (e) => @onItemClick(e)
           else
             projectItem = new notProjectItem()
             @projectList.append projectItem
+          @.children(".loading-mask").remove()
         error: (err) =>
           console.log err
+          @.children(".loading-mask").remove()
 
       @.append(LoadingMask)
       client.getUserProjects params
 
-  nextStep: (box)->
+  nextStep: (box)=>
+    projectId = $('.select').attr('projectId')
+    nextStepView = new syncInfoView(projectId)
+    box.setPrevStep @
+    box.mergeOptions {subview:nextStepView, projectId: projectId, account_id: @account_id}
     box.nextStep()
+    @projectList.html('')
 
   onItemClick: (e) ->
     el = e.currentTarget
@@ -65,10 +76,11 @@ class SyncProjectView extends View
     el.classList.add 'select'
     @createType = el.dataset.type
     @parentView.enableNext()
+    
 
 class ProjectItem extends View
   @content: (data) ->
-    @li class: 'sync-item inline-block new-item text-center',  =>
+    @li class: 'sync-item inline-block new-item text-center',projectId: data.identifier, =>
       @img class: 'pic', src: desc.iconPath
       @h3 data.name, class: 'project-name'
 

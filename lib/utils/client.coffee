@@ -14,7 +14,6 @@ module.exports =
     if params.sendCookie and util.store('chameleon-cookie').length > 0
       cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
-      console.log cookie
       params.jar = j
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
@@ -44,6 +43,10 @@ module.exports =
 
   getUserProjects: (params) ->
     params.url = 'app/list'
+    @send params
+
+  getProjectDetail: (params) ->
+    params.url = 'app/app_info'
     @send params
 
   getModuleLastVersion: (params,identifier) ->
