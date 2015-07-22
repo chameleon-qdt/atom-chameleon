@@ -74,7 +74,7 @@ class SyncProjectView extends View
       appName : @appName.getText();
       appPath : @appPath.getText();
 
-    console.log projectInfo
+    # console.log projectInfo
     projectInfo
 
   checkInput: ->
@@ -111,5 +111,5 @@ class SyncProjectView extends View
 
   nextStep:(box) ->
     box.setPrevStep @
-    box.mergeOptions {projectInfo:@projectDetail, newType:'syncProject'}
+    box.mergeOptions {projectInfo: @getProjectInfo(), projectDetail: @projectDetail, newType: 'syncProject'}
     box.nextStep()

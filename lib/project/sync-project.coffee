@@ -36,7 +36,7 @@ class SyncProjectView extends View
       LoadingMask = new @LoadingMask()
       @parentView.setNextBtn();
       @parentView.setPrevBtn('back');
-      @account_id = Util.store('chameleon').account_id
+      @account_id = Util.store('chameleon').mail
       params = 
         qs:
           account: @account_id

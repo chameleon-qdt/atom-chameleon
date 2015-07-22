@@ -17,6 +17,7 @@ module.exports =
       params.jar = j
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
+      console.log httpResponse
       if !err && httpResponse.statusCode is 200
         headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
         params.success(JSON.parse(body), headerCookie)
