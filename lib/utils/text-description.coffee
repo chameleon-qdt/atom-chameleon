@@ -52,3 +52,5 @@ module.exports = TextDescription =
   panelTitle: '设置'
   menuAccount: '开发者账号'
   menuCode: '框架、模版'
+
+  buildProjectMainTitle: "构建项目"
