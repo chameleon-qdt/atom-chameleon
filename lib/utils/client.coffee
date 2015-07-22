@@ -18,8 +18,11 @@ module.exports =
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
       if !err && httpResponse.statusCode is 200
-        params.success(body, httpResponse.headers['set-cookie'][0])
+        headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
+        params.success(JSON.parse(body), headerCookie)
       else if httpResponse.statusCode is 403
+        util.removeStore('chameleon-cookie')
+        util.removeStore('chameleon')
         alert '没有登录或登录超时，请重新登录'
       else
         params.error(err)
@@ -31,7 +34,7 @@ module.exports =
     @send params
 
   loggout: (params) ->
-    params.url = 'anonymous/logout'
+    params.url = 'usermanger/logout'
     params.method = 'POST'
     @send params
 
@@ -39,10 +42,14 @@ module.exports =
     params.url = 'app/list'
     @send params
 
+  getProjectDetail: (params) ->
+    params.url = 'app/app_info'
+    @send params
+
   getModuleLastVersion: (params,identifier) ->
     userId = util.store('chameleon').account_id
     console.log userId,identifier
-    params.url = "app_update/get_lastversion/#{identifier}/#{userId}"
+    params.url = "app_update/get_lastversion/#{identifier}"
     # params.url = "app_update/get_lastversion/#{identifier}"
     @send params
 
