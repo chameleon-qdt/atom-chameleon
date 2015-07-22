@@ -3,6 +3,7 @@ JSZip = require 'jszip'
 zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
+dialog = require('remote').require 'dialog'
 {File,Directory} = require 'atom'
 request = require 'request'
 module.exports = Util =
@@ -170,6 +171,31 @@ module.exports = Util =
 
   readDir: (path, cb) ->
     fs.readdir path, cb
+
+  openDialog : (options,cb) ->
+    dialog.showOpenDialog options, (destPath) ->
+      cb destPath
+
+  # openDirectory title: 'Select Path', (path) ->
+  #   console.log path
+  openDirectory : (options,cb) ->
+
+    options : _.extend({
+      defaultPath: atom.project.path
+      properties: ['openDirectory']
+      }, options)
+
+    @openDialog(options,cb)
+
+  openFile : (options,cb) ->
+
+    options = _.extend({
+      defaultPath: atom.project.path
+      properties: ['openFile']
+      }, options)
+
+    @openDialog(options,cb)
+
 
   store: (namespace, data) ->
     if data

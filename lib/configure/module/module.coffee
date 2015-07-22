@@ -3,19 +3,11 @@ ModuleView = require './module-view'
 ChameleonBox = require '../../utils/chameleon-box-view'
 
 module.exports = ConfigureModule =
-	moduleView: null
+	chameleonBox: null
 	modalPanel: null
 
 	activate:(state) ->
-		opt =
-      title : '模块配置'
-      subview : new ModuleView()
-      hideNextBtn :　false
-      hidePrevBtn :　true
-
-
-    @chameleonBox = new ChameleonBox(opt)
-		# @chameleonBox.contentView.getInitInput()
+		@chameleonBox = new ModuleView()
 		@chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
 		@chameleonBox.move()
 		@chameleonBox.prevBtn.addClass('hide')
@@ -49,6 +41,4 @@ module.exports = ConfigureModule =
     chameleonBoxState: @chameleonBox.serialize()
 
   openView: ->
-    unless @modalPanel.isVisible()
-      # console.log 'CreateProject was opened!'
-      @modalPanel.show()
+    @chameleonBox.openView()
