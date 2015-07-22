@@ -28,7 +28,7 @@ class CodePanel extends View
     @renderTemplatesList()
 
   renderCodePackList: =>
-    repoDir =  pathM.join desc.chameleonHome,'src','frameworks'
+    repoDir =  desc.getFrameworkPath()
     util.readDir repoDir, (err, files) =>
       console.log files
       if files.indexOf('.githolder') >= 0
@@ -132,4 +132,3 @@ class TemplatesListTemp extends View
       @div class: 'btn-group', =>
         @button class: 'btn icon icon-cloud-download inline-block', '更新'
         @button class: 'btn icon icon-trashcan inline-block', '删除'
-    
