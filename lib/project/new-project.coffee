@@ -1,8 +1,9 @@
-_ = require 'underscore-plus'
 Path = require 'path'
 desc = require '../utils/text-description'
+Util = require '../utils/util'
 infoView = require './new-project-info'
 SelectTemplate = require './select-template-view'
+dialog = require('remote').require 'dialog'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
 module.exports =
@@ -10,7 +11,7 @@ class NewProjectView extends View
 
   @content: (params) ->
     @div class: 'new-project', =>
-      @div class: 'step active', 'data-step': '1', =>
+      @div class: 'step active', outlet:'projectList', =>
         @h2 '请选择要创建的项目类型:'
         @div class: 'new-item text-center', 'data-type': 'empty',  =>
           @img class: 'pic', src:desc.iconPath
@@ -21,9 +22,10 @@ class NewProjectView extends View
         @div class: 'new-item text-center', 'data-type': 'template',  =>
           @img class: 'pic', src: desc.iconPath
           @h3 '业务模板',class: 'project-name'
+        @div outlet:'divider'
 
   attached: ->
-    @addFrameworks()
+    @findFrameworks()
     @parentView.setPrevBtn('back')
     @parentView.disableNext()
     $('.new-item').on 'click',(e) => @onItemClick(e)
@@ -47,5 +49,23 @@ class NewProjectView extends View
     box.mergeOptions {subview:nextStepView,newType:@newType}
     box.nextStep()
 
-  addFrameworks: ->
-    console.log desc.frameworkPath
+  findFrameworks: ->
+    # fp = Path.join desc.chameleonHome,'empty'
+    fp = desc.getFrameworkPath()
+    Util.readDir fp, (err,files) =>
+      return console.error err if err
+      files.forEach (file) =>
+        unless file is '.githolder'
+          configPath = Path.join fp,file,desc.moduleConfigFileName
+          Util.readJson configPath, (err,json) =>
+            return console.error err if err
+            @addFrameworks(json)
+
+  addFrameworks:(json) ->
+    html = """
+    <div class="new-item text-center" data-type="frame" data-name="#{json.name}">
+      <img class="pic" src="#{desc.iconPath}">
+      <h3 class="project-name">#{json.name}</h3>
+    </div>
+    """
+    @projectList.append html
