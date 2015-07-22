@@ -172,22 +172,22 @@ module.exports = Util =
   readDir: (path, cb) ->
     fs.readdir path, cb
 
-  openDialog = (options,cb) ->
+  openDialog : (options,cb) ->
     dialog.showOpenDialog options, (destPath) ->
       cb destPath
 
   # openDirectory title: 'Select Path', (path) ->
   #   console.log path
-  openDirectory = (options,cb) ->
+  openDirectory : (options,cb) ->
 
-    options = _.extend({
+    options : _.extend({
       defaultPath: atom.project.path
       properties: ['openDirectory']
       }, options)
 
     @openDialog(options,cb)
 
-  openFile = (options,cb) ->
+  openFile : (options,cb) ->
 
     options = _.extend({
       defaultPath: atom.project.path
