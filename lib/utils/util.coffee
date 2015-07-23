@@ -215,8 +215,9 @@ module.exports = Util =
       stats = fs.statSync(filePath)
       if stats.isFile()
         fileName = pathM.basename(filePath)
-        fileZipPath = pathM.join node,fileName
-        zip.file(fileZipPath,fs.readFileSync(filePath))
+        # fileZipPath = pathM.join node,fileName
+        # zip.file(fileZipPath,fs.readFileSync(filePath))
+        zip.folder(node).file(fileName,fs.readFileSync(filePath))
       else
         folderZipPath = pathM.join node,pathM.basename(filePath)
         zip.folder(folderZipPath)
