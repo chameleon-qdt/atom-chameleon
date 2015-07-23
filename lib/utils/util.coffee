@@ -157,7 +157,7 @@ module.exports = Util =
     fs.outputFile file, data, 'binary', cb
 
   getFileData: (url, cb) ->
-    params = 
+    params =
       url: url
       method: 'GET'
       encoding: 'binary'
@@ -228,7 +228,7 @@ module.exports = Util =
     fs.writeFileSync(zipPath,content)
     console.log "打包完了"
 
-  UnCompressFile: (zipPath) ->
+  UnCompressFile: (zipPath, success) ->
     unzipPath = pathM.join zipPath,".."
     cb = (err, data) ->
       if err
@@ -248,6 +248,8 @@ module.exports = Util =
           console.log zipObject.name + " is a file"
           fs.writeFileSync(savePath,zipObject._data.getContent())
       readAndwrite zipObject for fileName , zipObject of object.files
+      if typeof success isnt "undefined"
+        success()
       # console.log "!"
     fs.readFile(zipPath,cb)
   # 回调函数必须包含三个参数 cb(err,httpResponse,body)
