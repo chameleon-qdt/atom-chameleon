@@ -2,8 +2,8 @@ pathM = require 'path'
 Util = require '../utils/util'
 desc = require '../utils/text-description'
 _ = require 'underscore-plus'
-ChameleonBox = require '../utils/chameleon-box-view'
 CreateProjectView = require './create-project-view'
+$ = CreateProjectView.$
 loadingMask = require '../utils/loadingMask'
 client = require '../utils/client'
 config = require '../../config/config'
@@ -18,11 +18,8 @@ module.exports = CreateProject =
   LoadingMask: loadingMask
 
   activate: (state) ->
-    opt =
-      title : desc.createProject
-      subview : new CreateProjectView()
 
-    @chameleonBox = new ChameleonBox(opt)
+    @chameleonBox = new CreateProjectView()
     @chameleonBox.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @chameleonBox, visible: false)
     @chameleonBox.move()
 
@@ -70,9 +67,9 @@ module.exports = CreateProject =
             _.debounce(aft,300)
           Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
           @modalPanel.item.children(".loading-mask").remove()
-          alert '项目创建成功'
+          # alert '项目创建成功'
           atom.project.addPath(info.appPath)
-          Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+          Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
           @closeView()
 
 
@@ -112,7 +109,7 @@ module.exports = CreateProject =
 
             @modalPanel.item.children(".loading-mask").remove()
             atom.project.addPath(info.appPath)
-            Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+            Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
             @closeView()
 
 
@@ -142,7 +139,7 @@ module.exports = CreateProject =
 
   syncProject: (options) ->
     console.log options.projectInfo
-    params = 
+    params =
       sendCookie: true
       qs:
         account: Util.store('chameleon').account_id
@@ -155,7 +152,7 @@ module.exports = CreateProject =
     urlList = []
     for name, url of options.projectInfo.moduleUrlMap
       urlList.push({name: name, url: url})
-    
+
     cb = (err, httpresponse, data) =>
       console.log httpresponse.headers['content-type']
       abc = (datac) ->
@@ -164,4 +161,3 @@ module.exports = CreateProject =
 
 
     Util.getFileData(urlList[1].url, cb)
-      

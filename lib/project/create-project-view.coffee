@@ -3,12 +3,11 @@ desc = require '../utils/text-description'
 {$, View} = require 'atom-space-pen-views'
 syncProjectView = require './sync-project'
 newProjectView = require './new-project'
+ChameleonBox = require '../utils/chameleon-box-view'
 
-module.exports =
-class CreateProjectView extends View
+# module.exports =
+class CreateOrSynchronize extends View
 
-  prevBtn:null
-  nextBtn:null
   v:
     syncProject:syncProjectView
     newProject:newProjectView
@@ -52,3 +51,10 @@ class CreateProjectView extends View
     box.setPrevStep @
     box.mergeOptions {subview:nextStepView}
     box.nextStep()
+
+module.exports =
+class CreateProjectView extends ChameleonBox
+
+  options :
+    title : desc.createProject
+    subview : new CreateOrSynchronize()
