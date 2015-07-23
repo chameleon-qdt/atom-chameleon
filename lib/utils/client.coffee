@@ -16,15 +16,14 @@ module.exports =
       params.jar = j
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
-      console.log body
       if !err && httpResponse.statusCode is 200
         headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
         params.success(JSON.parse(body), headerCookie)
-
       else if httpResponse.statusCode is 403
         util.removeStore('chameleon-cookie')
         util.removeStore('chameleon')
         alert '没有登录或登录超时，请重新登录'
+        params.error(err)
       else
         params.error(err)
     request params, cb

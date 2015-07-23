@@ -127,7 +127,7 @@ module.exports = CreateProject =
             alert '项目创建失败：git clone失败，请检查网络连接'
             @modalPanel.item.children(".loading-mask").remove()
 
-        Util.getRepo(@frameworksDir, config.repoUri, success.bind(this)) #没有，执行 git clone，成功后执行第二步
+        Util.getRepo(@frameworksDir, config.repoUri, success) #没有，执行 git clone，成功后执行第二步
 
 
     LoadingMask = new @LoadingMask()
@@ -139,25 +139,55 @@ module.exports = CreateProject =
 
   syncProject: (options) ->
     console.log options.projectInfo
-    params =
-      sendCookie: true
-      qs:
-        account: Util.store('chameleon').account_id
-        identifier: options.projectId
-      success: (data) ->
-        console.log data
-      error: (err) ->
-        console.log err
-    # client.getProjectDetail params
+    console.log options.projectDetail
+    LoadingMask = new @LoadingMask()
+    @modalPanel.item.append(LoadingMask)
+
+    filePath = options.projectInfo.appPath
     urlList = []
-    for name, url of options.projectInfo.moduleUrlMap
+    for name, url of options.projectDetail.moduleUrlMap
       urlList.push({name: name, url: url})
-
-    cb = (err, httpresponse, data) =>
-      console.log httpresponse.headers['content-type']
-      abc = (datac) ->
-        console.log datac
-      Util.createFile('/Users/xylitol_lin/Documents/work/a.png', data, abc)
-
-
-    Util.getFileData(urlList[1].url, cb)
+      
+    copyDetail = _.omit options.projectDetail, 'moduleUrlMap'
+    Util.createDir filePath, (err)=>
+      if err
+        console.error err
+      else
+        Util.writeJson pathM.join(filePath, "appConfig.json"), copyDetail , (err)=>
+          if err
+            console.error err
+          else
+            if urlList.length > 0
+              urlList.forEach (item) =>
+                console.log item
+                fileDir = pathM.join filePath, "modules", "#{item.name}.zip"
+                cb = (err, httpresponse, data) =>
+                  console.log httpresponse
+                  abc = (datac) =>
+                    console.log datac
+                    Util.UnCompressFile fileDir, (err)=>
+                      if err
+                        console.error err
+                      else
+                        Util.delete fileDir, (err)=>
+                          if err
+                            console.error err
+                          else
+                            alert '同步项目成功'
+                            atom.project.addPath filePath
+                            Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+                            @modalPanel.item.children(".loading-mask").remove()
+                            @closeView()
+                  Util.createFile pathM.join(filePath, "modules", "#{item.name}.zip"), data, abc
+                Util.getFileData item.url, cb
+            else
+              Util.createDir pathM.join(filePath, "modules"), (err)=>
+                if err
+                  console.error error
+                else  
+                  alert '同步项目成功'
+                  atom.project.addPath filePath
+                  Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+                  atom.workspace.open pathM.join(filePath, 'appConfig.json')
+                  @modalPanel.item.children(".loading-mask").remove()
+                  @closeView()
