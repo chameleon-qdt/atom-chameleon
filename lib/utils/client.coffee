@@ -10,7 +10,6 @@ module.exports =
     defaultsParams =
       baseUrl: config.serverUrl
       method: 'GET'
-    # console.log defaultsParams.baseUrl+params.url
     if params.sendCookie and util.store('chameleon-cookie').length > 0
       cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
@@ -19,7 +18,6 @@ module.exports =
     cb = (err, httpResponse, body) =>
       console.log httpResponse
       if !err && httpResponse.statusCode is 200
-
         headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
         params.success(JSON.parse(body), headerCookie)
 
@@ -71,7 +69,14 @@ module.exports =
     @send params
 
   getAppPlugins: ( params, identifier, platform) ->
-    userId = util.store('chameleon').mail
-    params.url = "app/app_plugins/?account=#{userId}&identifier=#{identifier}&platform=#{platform}"
+    userMail = util.store('chameleon').mail
+    params.url = "app/app_plugins/?account=#{userMail}&identifier=#{identifier}&platform=#{platform}"
     console.log params.url
+    @send params
+
+  buildApp: (params) ->
+    # userMail = util.store('chameleon').mail
+    # params.form.account = userMail
+    params.url = "app/build"
+    params.method = 'POST'
     @send params

@@ -49,7 +49,8 @@
             'command':'chameleon:create-project'
           }
           {
-            'label':'构建应用'
+            'label':'构建应用',
+            'command':'chameleon:bulid-project'
           }
         ]
       }

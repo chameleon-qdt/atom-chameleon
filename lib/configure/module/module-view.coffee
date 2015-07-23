@@ -56,7 +56,7 @@ class ModuleInfoView extends View
 				path = pathM.join filePath,"package.json"
 				if fs.existsSync(path)
 					contentList = JSON.parse(fs.readFileSync(path))
-					_moduleList.append('<div class="col-md-3"><input value="'+path+'" type="checkbox"><label>'+contentList['name']+'</label></div>')
+					_moduleList.append('<div class="col-md-3"><input value="'+path+'" type="checkbox" class="modulecheckbox"><label>'+contentList['name']+'</label></div>')
 					index = index + 1
 		printName pathM.join project_path,file for file in list
 		if index is 0
@@ -83,7 +83,7 @@ class ModuleInfoView extends View
 			@parentView.prevBtn.removeClass('hide')
 			@parentView.cancelBtn.text('还原')
 		else
-			real_path = $('input[type=checkbox]:checked').attr('value')
+			real_path = $('.modulecheckbox:checked').attr('value')
 			if fs.existsSync(real_path)
 				options =
 					encoding: 'utf-8'
@@ -124,8 +124,8 @@ class ModuleInfoView extends View
 
 	getInitInput: ->
 		if this.find('input[type=checkbox]').is(':checked')
-			console.log $('input[type=checkbox]:checked')
-			real_path = $('input[type=checkbox]:checked').attr('value')
+			console.log $('.modulecheckbox:checked')
+			real_path = $('.modulecheckbox:checked').attr('value')
 			console.log real_path
 		else
 			alert('请选择模块')
