@@ -143,28 +143,56 @@ module.exports = CreateProject =
   syncProject: (options) ->
     console.log options.projectInfo
     console.log options.projectDetail
+    LoadingMask = new @LoadingMask()
+    @modalPanel.item.append(LoadingMask)
+
     filePath = options.projectInfo.appPath
     urlList = []
     for name, url of options.projectDetail.moduleUrlMap
       urlList.push({name: name, url: url})
 
     copyDetail = _.omit options.projectDetail, 'moduleUrlMap'
-    Util.createDir filePath, (err)->
+    Util.createDir filePath, (err)=>
       if err
         console.error err
       else
-        Util.writeJson "#{filePath}/appConfig.json", copyDetail , (err)->
-          console.log err
-          
-          urlList.forEach (item) =>
-            console.log item
-            cb = (err, httpresponse, data) =>
-              console.log httpresponse
-              abc = (datac) =>
-                console.log datac
-                Util.UnCompressFile "#{filePath}/modules/#{item.name}.zip"
-                # Util.delete
-              Util.createFile "#{filePath}/modules/#{item.name}.zip", data, abc
-            Util.getFileData "http://#{urlList[0].url}", cb
+        Util.writeJson pathM.join(filePath, "appConfig.json"), copyDetail , (err)=>
+          if err
+            console.error err
+          else
+            if urlList.length > 0
+              urlList.forEach (item) =>
+                console.log item
+                fileDir = pathM.join filePath, "modules", "#{item.name}.zip"
+                cb = (err, httpresponse, data) =>
+                  console.log httpresponse
+                  abc = (datac) =>
+                    console.log datac
+                    Util.UnCompressFile fileDir, (err)=>
+                      if err
+                        console.error err
+                      else
+                        Util.delete fileDir, (err)=>
+                          if err
+                            console.error err
+                          else
+                            alert '同步项目成功'
+                            atom.project.addPath filePath
+                            Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+                            @modalPanel.item.children(".loading-mask").remove()
+                            @closeView()
+                  Util.createFile pathM.join(filePath, "modules", "#{item.name}.zip"), data, abc
+                Util.getFileData item.url, cb
+            else
+              Util.createDir pathM.join(filePath, "modules"), (err)=>
+                if err
+                  console.error error
+                else  
+                  alert '同步项目成功'
+                  atom.project.addPath filePath
+                  Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+                  atom.workspace.open pathM.join(filePath, 'appConfig.json')
+                  @modalPanel.item.children(".loading-mask").remove()
+                  @closeView()
     
       

@@ -34,8 +34,8 @@ class SyncProjectView extends View
       alert '请先登录'
     else
       LoadingMask = new @LoadingMask()
-      @parentView.setNextBtn();
-      @parentView.setPrevBtn('back');
+      @parentView.setNextBtn()
+      @parentView.setPrevBtn('back')
       @account_id = Util.store('chameleon').mail
       params = 
         qs:
@@ -56,8 +56,9 @@ class SyncProjectView extends View
             @projectList.append projectItem
           @.children(".loading-mask").remove()
         error: (err) =>
-          console.log err
+          alert err
           @.children(".loading-mask").remove()
+          @parentView.closeView()
 
       @.append(LoadingMask)
       client.getUserProjects params

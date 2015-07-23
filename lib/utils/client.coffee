@@ -27,6 +27,7 @@ module.exports =
         util.removeStore('chameleon-cookie')
         util.removeStore('chameleon')
         alert '没有登录或登录超时，请重新登录'
+        params.error(err)
       else
         params.error(err)
     request params, cb
