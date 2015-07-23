@@ -52,6 +52,10 @@
             'label':'构建应用',
             'command':'chameleon:bulid-project'
           }
+          {
+            'label':'上传应用',
+            'command':'chameleon:upload-project'
+          }
         ]
       }
       {

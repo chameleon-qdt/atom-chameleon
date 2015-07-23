@@ -55,3 +55,4 @@ module.exports = TextDescription =
   menuCode: '框架、模版'
 
   buildProjectMainTitle: "构建项目"
+  uploadProjectTitle: "上传应用"
