@@ -6,6 +6,7 @@ ChameleonBox = require '../utils/chameleon-box-view'
 fs = require 'fs-extra'
 client = require '../utils/client'
 Settings = require '../settings/settings'
+UtilExtend = require './../utils/util-extend'
 
 class BuildProjectInfoView extends View
 	@content: ->
@@ -86,6 +87,7 @@ class BuildProjectInfoView extends View
 			@settings.activate()
 			@parentView.enable = false
 			alert '请先登录'
+			return
 		@main.addClass('hide')
 		@buildMessage.addClass('hide')
 		@selectApp.removeClass('hide')
@@ -187,31 +189,27 @@ class BuildProjectInfoView extends View
 						params =
 							sendCookie: true
 							success: (data) =>
-								console.log data
-								# str = '[{"identifier":"s","type":"PUBLIC","version":"0.0.1"},{"identifier":"v","type":"PRIVATE","version":"0.0.2"}]'
-								# data = JSON.parse(str)
+								# console.log data
 								strContent = ""
 								showPlaugins = (obj) ->
 									strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
 								showPlaugins obj for obj in data
 								@iOSPlugins.html(strContent)
 							error: =>
-								console.log "console.error"
+								# console.log "console.error"
 						client.getAppPlugins(params, jsonContent['identifier'], 'IOS')
 					else
 						params =
 							sendCookie: true
 							success: (data) =>
-								console.log data
-								# str = '[{"identifier":"s","type":"PUBLIC","version":"0.0.1"},{"identifier":"v","type":"PRIVATE","version":"0.0.2"}]'
-								# data = JSON.parse(str)
+								# console.log data
 								strContent = ""
 								showPlaugins = (obj) ->
 									strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
 								showPlaugins obj for obj in data
 								@androidPlugins.html(strContent)
 							error: =>
-								console.log "console.error"
+								# console.log "console.error"
 						client.getAppPlugins(params, jsonContent['identifier'], 'ANDROID')
 						# 结束获取插件信息
 				showBuildMessage checkbox for checkbox in checkboxList
@@ -260,7 +258,8 @@ class BuildProjectInfoView extends View
 			jsonContent = JSON.parse(strContent)
 			modules = jsonContent['modules']
 			@buildTips.html("正在检测模块信息......")
-			@checkModuleNeedUpload identifier, version for identifier, version of modules
+			projectPath = pathM.join this.find('select').val(), 'modules'
+			UtilExtend.checkModuleNeedUpload identifier, version, projectPath for identifier, version of modules
 			@buildTips.html("正在上传应用信息......")
 			# 上传应用信息 获取上传的平台信息
 			checkboxList = this.find('input[type=checkbox]:checked')
@@ -293,10 +292,12 @@ class BuildProjectInfoView extends View
 				identifier: @identifier.attr("value"),
 				platformInfo: platformInfo,
 				account: userMail
+				mainModule: contentList["mainModule"]
 				classify: "",
-				version: "",
+				version: contentList["version"],
 				describe: contentList["description"],
 				modules: contentList["modules"]
+				releaseNote: contentList["releaseNote"]
 			bodyStr = JSON.stringify(bodyJSON)
 			params =
 				body: bodyStr
@@ -305,88 +306,89 @@ class BuildProjectInfoView extends View
 					console.log "success "+ data
 					if data["status"] is "success"
 						@buildTips.html("正在构建请耐心等待......")
+						#在这里需要不断的查构建结果
 				error: =>
 					console.log "error"
 			client.buildApp(params)
 			console.log params
 			# @parentView.nextBtn.attr('disabled',false)
 
-	checkModuleNeedUpload: ( moduleIdentifer, moduleVersion) ->
-		console.log moduleIdentifer, moduleVersion
-		params =
-			sendCookie: true
-			success: (data) =>
-				console.log "check version success"
-				if data['version'] != ""
-					uploadVersion = moduleVersion.split('.')
-					version = data['version'].split('.')
-					# 判断是否需要上传模块
-					if uploadVersion[0] < version[0]
-						console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
-						return
-					else if uploadVersion[0] == version[0]
-						if uploadVersion[1] < version[1]
-							console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
-							return
-						else if uploadVersion[1] == version[1]
-							if uploadVersion[2] <= version[2]
-								console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
-								return
-				# 上传模块
-				# 1、压缩模块
-				# 2、上传
-				console.log "modulePath"
-				modulePath = pathM.join this.find('select').val(), 'modules', moduleIdentifer
-				if fs.existsSync(modulePath)
-					Util.fileCompression(modulePath)
-					zipPath = modulePath+'.zip'
-					if fs.existsSync(zipPath)
-						console.log zipPath
-						fileParams =
-							formData: {
-								up_file: fs.createReadStream(zipPath)
-							}
-							sendCookie: true
-							success: (data) =>
-								# data = JSON.parse(body)
-								console.log "上传文件成功"
-								if fs.existsSync(pathM.join modulePath,'package.json')
-									packagePath = pathM.join modulePath,'package.json'
-									options =
-										encoding: 'utf-8'
-									contentList = JSON.parse(fs.readFileSync(packagePath,options))
-									console.log contentList['version'],contentList['identifier']
-									params =
-										form:{
-											module_tag: contentList['identifier'],
-											module_name: contentList['name'],
-											module_desc: contentList['description'],
-											version: contentList['version'],
-											url_id: data['url_id'],
-											update_log: "构建应用时发现本地版本高于服务器版本，所以上传 #{contentList['identifier']} 模块"
-										}
-										sendCookie: true
-										success: (data) =>
-											# console.log data
-											# alert "上传模块成功"
-											console.log "upload success"
-										error: =>
-										  alert "error"
-									client.postModuleMessage(params)
-								else
-									console.log "文件不存在#{pathM.join modulePath,'package.json'}"
-							error: =>
-								alert "上传文件失败"
-						client.uploadFile(fileParams,"module","yuzhe@163.com")
-					else
-						alert "打包#{modulePath}失败"
-				else
-					alert "不存在#{modulePath}"
-				# else
-				# 	console.log "需要上传#{moduleIdentifer}模块,服务器版本为空，本地版本为#{moduleVersion}"
-			error : =>
-				console.log "获取模板最新版本 的url 调不通"
-		client.getModuleLastVersion(params,moduleIdentifer)
+	# checkModuleNeedUpload: ( moduleIdentifer, moduleVersion, modulePath) ->
+	# 	console.log moduleIdentifer, moduleVersion
+	# 	params =
+	# 		sendCookie: true
+	# 		success: (data) =>
+	# 			console.log "check version success"
+	# 			if data['version'] != ""
+	# 				uploadVersion = moduleVersion.split('.')
+	# 				version = data['version'].split('.')
+	# 				# 判断是否需要上传模块
+	# 				if uploadVersion[0] < version[0]
+	# 					console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
+	# 					return
+	# 				else if uploadVersion[0] == version[0]
+	# 					if uploadVersion[1] < version[1]
+	# 						console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
+	# 						return
+	# 					else if uploadVersion[1] == version[1]
+	# 						if uploadVersion[2] <= version[2]
+	# 							console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
+	# 							return
+	# 			# 上传模块
+	# 			# 1、压缩模块
+	# 			# 2、上传
+	# 			console.log "modulePath"
+	# 			# modulePath = pathM.join this.find('select').val(), 'modules', moduleIdentifer
+	# 			if fs.existsSync(modulePath)
+	# 				Util.fileCompression(modulePath)
+	# 				zipPath = modulePath+'.zip'
+	# 				if fs.existsSync(zipPath)
+	# 					console.log zipPath
+	# 					fileParams =
+	# 						formData: {
+	# 							up_file: fs.createReadStream(zipPath)
+	# 						}
+	# 						sendCookie: true
+	# 						success: (data) =>
+	# 							# data = JSON.parse(body)
+	# 							console.log "上传文件成功"
+	# 							if fs.existsSync(pathM.join modulePath,'package.json')
+	# 								packagePath = pathM.join modulePath,'package.json'
+	# 								options =
+	# 									encoding: 'utf-8'
+	# 								contentList = JSON.parse(fs.readFileSync(packagePath,options))
+	# 								console.log contentList['version'],contentList['identifier']
+	# 								params =
+	# 									form:{
+	# 										module_tag: contentList['identifier'],
+	# 										module_name: contentList['name'],
+	# 										module_desc: contentList['description'],
+	# 										version: contentList['version'],
+	# 										url_id: data['url_id'],
+	# 										update_log: "构建应用时发现本地版本高于服务器版本，所以上传 #{contentList['identifier']} 模块"
+	# 									}
+	# 									sendCookie: true
+	# 									success: (data) =>
+	# 										# console.log data
+	# 										# alert "上传模块成功"
+	# 										console.log "upload success"
+	# 									error: =>
+	# 									  alert "error"
+	# 								client.postModuleMessage(params)
+	# 							else
+	# 								console.log "文件不存在#{pathM.join modulePath,'package.json'}"
+	# 						error: =>
+	# 							alert "上传文件失败"
+	# 					client.uploadFile(fileParams,"module","")
+	# 				else
+	# 					alert "打包#{modulePath}失败"
+	# 			else
+	# 				alert "不存在#{modulePath}"
+	# 			# else
+	# 			# 	console.log "需要上传#{moduleIdentifer}模块,服务器版本为空，本地版本为#{moduleVersion}"
+	# 		error : =>
+	# 			console.log "获取模板最新版本 的url 调不通"
+	# 	client.getModuleLastVersion(params,moduleIdentifer)
 
 	prevBtnClick: ->
 		if @main.is(':visible')

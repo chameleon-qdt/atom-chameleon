@@ -16,7 +16,8 @@
       "chameleon:openSource",
       "chameleon:configure-module",
       "chameleon:configure-application",
-      "chameleon:bulid-project"
+      "chameleon:bulid-project",
+      "chameleon:upload-project"
     ]
   },
   "repository": "https://github.com/OnionStu/atom-chameleon",

@@ -5,6 +5,7 @@ Login = require './login/login'
 ConfigureModule = require './configure/module/module'
 ConfigureApp = require './configure/application/app'
 BuildProject = require './project/build-project'
+UploadProject = require './project/upload-project'
 # ConfigureGlobal = require './configure/global/global'
 Settings = require './settings/settings'
 {CompositeDisposable} = require 'atom'
@@ -12,6 +13,7 @@ Settings = require './settings/settings'
 module.exports = Chameleon =
   createProject: null
   BuildProject: null
+  uploadProject: null
   login: null
   configureModule: null
   configureApp: null
@@ -24,6 +26,7 @@ module.exports = Chameleon =
   activate: (state) ->
     @createProject = CreateProject
     @buildProject = BuildProject
+    @uploadProject = UploadProject
     @login = Login
     @configureModule = ConfigureModule
     @configureApp = ConfigureApp
@@ -38,6 +41,7 @@ module.exports = Chameleon =
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-project': => @toggleCreateProject(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:bulid-project' : => @toggleBuildProject(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:upload-project' : => @toggleUploadProject(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:publish-module' : => @togglePublishModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure-module': => @configureModuleViewOpen(state)
@@ -66,6 +70,10 @@ module.exports = Chameleon =
     # console.log BuildProject
     @buildProject.activate(state)
     @buildProject.openView()
+
+  toggleUploadProject: (state) ->
+    @uploadProject.activate(state)
+    @uploadProject.openView()
 
   toggleCreateModule:(state) ->
     @createModule.activate(state)

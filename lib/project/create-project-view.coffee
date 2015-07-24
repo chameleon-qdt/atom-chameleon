@@ -57,4 +57,5 @@ class CreateProjectView extends ChameleonBox
 
   options :
     title : desc.createProject
+    begining : CreateOrSynchronize
     subview : new CreateOrSynchronize()
