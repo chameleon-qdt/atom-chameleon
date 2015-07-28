@@ -56,7 +56,8 @@ class SyncProjectView extends View
             @projectList.append projectItem
           @.children(".loading-mask").remove()
         error: (err) =>
-          alert err
+          # alert err
+          @settings.activate()
           @.children(".loading-mask").remove()
           @parentView.closeView()
 

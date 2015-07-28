@@ -147,7 +147,7 @@ module.exports = CreateProject =
     urlList = []
     for name, url of options.projectDetail.moduleUrlMap
       urlList.push({name: name, url: url})
-      
+
     copyDetail = _.omit options.projectDetail, 'moduleUrlMap'
     Util.createDir filePath, (err)=>
       if err
@@ -173,9 +173,10 @@ module.exports = CreateProject =
                           if err
                             console.error err
                           else
-                            alert '同步项目成功'
+                            # alert '同步项目成功'
                             atom.project.addPath filePath
-                            Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+                            atom.workspace.open pathM.join(filePath, 'appConfig.json')
+                            Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
                             @modalPanel.item.children(".loading-mask").remove()
                             @closeView()
                   Util.createFile pathM.join(filePath, "modules", "#{item.name}.zip"), data, abc
@@ -185,9 +186,9 @@ module.exports = CreateProject =
                 if err
                   console.error error
                 else  
-                  alert '同步项目成功'
+                  # alert '同步项目成功'
                   atom.project.addPath filePath
-                  Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
                   atom.workspace.open pathM.join(filePath, 'appConfig.json')
+                  Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
                   @modalPanel.item.children(".loading-mask").remove()
                   @closeView()
