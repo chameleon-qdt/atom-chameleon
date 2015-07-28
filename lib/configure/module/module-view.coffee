@@ -39,6 +39,10 @@ class ModuleInfoView extends View
 
 	attached: ->
 		project_path = pathM.join $('.entry.selected span').attr('data-path'),'modules'
+		if !fs.existsSync(project_path)
+			alert "不存在 #{project_path} 文件夹"
+			@parentView.enable = false
+			return
 		stats = fs.statSync(project_path)
 		if !stats.isDirectory()
 			alert "不存在 #{project_path} 文件夹"
@@ -174,5 +178,5 @@ class ModuleInfoView extends View
 module.exports =
 	class ModuleView extends ChameleonBox
 		options :
-			title: desc.buildProjectMainTitle
+			title: desc.moduleConfig
 			subview: new ModuleInfoView()

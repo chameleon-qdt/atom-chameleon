@@ -78,6 +78,7 @@ module.exports =
     params.url = "app/build"
     params.method = 'POST'
     @send params
+
   uploadApp: (params) ->
     params.url = "app/create"
     params.method = "POST"

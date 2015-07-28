@@ -28,6 +28,8 @@ class UploadProjectInfoView extends View
 						@label '应用关联模块', class: 'col-sm-3 control-label'
 						@div class: 'col-sm-9 ', =>
 							@label outlet: "moduleList"
+					# @div class: "image", =>
+					# 	@img src: "http://qr.liantu.com/api.php?text=http://baidu.com"
 
 	attached: ->
 		@settings = Settings
