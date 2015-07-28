@@ -14,7 +14,21 @@ atom-panel.modal.from-top.down{
 .modal.down:before{
   .border_radius();
 }
+.flex-container{
+  display: flex;
+  flex:row;
+  align-self:center;
 
+  .frameList{
+    margin: auto;
+    .new-item{
+      width: auto;
+    }
+  }
+  .btn-action{
+    margin: auto;
+  }
+}
 .chameleon{
   h1 {
     font-size: 16px;
@@ -134,6 +148,13 @@ atom-panel.modal > .login-box{
   .template-item img{
     width: 100%;
     height: inherit;
+  }
+
+  .frameList{
+    margin: auto;
+  }
+  .btn.btn-action{
+    padding: 0;
   }
 }
 
