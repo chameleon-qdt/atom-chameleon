@@ -18,9 +18,7 @@ module.exports = BuildProject =
     @chameleonBox.onPrevClick = => @chameleonBox.contentView.prevBtnClick()
 
   openView: ->
-    unless @modalPanel.isVisible()
-      console.log 'CreateProject was opened!',@
-      @modalPanel.show()
+    @chameleonBox.openView()
 
   deactivate: ->
     @modalPanel.destroy()

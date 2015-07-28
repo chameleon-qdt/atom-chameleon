@@ -88,18 +88,20 @@ class BuildProjectInfoView extends View
 			@parentView.enable = false
 			alert '请先登录'
 			return
-		@main.addClass('hide')
-		@buildMessage.addClass('hide')
-		@selectApp.removeClass('hide')
-		@buildingTips.addClass('hide')
-		@parentView.nextBtn.attr('disabled',false)
-		projectPaths = atom.project.getPaths()
-		projectNum = projectPaths.length
-		@selectProject.empty()
-		if projectNum isnt 0
-			@setSelectItem path for path in projectPaths
-		optionStr = "<option value='other'>其他</option>"
-		@selectProject.append optionStr
+		else
+			console.log "xxx"
+			@main.addClass('hide')
+			@buildMessage.addClass('hide')
+			@selectApp.removeClass('hide')
+			@buildingTips.addClass('hide')
+			@parentView.nextBtn.attr('disabled',false)
+			projectPaths = atom.project.getPaths()
+			projectNum = projectPaths.length
+			@selectProject.empty()
+			if projectNum isnt 0
+				@setSelectItem path for path in projectPaths
+			optionStr = "<option value='other'>其他</option>"
+			@selectProject.append optionStr
 
 	# openIOS : ->
 	# 	atom.pickFolder (paths) =>

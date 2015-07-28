@@ -18,9 +18,7 @@ module.exports = UploadProject =
     @chameleonBox.onNextClick = => @chameleonBox.contentView.nextBtnClick()
 
   openView: ->
-    unless @modalPanel.isVisible()
-      console.log 'CreateProject was opened!',@
-      @modalPanel.show()
+    @chameleonBox.openView();
 
   deactivate: ->
     @modalPanel.destroy()
