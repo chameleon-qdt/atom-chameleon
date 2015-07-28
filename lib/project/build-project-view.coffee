@@ -89,7 +89,6 @@ class BuildProjectInfoView extends View
 			alert '请先登录'
 			return
 		else
-			console.log "xxx"
 			@main.addClass('hide')
 			@buildMessage.addClass('hide')
 			@selectApp.removeClass('hide')
