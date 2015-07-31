@@ -1,8 +1,11 @@
 {BufferedProcess} = require 'atom'
 JSZip = require 'jszip'
+zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
+dialog = require('remote').require 'dialog'
 {File,Directory} = require 'atom'
+request = require 'request'
 module.exports = Util =
 
   rumAtomCommand: (command) ->
@@ -150,6 +153,16 @@ module.exports = Util =
   delete: (path,callback) ->
     fs.remove path, callback
 
+  createFile: (file, data, cb) ->
+    fs.outputFile file, data, 'binary', cb
+
+  getFileData: (url, cb) ->
+    params =
+      url: url
+      method: 'GET'
+      encoding: 'binary'
+    request params, cb
+
   isFileExist: (path, cb) ->
     if typeof cb is 'function'
       fs.exists path, cb
@@ -159,12 +172,37 @@ module.exports = Util =
   readDir: (path, cb) ->
     fs.readdir path, cb
 
+  openDialog : (options,cb) ->
+    dialog.showOpenDialog options, (destPath) ->
+      cb destPath
+
+  # openDirectory title: 'Select Path', (path) ->
+  #   console.log path
+  openDirectory : (options,cb) ->
+
+    options : _.extend({
+      defaultPath: atom.project.path
+      properties: ['openDirectory']
+      }, options)
+
+    @openDialog(options,cb)
+
+  openFile : (options,cb) ->
+
+    options = _.extend({
+      defaultPath: atom.project.path
+      properties: ['openFile']
+      }, options)
+
+    @openDialog(options,cb)
+
+
   store: (namespace, data) ->
     if data
       return localStorage.setItem(namespace, JSON.stringify(data))
     else
-     store = localStorage.getItem(namespace)
-     return (store && JSON.parse(store)) || []
+     aa = localStorage.getItem(namespace)
+     return (aa && JSON.parse(aa)) || []
 
   removeStore: (namespace) ->
     localStorage.removeItem(namespace)
@@ -177,8 +215,9 @@ module.exports = Util =
       stats = fs.statSync(filePath)
       if stats.isFile()
         fileName = pathM.basename(filePath)
-        fileZipPath = pathM.join node,fileName
-        zip.file(fileZipPath,fs.readFileSync(filePath))
+        # fileZipPath = pathM.join node,fileName
+        # zip.file(fileZipPath,fs.readFileSync(filePath))
+        zip.folder(node).file(fileName,fs.readFileSync(filePath))
       else
         folderZipPath = pathM.join node,pathM.basename(filePath)
         zip.folder(folderZipPath)
@@ -189,3 +228,57 @@ module.exports = Util =
     content = zip.generate({type:"nodebuffer"})
     fs.writeFileSync(zipPath,content)
     console.log "打包完了"
+
+  UnCompressFile: (zipPath, success) ->
+    unzipPath = pathM.join zipPath,".."
+    cb = (err, data) ->
+      if err
+        throw err
+      object = new JSZip(data)
+      console.log object.files
+      readAndwrite = (zipObject) ->
+        # console.log zipObject.name
+        savePath = pathM.join unzipPath,zipObject.name
+        if zipObject.dir
+          console.log zipObject.name + " is dir"
+          if fs.existsSync(savePath)
+            alert "文件夹已存在,文件夹中的相同文件将被覆盖"
+          else
+            fs.mkdirSync(savePath)
+        else
+          console.log zipObject.name + " is a file"
+          fs.writeFileSync(savePath,zipObject._data.getContent())
+      readAndwrite zipObject for fileName , zipObject of object.files
+      if typeof success isnt "undefined"
+        success()
+      # console.log "!"
+    fs.readFile(zipPath,cb)
+  # 回调函数必须包含三个参数 cb(err,httpResponse,body)
+  upload_file: (filePath, type, userAccount, cb) ->
+    fileParams =
+      formData:{
+        up_file: fs.createReadStream(PathM.join zipPath,zipName)
+      }
+      cb: cb
+    # client.uploadFile(fileParams,type,userAccount)
+
+  addModule: (appConfigPath, moduleIdentifer, version) ->
+    if fs.existsSync(appConfigPath)
+      stats = fs.statSync(appConfigPath)
+      if stats.isFile()
+        options =
+          encoding: "UTF-8"
+        cb = (err, data) ->
+          if err
+            throw err
+          else
+            contentList = JSON.parse(data)
+            contentList["modules"][moduleIdentifer] = version
+            if contentList['mainModule'] == ""
+              contentList['mainModule'] = moduleIdentifer
+            fs.writeJson appConfigPath,contentList,null
+        fs.readFile(appConfigPath,options,cb)
+      else
+        console.log "not a file"
+    else
+      console.log "is not exists"

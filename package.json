@@ -18,7 +18,9 @@
       "chameleon:settings",
       "chameleon:openSource",
       "chameleon:configure-module",
-      "chameleon:configure-application"
+      "chameleon:configure-application",
+      "chameleon:bulid-project",
+      "chameleon:upload-project"
     ]
   },
   "repository": "https://github.com/chameleon-qdt/atom-chameleon.git",

@@ -2,9 +2,8 @@
 LoginView = require '../login/login'
 
 config = require '../../config/config'
-
-Util = require '../utils/util'
-
+util = require '../utils/util'
+client = require '../utils/client'
 module.exports =
 
 class AccountPanel extends View
@@ -13,7 +12,7 @@ class AccountPanel extends View
       @div class: 'accountMessage' ,outlet: 'accountMessage'
 
   initialize: () =>
-    account = Util.store('chameleon').uname
+    account = util.store('chameleon').uname
     shownSection = if account? then new hadAccount(account) else new notFoundAccount()
     @accountMessage.html shownSection
     shownSection = null
@@ -37,5 +36,16 @@ class hadAccount extends View
       @button '退出', class: 'btn', click: 'logout'
 
   logout: ->
-    Util.removeStore('chameleon')
-    $('.accountMessage').html(new notFoundAccount)
+    console.log util.store('chameleon').session_id
+    params = 
+      form: 
+        session_id: util.store('chameleon').session_id
+      sendCookie: true
+      success: (data) ->
+        console.log data
+        util.removeStore('chameleon')
+        util.removeStore('chameleon-cookie')
+        $('.accountMessage').html(new notFoundAccount)
+      error: (err) ->
+        console.log err
+    client.loggout(params)

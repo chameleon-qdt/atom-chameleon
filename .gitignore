@@ -2,3 +2,4 @@
 npm-debug.log
 node_modules
 lib/loginX
+lib/utils/dialog.coffee

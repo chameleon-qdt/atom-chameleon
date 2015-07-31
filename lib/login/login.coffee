@@ -11,7 +11,7 @@ module.exports = Login =
   loginView: null
   modalPanel: null
   password: ''
-  
+
 
   activate: (state) ->
     @settings = Settings
@@ -45,43 +45,44 @@ module.exports = Login =
     #           setTimeout =>
     #             @loginView.loginPassword.setText(coverText)
     #           , 300
-    #   else 
+    #   else
     #     @password = @password.slice(passwordLength-1)
     #     console.log @password
     #登录按钮 需要 调用接口
     @loginView.on 'click', 'button[name=loginBtn]', =>
       mail = $.trim(_thisLoginView.loginEmail.getText())
       password = _thisLoginView.find('#loginPassword').text()
-      params = 
+      params =
         form: {
           mail: mail,
           password: password
         }
-        cb: (err,httpResponse,body) =>
-          if !err && httpResponse.statusCode is 200 
-            data = JSON.parse(body)
-            console.log data
-            switch data.flag
-              when '0'
-                alert "登录失败：邮箱或密码不正确"
-              when '1'
-                util.store('chameleon', data)
-                alert "登录成功"
-                @closeView()
-                atom.workspace.getPanes()[0].destroyActiveItem()
-                @settings.activate()
-              when '2'
-                alert "登录失败：用户未激活"
-              when '4'
-                alert "登录失败：用户被禁用"
-              when '5'
-                alert "邮箱或密码不正确"
+        success: (data, cookie) =>
+          console.log data
+          switch data.flag
+            when '0'
+              alert "登录失败：邮箱或密码不正确"
+            when '1'
+              util.store('chameleon', data)
+              util.store('chameleon-cookie', cookie)
+              alert "登录成功"
+              @closeView()
+              atom.workspace.getPanes()[0].destroyActiveItem()
+              @settings.activate()
+            when '2'
+              alert "登录失败：用户未激活"
+            when '4'
+              alert "登录失败：用户被禁用"
+            when '5'
+              alert "邮箱或密码不正确"
+        error: (err) =>
+          alert err
 
       if mail is '' and password is ''
         alert "邮箱或密码不能为空"
       else
         client.login(params)
-      
+
 
     # 密码框 输入时加密处理
     @loginView.on 'keydown', @loginView.loginPassword, ->
@@ -111,10 +112,10 @@ module.exports = Login =
         else
           #获取最新输入的字符
           _thisLoginView.find('#loginPassword').text(str+inputStr.charAt(inputStr.length - 1))
-      for str in inputStr
-        do (str) ->
-          strOuput = strOuput + '*'
-      _thisLoginView.loginPassword.setText(strOuput)
+        for str in inputStr
+          do (str) ->
+            strOuput = strOuput + '*'
+        _thisLoginView.loginPassword.setText(strOuput)
     # 密码框处理结束
     @loginView.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @loginView, visible: false)
     @loginView.move()

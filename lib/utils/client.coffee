@@ -4,36 +4,82 @@ request = require 'request'
 util = require './util'
 j = request.jar()
 
-module.exports = 
-  
+module.exports =
+
   send: (params) ->
-    defaultsParams = 
+    defaultsParams =
       baseUrl: config.serverUrl
       method: 'GET'
-
-    if params.sendCookie 
-      cookie = request.cookie("session=#{util.store('chameleon').session_id}")
+    if params.sendCookie and util.store('chameleon-cookie').length > 0
+      cookie = request.cookie(util.store('chameleon-cookie'))
       j.setCookie(cookie, config.serverUrl)
       params.jar = j
     params = $.extend defaultsParams, params
-    request params, params.cb
+    cb = (err, httpResponse, body) =>
+      if !err && httpResponse.statusCode is 200
+        headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
+        params.success(JSON.parse(body), headerCookie)
+      else if httpResponse.statusCode is 403
+        util.removeStore('chameleon-cookie')
+        util.removeStore('chameleon')
+        alert '没有登录或登录超时，请重新登录'
+        params.error(err)
+      else
+        params.error(err)
+    request params, cb
 
   login: (params) ->
-    params.url = 'usermanger/login'
+    params.url = 'anonymous/login'
+    params.method = 'POST'
+    @send params
+
+  loggout: (params) ->
+    params.url = 'usermanger/logout'
     params.method = 'POST'
     @send params
 
   getUserProjects: (params) ->
-    console.log util.store('chameleon').session_id
     params.url = 'app/list'
     @send params
 
+  getProjectDetail: (params) ->
+    params.url = 'app/app_info'
+    @send params
+
   getModuleLastVersion: (params,identifier) ->
-    console.log identifier
-    params.url = "app_update/get_lastversion/#{identifier}/d"
-    @request(params)
+    userId = util.store('chameleon').account_id
+    console.log userId,identifier
+    params.url = "app_update/get_lastversion/#{identifier}"
+    # params.url = "app_update/get_lastversion/#{identifier}"
+    @send params
 
   postModuleMessage: (params) ->
-    params.path = 'module/upload_module'
-    params.type = 'POST'
-    @request(params)
+    params.url = 'module/upload_module'
+    params.form.create_by = util.store('chameleon').account_id
+    console.log params.form
+    params.method = 'POST'
+    @send params
+
+  uploadFile: (params,type,user) ->
+    userId = util.store('chameleon').account_id
+    params.url = "file/upload/#{type}/#{userId}"
+    params.method = 'POST'
+    @send params
+
+  getAppPlugins: ( params, identifier, platform) ->
+    userMail = util.store('chameleon').mail
+    params.url = "app/app_plugins/?account=#{userMail}&identifier=#{identifier}&platform=#{platform}"
+    console.log params.url
+    @send params
+
+  buildApp: (params) ->
+    # userMail = util.store('chameleon').mail
+    # params.form.account = userMail
+    params.url = "app/build"
+    params.method = 'POST'
+    @send params
+
+  uploadApp: (params) ->
+    params.url = "app/create"
+    params.method = "POST"
+    @send params

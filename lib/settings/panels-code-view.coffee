@@ -28,7 +28,7 @@ class CodePanel extends View
     @renderTemplatesList()
 
   renderCodePackList: =>
-    repoDir =  pathM.join desc.chameleonHome,'src','frameworks'
+    repoDir =  desc.getFrameworkPath()
     util.readDir repoDir, (err, files) =>
       console.log files
       if files.indexOf('.githolder') >= 0
@@ -97,7 +97,7 @@ class CodePanel extends View
                 #   $('.' + projectName).find('.loading-mask').removeClass('hidden')
                 #   util.updateRepo(fileDir, success)
       else
-        @templatesList.html '<li class="nothing">没有找到任何框架</li>'
+        @templatesList.html '<li class="nothing">没有找到任何模板</li>'
 
   addNewCode: ->
     addNewFramework.activate();
@@ -132,4 +132,3 @@ class TemplatesListTemp extends View
       @div class: 'btn-group', =>
         @button class: 'btn icon icon-cloud-download inline-block', '更新'
         @button class: 'btn icon icon-trashcan inline-block', '删除'
-    

@@ -14,7 +14,21 @@ atom-panel.modal.from-top.down{
 .modal.down:before{
   .border_radius();
 }
+.flex-container{
+  display: flex;
+  flex:row;
+  align-self:center;
 
+  .frameList{
+    margin: auto;
+    .new-item{
+      width: auto;
+    }
+  }
+  .btn-action{
+    margin: auto;
+  }
+}
 .chameleon{
   h1 {
     font-size: 16px;
@@ -134,6 +148,13 @@ atom-panel.modal > .login-box{
   .template-item img{
     width: 100%;
     height: inherit;
+  }
+
+  .frameList{
+    margin: auto;
+  }
+  .btn.btn-action{
+    padding: 0;
   }
 }
 
@@ -257,7 +278,7 @@ atom-panel.modal > .login-box{
     border-width: 0 1px 0 0;
     border-image: linear-gradient(#282c34 10px, #181a1f 200px) 0 1 0 0 stretch;
     background: #282c34;
-    
+
     ul{
       margin: 0;
       padding: 0;
@@ -374,5 +395,50 @@ atom-panel.modal > .login-box{
   margin: 0;
   li{
     list-style: none;
+  }
+}
+
+.build_project_vew{
+  display: inline-block;
+  width: 100%;
+  img{
+    width: 50%;
+    height: inherit;
+  }
+  .label_pad{
+    padding-left: 30px;
+  }
+  select {
+    color: #9da5b4;
+    background-clip: content-box;
+    background-color: #353b45;
+    border-color: #181a1f;
+    font-size: 1.25em;
+    height: 2em;
+    padding: 0;
+  }
+  .form_width{
+
+  }
+  progress{
+    width: 80%;
+    height: 30px;
+  }
+  .block span{
+    padding-left: 10%;
+    padding-bottom: 5px;
+    font-size: 16px;
+  }
+}
+
+.upload_project_view{
+  select {
+    color: #9da5b4;
+    background-clip: content-box;
+    background-color: #353b45;
+    border-color: #181a1f;
+    font-size: 1.25em;
+    height: 2em;
+    padding: 0;
   }
 }

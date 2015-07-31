@@ -2,10 +2,12 @@ desc = require '../utils/text-description'
 pathM = require 'path'
 {Directory} = require 'atom'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
-# SelectTemplate = require './select-template-view'
+client = require '../utils/client'
 
 module.exports =
-class NewProjectView extends View
+class SyncProjectView extends View
+
+  projectDetail: {}
 
   @content: (params) ->
     @div class: 'new-project', =>
@@ -34,11 +36,25 @@ class NewProjectView extends View
 
   attached: ->
     @type = @parentView.options.newType
-    if @type isnt 'template'
-      @parentView.setNextBtn('finish')
+    @getProjectDetail(@parentView.options.projectId, @parentView.options.account_id)
+    @parentView.setNextBtn('finish')
     @parentView.disableNext()
     @appPath.basePath = desc.newProjectDefaultPath
     @appPath.setText @appPath.basePath
+
+  getProjectDetail: (projectId, accountId) ->
+    params = 
+      sendCookie: true
+      qs:
+        account: accountId
+        identifier: projectId
+      success: (data) =>
+        @projectDetail = data
+        @appId.setText @projectDetail.identifier
+        @appName.setText @projectDetail.name
+      error: (err) ->
+        console.log err
+    client.getProjectDetail params
 
   openFolder: ->
     atom.pickFolder (paths) =>
@@ -58,7 +74,7 @@ class NewProjectView extends View
       appName : @appName.getText();
       appPath : @appPath.getText();
 
-    console.log projectInfo
+    # console.log projectInfo
     projectInfo
 
   checkInput: ->
@@ -94,13 +110,6 @@ class NewProjectView extends View
           @checkInput()
 
   nextStep:(box) ->
-    # console.log box
-    info = @getProjectInfo()
     box.setPrevStep @
-    box.mergeOptions {projectInfo:info}
-    # if @type isnt 'template'
-      # box.mergeOptions {projectInfo:info}
-    # else
-      # box.disableNext()
-      # box.mergeOptions {subview:new SelectTemplate(),projectInfo:info}
+    box.mergeOptions {projectInfo: @getProjectInfo(), projectDetail: @projectDetail, newType: 'syncProject'}
     box.nextStep()
