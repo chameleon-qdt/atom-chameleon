@@ -33,6 +33,7 @@
     "atom-space-pen-views": "^2.0.3",
     "fs-extra": "^0.20.1",
     "jszip": "^2.5.0",
+    "path": "^0.11.14",
     "request": "^2.58.0",
     "underscore-plus": "^1.0.0"
   }
