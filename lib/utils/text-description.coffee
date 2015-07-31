@@ -31,11 +31,11 @@ module.exports = TextDescription =
 
   registerUrl : 'http://www.baidu.com'
 
-  chameleonHome: atom.packages.getLoadedPackage('chameleon').path
+  chameleonHome: atom.packages.getLoadedPackage('chameleon-test').path
   getFrameworkPath: ->
     Path.join @chameleonHome,'src','frameworks'
   newProjectDefaultPath: atom.config.get('core').projectHome
-  iconPath:'atom://chameleon-qdt-atom/images/icon.png'
+  iconPath:'atom://chameleon-test/images/icon.png'
   mainEntryFileName: 'index.html'
 
 
