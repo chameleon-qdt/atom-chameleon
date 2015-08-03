@@ -33,9 +33,10 @@ class NewProjectView extends View
     @appPath.getModel().onDidChange => @checkPath()
 
   attached: ->
+    console.log @parentView.options
     @type = @parentView.options.newType
-    if @type isnt 'template'
-      @parentView.setNextBtn('finish')
+    # if @type isnt 'template'
+    @parentView.setNextBtn('finish')
     @parentView.disableNext()
     @appPath.basePath = desc.newProjectDefaultPath
     @appPath.setText @appPath.basePath

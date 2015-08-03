@@ -56,3 +56,8 @@ module.exports = TextDescription =
 
   buildProjectMainTitle: "构建项目"
   uploadProjectTitle: "上传应用"
+
+  newsTemplate:
+    name: '新闻'
+    type: 'news'
+    pic: 'http://7xifa4.com1.z0.glb.clouddn.com/a.png'

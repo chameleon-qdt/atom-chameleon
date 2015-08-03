@@ -36,13 +36,18 @@ class CreateModuleInfoView extends View
           @div desc.createModuleErrorMsg, class: 'text-warning hide', outlet: 'errorMsg'
 
   initialize: ->
+    # @modulePath.getModel().onDidChange => @checkPath()
+    # @moduleId.getModel().onDidChange => @checkPath()
+    # @moduleName.getModel().onDidChange => @checkInput()
+    # @mainEntry.getModel().onDidChange => @checkInput()
+    # @selectProject.on 'change',(e) => @onSelectChange(e)
+
+  attached: ->
     @modulePath.getModel().onDidChange => @checkPath()
     @moduleId.getModel().onDidChange => @checkPath()
     @moduleName.getModel().onDidChange => @checkInput()
     @mainEntry.getModel().onDidChange => @checkInput()
     @selectProject.on 'change',(e) => @onSelectChange(e)
-
-  attached: ->
     @moduleName.setText ''
     @moduleId.setText ''
     @mainEntry.setText desc.mainEntryFileName

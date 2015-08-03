@@ -14,6 +14,7 @@ module.exports = CreateProject =
   repoDir: pathM.join desc.chameleonHome,'src','frameworks','butterfly-slim'
   frameworksDir: pathM.join desc.chameleonHome,'src','frameworks'
   projectTempDir: pathM.join desc.chameleonHome,'src','ProjectTemp'
+  templateDir: pathM.join desc.chameleonHome,'src','templates'
   repoURI: 'https://git.oschina.net/chameleon/butterfly-slim.git'
   LoadingMask: loadingMask
 
@@ -136,6 +137,57 @@ module.exports = CreateProject =
     # atom.notifications.addSuccess("Success: This is a notification");
 
   newTemplateProject: (options) ->
+    info = options.projectInfo
+    createSuccess = (err) =>
+      if err
+        console.error err
+      else
+        copySuccess = (err) =>
+          throw err if err
+          targetPath = pathM.join info.appPath,'modules', options.tmpType
+          Util.copy pathM.join(@templateDir, options.tmpType), targetPath, (err) => # 复制成功后，将框架复制到项目的 modules 下
+            throw err if err
+            alert '项目创建成功'
+            gfp = pathM.join targetPath,'.git'
+            delSuccess = (err) ->
+              throw err if err
+              console.log 'deleted!'
+            Util.delete gfp,delSuccess
+
+            appConfigPath = pathM.join info.appPath, desc.ProjectConfigFileName
+            writeCB = (err) =>
+              throw err if err
+              atom.workspace.open appConfigPath
+              aft = =>
+                Util.rumAtomCommand('tree-view:reveal-active-file')
+              _.debounce(aft,300)
+            Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
+
+            @modalPanel.item.children(".loading-mask").remove()
+            atom.project.addPath(info.appPath)
+            Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
+            @closeView()
+
+
+        Util.copy @projectTempDir, info.appPath, copySuccess # 创建项目根目录成功后 将空白项目的项目内容复制到根目录
+
+    # 首先，判断本地是否有框架
+    Util.isFileExist pathM.join(@templateDir, options.tmpType), (exists) =>
+      if exists
+        Util.createDir info.appPath, createSuccess #有，执行第二步：创建项目根目录
+      else
+        success = (state, appPath) =>
+          if state is 0
+            Util.createDir info.appPath, createSuccess
+          else
+            alert '项目创建失败：git clone失败，请检查网络连接'
+            @modalPanel.item.children(".loading-mask").remove()
+
+        Util.getRepo(@templateDir, config.repoUri, success) #没有，执行 git clone，成功后执行第二步
+
+
+    LoadingMask = new @LoadingMask()
+    @modalPanel.item.append(LoadingMask)
 
   syncProject: (options) ->
     console.log options.projectInfo
