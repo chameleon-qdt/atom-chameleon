@@ -57,7 +57,9 @@ class PublishModuleInfoView extends View
 		appPath = PathM.join appPath,'modules'
 		directory = new Directory(appPath)
 		_moduleList = @moduleList
-		printName = (file) ->
+		length = 0
+		_parentView = @parentView
+		printName = (file) =>
 			console.log file
 			if file.isDirectory()
 				path =PathM.join file.getPath(),"package.json"
@@ -65,6 +67,7 @@ class PublishModuleInfoView extends View
 				file2.exists().then (resolve,reject) =>
 					if resolve
 						file2.read(false).then (content) =>
+							length = length + 1
 							contetnList = JSON.parse(content)
 							_moduleList.append('<div class="col-md-3"><input value="'+file2.getPath()+'" type="checkbox"><label>'+contetnList['name']+'</label></div>')
 		directory.exists().then (resolve, reject) =>
@@ -72,6 +75,11 @@ class PublishModuleInfoView extends View
 				list = directory.getEntriesSync()
 				_moduleList.empty()
 				printName file for file in list
+				console.log length
+				if length == 0
+					_parentView.enable = false
+					alert "没有任何模块"
+					return
 				@third.addClass('hide')
 				@first.removeClass('hide')
 			else
@@ -224,14 +232,14 @@ class PublishModuleInfoView extends View
 				fileLength = 0
 				printName = (filePath) ->
 					# console.log fileLength
-					fileLength = fileLength + 1
 					stats = fs.statSync(filePath)
 					if stats.isDirectory()
 						packageFilePath = PathM.join filePath,"package.json"
 						if fs.existsSync(packageFilePath)
 							packageFileStats = fs.statSync(packageFilePath)
 							if packageFileStats.isFile()
-								getMessage = (err, data) ->
+								fileLength = fileLength + 1
+								getMessage = (err, data) =>
 									if err
 										console.log "error"
 									else
@@ -243,6 +251,10 @@ class PublishModuleInfoView extends View
 								fs.readFile(packageFilePath,options,getMessage)
 				_moduleList.empty()
 				printName PathM.join project_path,fileName for fileName in list
+				if fileLength == 0
+					_parentView.enable = false
+					alert "没有任何模块"
+					return
 			#回调函数 的结束
 			# fs.exists(project_path,callbackDirectory)
 

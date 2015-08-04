@@ -80,19 +80,23 @@ class BuildProjectInfoView extends View
 						@span "" ,outlet: "buildTips"
 					@div class: "col-sm-12 text-center", =>
 						@progress class: 'inline-block'
+					@div class: "col-sm-12", =>
+						@span "" ,class: "iosTips"
+					@div class: "col-sm-12", =>
+						@span "" ,class: "androidTips"
 			@div outlet: 'urlCodeList', =>
 				@div class: 'col-xs-12', =>
 					@h2 "构建成功返回的二维码："
 				@div class: 'col-xs-6', outlet: 'IOSCODE' ,=>
 					@div class: 'col-xs-12', =>
-						@img class:'codeImg', outlet: 'iOSCode',src: 'http://qr.liantu.com/api.php?text=http://baidu.com'
+						@img class:'codeImg', outlet: 'iOSCode',src: 'atom://chameleon-qdt-atom/images/iphone.png'
 					@div class: 'col-xs-12 label_pad', =>
-						@label "iOS"
+						@label "iOS",class:'iosTips'
 				@div class: 'col-xs-6', outlet: 'ANDROIDCODE', =>
 					@div class: 'col-xs-12', =>
-						@img class:'codeImg',outlet: 'androidCode', src: 'http://qr.liantu.com/api.php?text=http://baidu.com'
+						@img class:'codeImg',outlet: 'androidCode', src: 'atom://chameleon-qdt-atom/images/android.png'
 					@div class: 'col-xs-12 label_pad', =>
-						@label "Andoird"
+						@label "Andoird",class:'androidTips'
 
 	attached: ->
 		@settings = Settings
@@ -115,7 +119,10 @@ class BuildProjectInfoView extends View
 			@selectProject.empty()
 			if projectNum isnt 0
 				@setSelectItem path for path in projectPaths
-			optionStr = "<option value='other'>其他</option>"
+			else
+				optionStr = "<option value=' '> </option>"
+				@selectProject.append optionStr
+			optionStr = "<option value='其他'>其他</option>"
 			@selectProject.append optionStr
 			@selectProject.on 'change',(e) => @onSelectChange(e)
 			@.find('.formBtn').on 'click', (e) => @formBtnClick(e)
@@ -143,8 +150,7 @@ class BuildProjectInfoView extends View
 
 	onSelectChange: (e) ->
 		el = e.currentTarget
-		# console.log el.value
-		if el.value is 'other'
+		if el.value == '其他'
 			@open()
 
 	open: ->
@@ -158,9 +164,12 @@ class BuildProjectInfoView extends View
 				if obj
 					projectName = pathM.basename path
 					optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
+					@.find("select option[value=' ']").remove()
 					@selectProject.prepend optionStr
 				else
 					alert "请选择变色龙项目"
+				@selectProject.get(0).selectedIndex = 0
+			else
 				@selectProject.get(0).selectedIndex = 0
 
 	nextBtnClick: ->
@@ -335,6 +344,7 @@ class BuildProjectInfoView extends View
 	checkModuleNeedUpload: (modulePath, modules, index) ->
 		if modules.length == 0
 			# console.log "length = 0"
+			@sendBuildMessage()
 			return
 		else
 			moduleIdentifer = modules[index]['identifier']
@@ -462,14 +472,14 @@ class BuildProjectInfoView extends View
 			body: bodyStr
 			sendCookie: true
 			success: (data) =>
-				# console.log "success "+ JSON.stringify(data)
+				# console.log JSON.stringify(data)
 				if data["status"] is "success"
 					@buildTips.html("正在排队构建请耐心等待......")
 					# if data["IOS"]
 					#在这里需要不断的查构建结果
 					showObject = (obj) =>
 						if obj.status != 'success'
-							console.error "上传#{obj.platform}不成功！"
+							console.log "上传#{obj.platform}不成功！"
 						else
 							console.log "上传#{obj.platform}成功！"
 							@checkBuildResult obj.id,obj.platform,0
@@ -488,36 +498,45 @@ class BuildProjectInfoView extends View
 			success: (data) =>
 				# data['status'] = "SUCCESS"
 				# data['url'] = "http://baidu.com"
+				console.log data
 				if data['code'] == -1
 					alert "#{platform}构建不存在！"
 					return
 				if data['status'] == "WAITING"
 					# setTimeout("checkBuildResult(#{id},#{platform})", 1000*60)
+					if platform == "IOS"
+						@.find(".iosTips").html("构建 IOS 还需等待#{data['waitingTime']}秒")
+					else
+						@.find(".androidTips").html("构建 ANDOIRD 还需等待#{data['waitingTime']}秒")
 					setTimeout =>
 						@checkBuildResult id,platform,time+1
-					,1000*60
+					,1000*30
 				else if data['status'] == "SUCCESS"
 					if !@urlCodeList.is(':visible')
 						@buildingTips.addClass('hide')
 						@urlCodeList.removeClass('hide')
 					if platform == 'IOS'
 						@IOSCODE.removeClass('hide')
+						@.find(".iosTips").html("iOS")
 						@iOSCode.attr('src',"http://qr.liantu.com/api.php?text=#{data['url']}")
 					else
 						@ANDROIDCODE.removeClass('hide')
+						@.find(".androidTips").html("Android")
 						@androidCode.attr('src',"http://qr.liantu.com/api.php?text=#{data['url']}")
-				else if data[status] == "FAIL"
-					alert "构建失败"
-					return
-				else
+				else if data['status'] == "BUILDING"
 					@buildTips.html("正在构建请耐心等待......")
-					# setTimeout("checkBuildResult(#{id},#{platform})",1000*60)
+					if platform == "IOS"
+						@.find(".iosTips").html("正在构建 IOS 还需#{data['remainTime']}秒")
+					else
+						@.find(".androidTips").html("正在构建 ANDOIRD 还需#{data['remainTime']}秒")
 					setTimeout =>
 						@checkBuildResult id,platform,time+1
-					,1000*60
-				# console.log JSON.stringify(data)
+					,1000*30
+				else
+					alert "构建失败"
+					return
 			error: =>
-			 	console.error "error"
+			 	console.log  "error"
 		client.getBuildUrl(params,id)
 
 

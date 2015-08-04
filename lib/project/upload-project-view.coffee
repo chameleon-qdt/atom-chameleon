@@ -45,6 +45,9 @@ class UploadProjectInfoView extends View
 		@selectUploadProject.on 'change',(e) => @onSelectChange(e)
 		if projectNum isnt 0
 			@setSelectItem path for path in projectPaths
+		else
+			optionStr = "<option value=' '> </option>"
+			@selectUploadProject.append optionStr
 		optionStr = "<option value='other'>其他</option>"
 		@selectUploadProject.append optionStr
 		if @selectUploadProject.val() isnt 'other'
@@ -79,11 +82,14 @@ class UploadProjectInfoView extends View
 				if obj
 					projectName = pathM.basename path
 					optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
+					@.find("select option[value=' ']").remove()
 					@selectUploadProject.prepend optionStr
 				else
 					alert "请选择变色龙项目"
 				@selectUploadProject.get(0).selectedIndex = 0
 				@showProjectMessage(@selectUploadProject.val())
+			else
+				@selectUploadProject.get(0).selectedIndex = 0
 
 	showProjectMessage:(configPath) ->
 		path = pathM.join configPath,desc.ProjectConfigFileName
@@ -98,6 +104,7 @@ class UploadProjectInfoView extends View
 	checkModuleNeedUpload: (modulePath, modules, index) ->
 		if modules.length == 0
 			# console.log "length = 0"
+			@sendBuildMessage()
 			return
 		else
 			moduleIdentifer = modules[index]['identifier']
@@ -207,11 +214,11 @@ class UploadProjectInfoView extends View
 					body: strBody
 					sendCookie: true
 					success: (data) =>
-						alert "创建应用成功"
+						alert "上传应用成功"
 						@parentView.closeView()
 						return
 					error: =>
-						console.error  "sendBuildMessage error"
+						console.log  "sendBuildMessage error"
 						# @parentView.closeView()
 				client.uploadApp(params)
 

@@ -71,7 +71,7 @@ module.exports = CreateProject =
           # alert '项目创建成功'
           atom.project.addPath(info.appPath)
           Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
-          @closeView()
+          @chameleonBox.closeView()
 
 
         Util.copy @projectTempDir, info.appPath, copySuccess
@@ -111,7 +111,7 @@ module.exports = CreateProject =
             @modalPanel.item.children(".loading-mask").remove()
             atom.project.addPath(info.appPath)
             Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
-            @closeView()
+            @chameleonBox.closeView()
 
 
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建项目根目录成功后 将空白项目的项目内容复制到根目录
@@ -166,7 +166,7 @@ module.exports = CreateProject =
             @modalPanel.item.children(".loading-mask").remove()
             atom.project.addPath(info.appPath)
             Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
-            @closeView()
+            @chameleonBox.closeView()
 
 
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建项目根目录成功后 将空白项目的项目内容复制到根目录
@@ -230,17 +230,17 @@ module.exports = CreateProject =
                             atom.workspace.open pathM.join(filePath, 'appConfig.json')
                             Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
                             @modalPanel.item.children(".loading-mask").remove()
-                            @closeView()
+                            @chameleonBox.closeView()
                   Util.createFile pathM.join(filePath, "modules", "#{item.name}.zip"), data, abc
                 Util.getFileData item.url, cb
             else
               Util.createDir pathM.join(filePath, "modules"), (err)=>
                 if err
                   console.error error
-                else  
+                else
                   # alert '同步项目成功'
                   atom.project.addPath filePath
                   atom.workspace.open pathM.join(filePath, 'appConfig.json')
                   Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
                   @modalPanel.item.children(".loading-mask").remove()
-                  @closeView()
+                  @chameleonBox.closeView()
