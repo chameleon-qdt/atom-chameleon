@@ -7,6 +7,7 @@ $ = CreateProjectView.$
 loadingMask = require '../utils/loadingMask'
 client = require '../utils/client'
 config = require '../../config/config'
+fs = require 'fs-extra'
 
 module.exports = CreateProject =
   chameleonBox: null
@@ -52,10 +53,13 @@ module.exports = CreateProject =
 
   # 空白项目创建
   newEmptyProject: (options) ->
+    LoadingMask = new @LoadingMask()
     info = options.projectInfo
     createSuccess = (err) =>
       if err
         console.error err
+        @modalPanel.item.children(".loading-mask").remove()
+        alert "项目创建失败#{':权限不足' if err.code is 'EACCES'}"
       else
         copySuccess = (err) =>
           throw err if err
@@ -68,7 +72,7 @@ module.exports = CreateProject =
             _.debounce(aft,300)
           Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
           @modalPanel.item.children(".loading-mask").remove()
-          # alert '项目创建成功'
+          alert '项目创建成功'
           atom.project.addPath(info.appPath)
           Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
           @chameleonBox.closeView()
@@ -77,7 +81,6 @@ module.exports = CreateProject =
         Util.copy @projectTempDir, info.appPath, copySuccess
 
     Util.createDir info.appPath, createSuccess
-    LoadingMask = new @LoadingMask()
     @modalPanel.item.append(LoadingMask)
 
   # 带框架项目创建
@@ -93,18 +96,33 @@ module.exports = CreateProject =
           Util.copy @repoDir, targetPath, (err) => # 复制成功后，将框架复制到项目的 modules 下
             throw err if err
             alert '项目创建成功'
+            packageJson = pathM.join targetPath,'package.json'
+            appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
             gfp = pathM.join targetPath,'.git'
             delSuccess = (err) ->
               throw err if err
               console.log 'deleted!'
+              if fs.existsSync(packageJson)
+                stats = fs.statSync(packageJson)
+                if stats.isFile()
+                  contentJson = JSON.parse(fs.readFileSync(packageJson))
+                  if fs.existsSync(appConfigPath)
+                    stats = fs.statSync(appConfigPath)
+                    if stats.isFile()
+                      contentList = JSON.parse(fs.readFileSync(appConfigPath))
+                      contentList['modules'][contentJson['name']] = contentJson['version']
+                      if contentList['mainModule'] == ""
+                        contentList['mainModule'] = contentJson['name']
+                      fs.writeJson appConfigPath,contentList,null
             Util.delete gfp,delSuccess
 
-            appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
+            # appConfigPath = pathM.join info.appPath,desc.ProjectConfigFileName
             writeCB = (err) =>
               throw err if err
               atom.workspace.open appConfigPath
               aft = =>
                 Util.rumAtomCommand('tree-view:reveal-active-file')
+                console.log "aft"
               _.debounce(aft,300)
             Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
 

@@ -37,7 +37,7 @@ module.exports = ModuleManager =
     filePath = pathM.join info.modulePath,info.moduleId
     configFilePath = pathM.join filePath,desc.moduleConfigFileName
     configFile = new File(configFilePath)
-    configFileContent = Util.formatModuleConfigToStr(info)
+    configFileContent = Util.formatModuleConfigToObj(info)
     entryFilePath = pathM.join filePath,info.mainEntry
     entryFile = new File(entryFilePath)
     htmlString = Util.getIndexHtmlCore()
@@ -48,7 +48,10 @@ module.exports = ModuleManager =
         if isSuccess is yes
           configFile.setEncoding('utf8')
           console.log 'CreateModule Success'
-          configFile.writeSync(configFileContent)
+          # configFile.writeSync(configFileContent)
+          cb = (err) =>
+            console.log err
+          Util.writeJson(configFilePath,configFileContent,cb)
           entryFile.create()
         else
           console.log 'CreateModule error'
@@ -73,6 +76,7 @@ module.exports = ModuleManager =
           @addProjectModule info
           atom.project.addPath(filePath)
           Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+          alert "新建模块成功！"
           @chameleonBox.closeView()
       # .finally =>
         # console.log 'CreateModule Success',@

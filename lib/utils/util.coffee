@@ -3,6 +3,7 @@ JSZip = require 'jszip'
 zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
+_ = require 'underscore-plus'
 dialog = require('remote').require 'dialog'
 {File,Directory} = require 'atom'
 request = require 'request'
@@ -29,40 +30,16 @@ module.exports = Util =
     </html>
     """
 
-  formatModuleConfigToStr:(options) ->
-    """
-    {
-      "name": "#{options.moduleName}",
-      "identifier": "#{options.moduleId}",
-      "main":"#{options.mainEntry}",
-      "version": "0.0.1",
-      "description": "",
-      "dependencies": {},
-      "releaseNote": "module #{options.moduleName} init"
-    }
-    """
-
-  formatAppConfigToStr:(options) ->
-    """
-    {
-      "name": "#{options.appName}",
-      "identifier": "#{options.appId}",
-      "mainModule":"#{if options.mainModule? then options.mainModule else '' }",
-      "version": "0.0.1",
-      "description": "",
-      "dependencies": {},
-      "releaseNote": "app init"
-    }
-    """
-
   formatModuleConfigToObj: (options) ->
     name: options.moduleName
     identifier: options.moduleId
-    main: options.mainEntry
+    # main: options.mainEntry
     version: '0.0.1'
-    description: ''
+    build: 1
+    # description: ''
     dependencies: {}
     releaseNote: "module #{options.moduleName} init"
+    hidden: false
 
   formatAppConfigToObj:(options) ->
       name: options.appName
@@ -70,6 +47,7 @@ module.exports = Util =
       mainModule: ''
       modules: {}
       version: '0.0.1'
+      build: 1
       description: ''
       dependencies: {}
       releaseNote: "app #{options.appName} init"
@@ -77,13 +55,21 @@ module.exports = Util =
 
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
   checkProjectName: (str)->
-    regEx = /[\`\~\!\@\#\$\%\^\&\*\(\)\+\=\|\{\}\'\:\;\,\·\\\[\]\<\>\/\?\~\！\@\#\￥\%\…\…\&\*\（\）\—\—\+\|\{\}\【\】\‘\；\：\”\“\’\。\，\、\？]/g
-    strcheck = str.replace(/[^\x00-\xff]/g,"-")
-    strcheck = strcheck.replace(regEx,"-")
-    strcheck = strcheck.replace(/-+/g, '-')
+    # return false if str.trim() is ''
+    regEx1 = /[\`\~\!\@\#\$\%\^\&\*\(\)\+\=\|\{\}\'\:\;\,\·\\\[\]\<\>\/\?\~\！\@\#\￥\%\…\…\&\*\（\）\—\—\+\|\{\}\【\】\‘\；\：\”\“\’\。\，\、\？]/g
+    regEx2 = /[^\x00-\xff]/g
+    regEx3 = /\d/
+    firstchar = str[0]
+    flag1 = regEx1.test str
+    flag2 = regEx2.test str
+    flag3 = regEx3.test firstchar
+    flag4 = firstchar is "-"
+    # strcheck = str.replace(/[^\x00-\xff]/g,"")
+    # strcheck = strcheck.replace(regEx,"")
+    # strcheck = strcheck.replace(/-+/g, '-')
     # # 特殊处理
     # strcheck = '...' if strcheck is '.' or strcheck is '..'
-    return strcheck
+    return !(flag1 or flag2 or flag3 or flag4)
 
   getRepo: (appPath,repoUri, cb) ->
     options =
@@ -177,7 +163,7 @@ module.exports = Util =
       cb destPath
 
   # openDirectory title: 'Select Path', (path) ->
-  #   console.log path
+  #   console.log path openDirectory
   openDirectory : (options,cb) ->
 
     options : _.extend({
@@ -231,22 +217,22 @@ module.exports = Util =
 
   UnCompressFile: (zipPath, success) ->
     unzipPath = pathM.join zipPath,".."
-    cb = (err, data) ->
+    cb = (err, data) =>
       if err
         throw err
       object = new JSZip(data)
-      console.log object.files
+      # console.log object.files
       readAndwrite = (zipObject) ->
         # console.log zipObject.name
         savePath = pathM.join unzipPath,zipObject.name
         if zipObject.dir
-          console.log zipObject.name + " is dir"
+          # console.log zipObject.name + " is dir"
           if fs.existsSync(savePath)
-            alert "文件夹已存在,文件夹中的相同文件将被覆盖"
+            console.log "文件夹已存在,文件夹中的相同文件将被覆盖"
           else
             fs.mkdirSync(savePath)
         else
-          console.log zipObject.name + " is a file"
+          # console.log zipObject.name + " is a file"
           fs.writeFileSync(savePath,zipObject._data.getContent())
       readAndwrite zipObject for fileName , zipObject of object.files
       if typeof success isnt "undefined"
@@ -261,6 +247,21 @@ module.exports = Util =
       }
       cb: cb
     # client.uploadFile(fileParams,type,userAccount)
+
+  removeFileDirectory:(filePath) ->
+    if !fs.existsSync(filePath)
+      console.log "UNEXISTS"
+      return "UNEXISTS"
+    stats = fs.statSync(filePath)
+    if stats.isFile()
+      printResult= (err) =>
+        if err
+          console.log err
+        else
+          console.log "success"
+      fs.unlink(filePath,printResult)
+    # else
+    #   fs.rmdir(filePath)
 
   addModule: (appConfigPath, moduleIdentifer, version) ->
     if fs.existsSync(appConfigPath)

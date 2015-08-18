@@ -5,6 +5,7 @@ desc = require './../../utils/text-description'
 pathM = require 'path'
 fs = require 'fs-extra'
 ChameleonBox = require '../../utils/chameleon-box-view'
+util = require '../../utils/util'
 
 class ModuleInfoView extends View
 
@@ -18,6 +19,10 @@ class ModuleInfoView extends View
 				@div outlet : 'moduleList'
 			@div class: 'row hide',outlet: "second", =>
 				@div class: "col-xs-12", =>
+					@label class: 'col-sm-3 col-md-3', "logo"
+					@div class: 'col-sm-3 col-md-3', =>
+			      @img outlet:"logo",class:'pic', src: desc.getImgPath 'icon.png'
+				@div class: "col-xs-12", =>
 					@label class: 'col-sm-3 col-md-3', "模块名称"
 					@div class: 'col-sm-9 col-md-9', =>
 			      @subview 'moduleName', new TextEditorView(mini: true,placeholderText: 'moduleName...')
@@ -29,15 +34,34 @@ class ModuleInfoView extends View
 					@label class: 'col-sm-3 col-md-3', "模块描述"
 					@div class: 'col-sm-9 col-md-9', =>
 			      @subview 'moduleDescription', new TextEditorView(mini: true,placeholderText: 'moduleDescription...')
-				@div class: "col-xs-12 ", =>
-					@label class: 'col-sm-3 col-md-3', "模块入口"
-					@div class: 'col-sm-9 col-md-9', =>
-			      @subview 'moduleInput', new TextEditorView(mini: true,placeholderText: 'moduleInput...')
+				# @div class: "col-xs-12 ", =>
+				# 	@label class: 'col-sm-3 col-md-3', "模块入口"
+				# 	@div class: 'col-sm-9 col-md-9', =>
+			  #     @subview 'moduleInput', new TextEditorView(mini: true,placeholderText: 'moduleInput...')
 
 
 	serialize: ->
 
+	selectIcon:(e) ->
+		real_path = $('.modulecheckbox:checked').attr('value')
+		img_path = pathM.join real_path,"..","icon.png"
+		options={}
+		cb = (selectPath) =>
+			# console.log selectPath[0]
+			# console.log selectPath[0].lastIndexOf('.')
+			if selectPath.length != 0
+				tmp = selectPath[0].substring(selectPath[0].lastIndexOf('.'))
+				console.log tmp
+				if tmp is ".jpeg" or tmp is ".png"
+					fs.writeFileSync(img_path,fs.readFileSync(selectPath[0]))
+					@logo.attr("src",img_path)
+				else
+					alert "请选择扩展名为 .jpeg 或者 .png"
+					return
+		util.openFile options,cb
+
 	attached: ->
+		@logo.on 'click', (e) => @selectIcon(e)
 		project_path = pathM.join $('.entry.selected span').attr('data-path'),'modules'
 		if !fs.existsSync(project_path)
 			alert "不存在 #{project_path} 文件夹"
@@ -92,13 +116,17 @@ class ModuleInfoView extends View
 				options =
 					encoding: 'utf-8'
 				contentList = JSON.parse(fs.readFileSync(real_path,options))
-				contentList['name'] = @moduleName.getText()
-				contentList['version'] = @moduleVersion.getText()
-				contentList['description'] = @moduleDescription.getText()
-				contentList['main'] = @moduleInput.getText()
+				contentList['name'] = @moduleName.getText().trim()
+				contentList['version'] = @moduleVersion.getText().trim()
+				contentList['description'] = @moduleDescription.getText().trim()
+				# contentList['main'] = @moduleInput.getText().trim()
+				if contentList['name'] is "" or contentList['version'] is ""
+					alert "模块名、版本、主入口不能为空"
+					return
+
 				configPath = pathM.join real_path, '..', '..', '..', 'appConfig.json'
-				console.log configPath
-				console.log contentList
+				# console.log configPath
+				# console.log contentList
 				cb = (err,written,string) =>
 					if err
 						alert '保存失败'
@@ -130,6 +158,7 @@ class ModuleInfoView extends View
 		if this.find('input[type=checkbox]').is(':checked')
 			console.log $('.modulecheckbox:checked')
 			real_path = $('.modulecheckbox:checked').attr('value')
+			img_path = pathM.join real_path,"..","icon.png"
 			console.log real_path
 		else
 			alert('请选择模块')
@@ -138,13 +167,17 @@ class ModuleInfoView extends View
 		file = new File(real_path)
 		file.setEncoding('UTF-8')
 		#读取文件中的内容
+		if fs.existsSync(img_path)
+			@logo.attr("src",img_path)
+		else
+			@logo.attr("src",desc.getImgPath 'icon.png')
 		file.read(false).then (contents) =>
 			# console.log JSON.parse(contents)
 			contentList = JSON.parse(contents)
 			@moduleName.setText(contentList['name'])
 			@moduleVersion.setText(contentList['version'])
 			@moduleDescription.setText(contentList['description'])
-			@moduleInput.setText(contentList['main'])
+			# @moduleInput.setText(contentList['main'])
 			# @version = contentList['version']
 			# console.log @version
 			# contentList = contents.split(',')

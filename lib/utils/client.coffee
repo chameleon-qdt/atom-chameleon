@@ -90,3 +90,12 @@ module.exports =
   getBuildUrl: (params,buildId) ->
     params.url = "build/get_build_info?build_id="+ buildId
     @send params
+
+  getAppListByModule: (params,moduleIdentifer) ->
+    params.url = "app_update/get_app_msg/"+moduleIdentifer
+    @send params
+
+  uploadModuleAndAct:(params) ->
+    params.url = "module/upload_use_module"
+    params.method = "POST"
+    @send params

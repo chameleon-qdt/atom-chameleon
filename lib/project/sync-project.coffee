@@ -37,7 +37,7 @@ class SyncProjectView extends View
       @parentView.setNextBtn()
       @parentView.setPrevBtn('back')
       @account_id = Util.store('chameleon').mail
-      params = 
+      params =
         qs:
           account: @account_id
           pageSize: @pageSize
@@ -78,12 +78,12 @@ class SyncProjectView extends View
     el.classList.add 'select'
     @createType = el.dataset.type
     @parentView.enableNext()
-    
+
 
 class ProjectItem extends View
   @content: (data) ->
     @li class: 'sync-item inline-block new-item text-center',projectId: data.identifier, =>
-      @img class: 'pic', src: desc.iconPath
+      @img class: 'pic', src: desc.getImgPath 'icon.png'
       @h3 data.name, class: 'project-name'
 
 class notProjectItem extends View

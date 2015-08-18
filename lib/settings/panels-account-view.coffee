@@ -20,8 +20,8 @@ class AccountPanel extends View
 class notFoundAccount extends View
   @content: ->
     @div =>
-      @h3 '没有账号信息，请先登陆'
-      @button '登陆', class: 'btn', click: 'login'
+      @h3 '没有账号信息，请先登录'
+      @button '登录', class: 'btn', click: 'login'
       @a '注册', class: 'btn', href: config.registerUrl
 
   login: ->
@@ -37,8 +37,8 @@ class hadAccount extends View
 
   logout: ->
     console.log util.store('chameleon').session_id
-    params = 
-      form: 
+    params =
+      form:
         session_id: util.store('chameleon').session_id
       sendCookie: true
       success: (data) ->

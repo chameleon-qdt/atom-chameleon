@@ -6,7 +6,7 @@ ChameleonBox = require '../utils/chameleon-box-view'
 fs = require 'fs-extra'
 client = require '../utils/client'
 Settings = require '../settings/settings'
-# UtilExtend = require './../utils/util-extend'
+UtilExtend = require './../utils/util-extend'
 
 class UploadProjectInfoView extends View
 	@content: ->
@@ -27,7 +27,7 @@ class UploadProjectInfoView extends View
 					@div class: 'form-group', =>
 						@label '应用关联模块', class: 'col-sm-3 control-label'
 						@div class: 'col-sm-9 ', =>
-							@label outlet: "moduleList"
+							@div outlet: "moduleList"
 					# @div class: "image", =>
 					# 	@img src: "http://qr.liantu.com/api.php?text=http://baidu.com"
 
@@ -38,20 +38,21 @@ class UploadProjectInfoView extends View
 			@parentView.enable = false
 			alert '请先登录'
 			return
-		@parentView.nextBtn.attr('disabled',false)
-		projectPaths = atom.project.getPaths()
-		projectNum = projectPaths.length
-		@selectUploadProject.empty()
-		@selectUploadProject.on 'change',(e) => @onSelectChange(e)
-		if projectNum isnt 0
-			@setSelectItem path for path in projectPaths
 		else
-			optionStr = "<option value=' '> </option>"
+			@parentView.nextBtn.attr('disabled',false)
+			projectPaths = atom.project.getPaths()
+			projectNum = projectPaths.length
+			@selectUploadProject.empty()
+			@selectUploadProject.on 'change',(e) => @onSelectChange(e)
+			if projectNum isnt 0
+				@setSelectItem path for path in projectPaths
+			else
+				optionStr = "<option value=' '> </option>"
+				@selectUploadProject.append optionStr
+			optionStr = "<option value='other'>其他</option>"
 			@selectUploadProject.append optionStr
-		optionStr = "<option value='other'>其他</option>"
-		@selectUploadProject.append optionStr
-		if @selectUploadProject.val() isnt 'other'
-			@showProjectMessage(@selectUploadProject.val())
+			if @selectUploadProject.val() isnt 'other'
+				@showProjectMessage(@selectUploadProject.val())
 
 	setSelectItem:(path) ->
 		filePath = pathM.join path,desc.ProjectConfigFileName
@@ -99,7 +100,13 @@ class UploadProjectInfoView extends View
 				contentList = JSON.parse(fs.readFileSync(path))
 				@name.html(contentList['name'])
 				@identifier.html(contentList['identifier'])
-				@moduleList.html(JSON.stringify(contentList['modules']))
+				#
+				str = ""
+				getMessage = (key,value) =>
+					str = str + "<label>#{key}&nbsp;:&nbsp;#{value}</label>&nbsp;&nbsp;&nbsp;"
+				getMessage key,value for key,value of contentList['modules']
+				console.log str
+				@moduleList.html(str)
 
 	checkModuleNeedUpload: (modulePath, modules, index) ->
 		if modules.length == 0
@@ -114,33 +121,19 @@ class UploadProjectInfoView extends View
 				sendCookie: true
 				success: (data) =>
 					# console.log "check version success"
+					build = data['build']
 					if data['version'] != ""
-						uploadVersion = moduleVersion.split('.')
-						version = data['version'].split('.')
+						# uploadVersion = moduleVersion.split('.')
+						# version = data['version'].split('.')
 						# 判断是否需要上传模块
-						if uploadVersion[0] < version[0]
+						result = UtilExtend.checkUploadModuleVersion(moduleVersion,data['version'])
+						if result['error']
 							console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
 							if modules.length == index+1
 								@sendBuildMessage()
 							else
 								@checkModuleNeedUpload(modulePath, modules, index+1)
 							return
-						else if uploadVersion[0] == version[0]
-							if uploadVersion[1] < version[1]
-								console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
-								if modules.length == index+1
-									@sendBuildMessage()
-								else
-									@checkModuleNeedUpload(modulePath, modules, index+1)
-								return
-							else if uploadVersion[1] == version[1]
-								if uploadVersion[2] <= version[2]
-									console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
-									if modules.length == index+1
-										@sendBuildMessage()
-									else
-										@checkModuleNeedUpload(modulePath, modules, index+1)
-									return
 					if fs.existsSync(moduleRealPath)
 						Util.fileCompression(moduleRealPath)
 						zipPath = moduleRealPath+'.zip'
@@ -152,32 +145,65 @@ class UploadProjectInfoView extends View
 								}
 								sendCookie: true
 								success: (data) =>
-									if fs.existsSync(pathM.join moduleRealPath,'package.json')
-										packagePath = pathM.join moduleRealPath,'package.json'
-										options =
-											encoding: 'utf-8'
-										contentList = JSON.parse(fs.readFileSync(packagePath,options))
-										params =
-											form:{
-												module_tag: contentList['identifier'],
-												module_name: contentList['name'],
-												module_desc: contentList['description'],
-												version: contentList['version'],
-												url_id: data['url_id'],
-												update_log: "构建应用时发现本地版本高于服务器版本，所以上传 #{contentList['identifier']} 模块"
+									Util.removeFileDirectory(zipPath)
+									data2 = {}
+									methodUploadModule = =>
+										if fs.existsSync(pathM.join moduleRealPath,'package.json')
+											packagePath = pathM.join moduleRealPath,'package.json'
+											options =
+												encoding: 'utf-8'
+											contentList = JSON.parse(fs.readFileSync(packagePath,options))
+											# 当  配置信息中不存在build字段时，新建字段 初始化为 1
+											#否则  +1
+											if build? and build != ""
+												contentList['build'] = parseInt(build) + 1
+											else
+												contentList['build'] = 1
+											# alert contentList['build']+"  "+data2['url_id']
+											params =
+												form:{
+													module_tag: contentList['identifier'],
+													module_name: contentList['name'],
+													module_desc: contentList['description'],
+													version: contentList['version'],
+													url_id: data['url_id'],
+													build: contentList['build'],
+													logo_url_id: data2['url_id'],
+													update_log: "构建应用时发现本地版本高于服务器版本，所以上传 #{contentList['identifier']} 模块"
+												}
+												sendCookie: true
+												success: (data) =>
+													fs.writeJson packagePath,contentList,null
+													if modules.length == index+1
+														@sendBuildMessage()
+													else
+														@checkModuleNeedUpload(modulePath, modules, index+1)
+												error: =>
+												  alert "上传#{modulePath}失败"
+											client.postModuleMessage(params)
+										else
+											console.log "文件不存在#{pathM.join modulePath,'package.json'}"
+									#判断是否存在  icon
+									if fs.existsSync(pathM.join moduleRealPath,'icon.png')
+										fileParams2 =
+											formData: {
+												up_file: fs.createReadStream(pathM.join moduleRealPath,'icon.png')
 											}
 											sendCookie: true
 											success: (data) =>
-												if modules.length == index+1
-													@sendBuildMessage()
-												else
-													@checkModuleNeedUpload(modulePath, modules, index+1)
+												#给 data2 初始化
+												data2 = data
+												# console.log data2
+												methodUploadModule()
 											error: =>
-											  alert "上传#{modulePath}失败"
-										client.postModuleMessage(params)
+												# console.log iconPath
+												console.log "上传icon失败"
+												alert "上传icon失败"
+										client.uploadFile(fileParams2,"module","")
 									else
-										console.log "文件不存在#{pathM.join modulePath,'package.json'}"
+										methodUploadModule()
 								error: =>
+									Util.removeFileDirectory(zipPath)
 									alert "上传文件失败"
 							client.uploadFile(fileParams,"module","")
 						else
@@ -214,9 +240,13 @@ class UploadProjectInfoView extends View
 					body: strBody
 					sendCookie: true
 					success: (data) =>
-						alert "上传应用成功"
-						@parentView.closeView()
-						return
+						console.log data
+						if data['status'] == "FAIL"
+							alert data['msg']
+						else
+							alert "上传应用成功"
+							@parentView.closeView()
+							return
 					error: =>
 						console.log  "sendBuildMessage error"
 						# @parentView.closeView()

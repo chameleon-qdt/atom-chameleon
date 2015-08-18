@@ -35,11 +35,13 @@ module.exports = TextDescription =
   getFrameworkPath: ->
     Path.join @chameleonHome,'src','frameworks'
   newProjectDefaultPath: atom.config.get('core').projectHome
-  iconPath:'atom://chameleon-test/images/icon.png'
+  # iconPath:'atom://chameleon-qdt-atom/images/icon.png'
+  getImgPath:(imgName) ->
+    Path.join @chameleonHome,'images',imgName
   mainEntryFileName: 'index.html'
 
 
-  publishModule: "发布模块"
+  publishModule: "上传模块"
   publishModulePageOneTitle: '请选择需要发布的模块：'
   publishModulePageTwoTitle: '确认发布模块信息'
 
@@ -57,7 +59,7 @@ module.exports = TextDescription =
   buildProjectMainTitle: "构建项目"
   uploadProjectTitle: "上传应用"
 
-  newsTemplate: 
+  newsTemplate:
     name: '新闻'
     type: 'news'
     pic: 'http://7xifa4.com1.z0.glb.clouddn.com/a.png'

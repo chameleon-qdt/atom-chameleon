@@ -17,41 +17,9 @@ module.exports = Login =
     @settings = Settings
     @loginView = new LoginView()
     _thisLoginView = @loginView
-
-
-    # @loginView.loginPassword.model.emitter.on 'did-change', () =>
-    #   coverText = ''
-    #   inputPassword = @loginView.loginPassword.getText()
-    #   # console.log @loginView.loginPassword
-    #   passwordLength = inputPassword.length
-    #   if inputPassword.charAt(passwordLength-1) isnt '*'
-    #     console.log @password.length < passwordLength
-    #     if @password.length < passwordLength
-    #       @password += inputPassword.charAt(passwordLength-1)
-    #       for str in @password
-    #         do (str) =>
-    #           coverText = coverText + '*'
-    #           setTimeout =>
-    #             @loginView.loginPassword.setText(coverText)
-    #           , 300
-
-    #       console.log @password
-    #     else
-    #       @password = @password.slice(passwordLength-1)
-    #       console.log @password
-    #       for str in @password
-    #         do (str) =>
-    #           coverText = coverText + '*'
-    #           setTimeout =>
-    #             @loginView.loginPassword.setText(coverText)
-    #           , 300
-    #   else
-    #     @password = @password.slice(passwordLength-1)
-    #     console.log @password
-    #登录按钮 需要 调用接口
     @loginView.on 'click', 'button[name=loginBtn]', =>
       mail = $.trim(_thisLoginView.loginEmail.getText())
-      password = _thisLoginView.find('#loginPassword').text()
+      password = _thisLoginView.find('#loginPassword').val()
       params =
         form: {
           mail: mail,
@@ -84,38 +52,38 @@ module.exports = Login =
         client.login(params)
 
 
-    # 密码框 输入时加密处理
-    @loginView.on 'keydown', @loginView.loginPassword, ->
-      inputKeyCode = event.keyCode
-      if inputKeyCode != 13
-        inputStr = "#{_thisLoginView.loginPassword.getText()}"
-        str = _thisLoginView.find('#loginPassword').text()
-        #当输入长度小于 实际保存密码的长度时需要截取实际保存长度的子串
-        if inputStr.length>=0 && inputStr.length <= str.length
-          str = str.substring(0,inputStr.length)
-          _thisLoginView.find('#loginPassword').text(str)
-          console.log "length : #{str.length}"
-        else
-          #获取最新输入的字符()
-          _thisLoginView.find('#loginPassword').text(str+inputStr.charAt(inputStr.length - 1))
-        # body...
-    @loginView.on 'keyup', @loginView.loginPassword, ->
-      strOuput = ''
-      inputKeyCode = event.keyCode
-      if inputKeyCode != 13
-        inputStr = _thisLoginView.loginPassword.getText()
-        str = _thisLoginView.find('#loginPassword').text()
-        #当输入长度小于 实际保存密码的长度时需要截取实际保存长度的子串
-        if inputStr.length>=0 && inputStr.length <= str.length
-          str = str.substring(0,inputStr.length)
-          _thisLoginView.find('#loginPassword').text(str)
-        else
-          #获取最新输入的字符
-          _thisLoginView.find('#loginPassword').text(str+inputStr.charAt(inputStr.length - 1))
-        for str in inputStr
-          do (str) ->
-            strOuput = strOuput + '*'
-        _thisLoginView.loginPassword.setText(strOuput)
+    # # 密码框 输入时加密处理
+    # @loginView.on 'keydown', @loginView.loginPassword, ->
+    #   inputKeyCode = event.keyCode
+    #   if inputKeyCode != 13
+    #     inputStr = "#{_thisLoginView.loginPassword.getText()}"
+    #     str = _thisLoginView.find('#loginPassword').text()
+    #     #当输入长度小于 实际保存密码的长度时需要截取实际保存长度的子串
+    #     if inputStr.length>=0 && inputStr.length <= str.length
+    #       str = str.substring(0,inputStr.length)
+    #       _thisLoginView.find('#loginPassword').text(str)
+    #       console.log "length : #{str.length}"
+    #     else
+    #       #获取最新输入的字符()
+    #       _thisLoginView.find('#loginPassword').text(str+inputStr.charAt(inputStr.length - 1))
+    #     # body...
+    # @loginView.on 'keyup', @loginView.loginPassword, ->
+    #   strOuput = ''
+    #   inputKeyCode = event.keyCode
+    #   if inputKeyCode != 13
+    #     inputStr = _thisLoginView.loginPassword.getText()
+    #     str = _thisLoginView.find('#loginPassword').text()
+    #     #当输入长度小于 实际保存密码的长度时需要截取实际保存长度的子串
+    #     if inputStr.length>=0 && inputStr.length <= str.length
+    #       str = str.substring(0,inputStr.length)
+    #       _thisLoginView.find('#loginPassword').text(str)
+    #     else
+    #       #获取最新输入的字符
+    #       _thisLoginView.find('#loginPassword').text(str+inputStr.charAt(inputStr.length - 1))
+    #     for str in inputStr
+    #       do (str) ->
+    #         strOuput = strOuput + '*'
+    #     _thisLoginView.loginPassword.setText(strOuput)
     # 密码框处理结束
     @loginView.modalPanel = @modalPanel = atom.workspace.addModalPanel(item: @loginView, visible: false)
     @loginView.move()
