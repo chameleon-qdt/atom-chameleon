@@ -8,6 +8,7 @@ BuildProject = require './project/build-project'
 UploadProject = require './project/upload-project'
 # ConfigureGlobal = require './configure/global/global'
 Settings = require './settings/settings'
+util = require './utils/util'
 {CompositeDisposable} = require 'atom'
 
 module.exports = Chameleon =
@@ -42,7 +43,8 @@ module.exports = Chameleon =
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:create-module' : => @toggleCreateModule(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:bulid-project' : => @toggleBuildProject(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:upload-project' : => @toggleUploadProject(state)
-    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:publish-module' : => @togglePublishModule(state)
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:publish-module' : => @togglePublishModule(state,"no_select_path")
+    @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:publish-module-select-path' : => @togglePublishModule(state,"select_path")
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:login': => @loginViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure-module': => @configureModuleViewOpen(state)
     @subscriptions.add atom.commands.add 'atom-workspace', 'chameleon:configure-application': => @configureAppViewOpen(state)
@@ -68,20 +70,29 @@ module.exports = Chameleon =
 
   toggleBuildProject: (state) ->
     # console.log BuildProject
-    @buildProject.activate(state)
-    @buildProject.openView()
+    if util.isLogin()
+      @buildProject.activate(state)
+      @buildProject.openView()
 
   toggleUploadProject: (state) ->
-    @uploadProject.activate(state)
-    @uploadProject.openView()
+    if util.isLogin()
+      @uploadProject.activate(state)
+      @uploadProject.openView()
 
   toggleCreateModule:(state) ->
     @createModule.activate(state)
     @createModule.openView()
 
-  togglePublishModule:(state) ->
-    @publishModule.activate(state)
-    @publishModule.openView()
+  togglePublishModule:(state,flag) ->
+    # console.log flag
+    if util.isLogin()
+      @publishModule.activate(state,flag)
+      @publishModule.openView()
+
+  # togglePublishModuleSelectPath:(state) ->
+  #   if util.isLogin()
+  #     @publishModule.activate(state)
+  #     @publishModule.openView()
 
   loginViewOpen:(state) ->
     @login.activate(state)

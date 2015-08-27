@@ -3,9 +3,10 @@ config = require '../../config/config'
 request = require 'request'
 util = require './util'
 j = request.jar()
+Settings = require '../settings/settings'
 
 module.exports =
-
+  settings: Settings
   send: (params) ->
     defaultsParams =
       baseUrl: config.serverUrl
@@ -16,7 +17,7 @@ module.exports =
       params.jar = j
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
-      # console.log httpResponse
+      console.log httpResponse
       # console.log err
       # console.log body
       if !err && httpResponse.statusCode is 200
@@ -25,8 +26,11 @@ module.exports =
       else if httpResponse.statusCode is 403
         util.removeStore('chameleon-cookie')
         util.removeStore('chameleon')
-        alert '没有登录或登录超时，请重新登录'
-        params.error(err)
+        alert '登录超时，请重新登录'
+        atom.workspace.getPanes()[0].destroyActiveItem()
+        @settings.activate()
+        util.findCurrModalPanel()?.item.closeView?()
+        util.rumAtomCommand('chameleon:login')
       else
         params.error(err)
     request params, cb
@@ -49,17 +53,18 @@ module.exports =
     params.url = 'app/app_info'
     @send params
 
-  getModuleLastVersion: (params,identifier) ->
+  getModuleLastVersion: (params) ->
     userId = util.store('chameleon').account_id
-    console.log userId,identifier
-    params.url = "app_update/get_lastversion/#{identifier}"
+    # console.log userId,identifier
+    params.url = "app_update/get_lastversion/"
+    params.method = 'POST'
+    # console.log params
     # params.url = "app_update/get_lastversion/#{identifier}"
     @send params
 
   postModuleMessage: (params) ->
     params.url = 'module/upload_module'
-    params.form.create_by = util.store('chameleon').account_id
-    # console.log params.form
+    console.log params
     params.method = 'POST'
     @send params
 
@@ -92,6 +97,7 @@ module.exports =
     @send params
 
   getAppListByModule: (params,moduleIdentifer) ->
+    console.log params
     params.url = "app_update/get_app_msg/"+moduleIdentifer
     @send params
 

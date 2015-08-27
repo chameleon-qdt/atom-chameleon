@@ -7,4 +7,5 @@ class CreateModuleView extends ChameleonBox
 
   options :
     title : desc.createModule
+    begining: ModuleInfoView
     subview : new ModuleInfoView()

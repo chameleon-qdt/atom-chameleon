@@ -10,30 +10,31 @@ class NewProjectView extends View
 
   @content: (params) ->
     @div class: 'new-project', =>
-      @h2 '请填写要创建的项目信息:'
-      @div class: 'form-horizontal', =>
-        @div class: 'form-group', =>
-          @label '请输入应用标识', class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
+      @h2 '请填写要创建的应用信息:', class: 'box-subtitle'
+      @div class: 'box-form', =>
+        @div class: 'form-row clearfix', =>
+          @label '请输入应用标识', class: 'row-title pull-left'
+          @div class: 'row-content pull-left', =>
             @subview 'appId', new TextEditorView(mini: true, placeholderText: '应用标识需以字母开头,且不能有中文')
-        @div class: 'col-sm-9 col-sm-offset-3', =>
+        @div class: 'form-row msg clearfix in-row', =>
           @div '应用标识非法，应用标识不能以数字开头,且不能有中文', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
-        @div class: 'form-group', =>
-          @label '请输入应用名称', class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
+        @div class: 'form-row clearfix', =>
+          @label '请输入应用名称', class: 'row-title pull-left'
+          @div class: 'row-content pull-left', =>
             @subview 'appName', new TextEditorView(mini: true, placeholderText: '应用显示的名称')
-        @div class: 'form-group', =>
-          @label '应用创建位置', class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
-            @subview 'appPath', new TextEditorView(mini: true)
+        @div class: 'form-row clearfix', =>
+          @label '应用创建位置', class: 'row-title pull-left'
+          @div class: 'row-content pull-left', =>
+            # @subview 'appPath', new TextEditorView(mini: true)
+            @div class: 'textEditStyle',outlet: 'appPath'
             @span class: 'inline-block status-added icon icon-file-directory openFolder', click: 'openFolder'
-        @div class: 'col-sm-9 col-sm-offset-3', =>
-          @div '该目录已存在', class: 'text-warning hide errorMsg', outlet: 'errorMsg'
+        @div class: 'form-row msg clearfix', =>
+          @div '该应用目录已存在', class: 'text-warning hide errorMsg', outlet: 'errorMsg'
 
   initialize: ->
-    @appId.getModel().onDidChange => @setPath()
+    @appId.getModel().onDidChange => @checkProjectName()
     @appName.getModel().onDidChange => @checkInput()
-    @appPath.getModel().onDidChange => @checkPath()
+    # @appPath.getModel().onDidChange => @checkPath()
 
   attached: ->
     console.log @parentView.options
@@ -41,23 +42,23 @@ class NewProjectView extends View
     # if @type isnt 'template'
     @parentView.setNextBtn('finish')
     @parentView.disableNext()
-    @appPath.basePath = desc.newProjectDefaultPath
-    @appPath.setText @appPath.basePath
+    @appPath.html desc.newProjectDefaultPath
 
   openFolder: ->
     atom.pickFolder (paths) =>
       if paths?
         console.log paths[0]
-        path = pathM.join paths[0],@appId.getText()
-        console.log  path
-        @appPath.basePath = path
-        @appPath.setText @appPath.basePath
+        # path = pathM.join paths[0],@appId.getText()
+        # console.log  path
+        @appPath.html paths[0]
 
   getElement: ->
     @element
 
   getProjectInfo: ->
-    path = @appPath.getText().trim()
+    appId = @appId.getText().trim()
+    appPath = @appPath.html().trim()
+    path = pathM.join appPath,appId
     dir = new Directory(path)
     path = pathM.join desc.newProjectDefaultPath,dir.getBaseName() if dir.getParent().isRoot() is yes
     projectInfo =
@@ -71,7 +72,7 @@ class NewProjectView extends View
   checkInput: ->
     flag1 = @appId.getText().trim() isnt ""
     flag2 = @appName.getText().trim() isnt ""
-    flag3 = @appPath.getText().trim() isnt ""
+    flag3 = @appPath.html().trim() isnt ""
     flag4 = @errorMsg.hasClass('hide')
     flag5 = @errorMsg2.hasClass('hide')
 
@@ -80,20 +81,22 @@ class NewProjectView extends View
     else
       @parentView.disableNext()
 
-  setPath: ->
-    currPath = @appPath.basePath
+  checkProjectName: ->
+    # currPath = @appPath.basePath
     str = @appId.getText().trim()
     console.log Util.checkProjectName str
     if Util.checkProjectName str
       @errorMsg2.addClass('hide')
     else
       @errorMsg2.removeClass('hide')
-    @appPath.setText pathM.join currPath,str if currPath isnt ""
-    @checkInput()
+    # @appPath.setText pathM.join currPath,str if currPath isnt ""
+    @checkPath()
+    # @checkInput()
 
   checkPath: ->
-    path = @appPath.getText().trim()
-    @appPath.basePath = path if @appPath.hasFocus()
+    appId = @appId.getText().trim()
+    appPath = @appPath.html().trim()
+    path = pathM.join appPath,appId
     if path isnt ""
       dir = new Directory(path);
       dir.exists()
@@ -101,9 +104,8 @@ class NewProjectView extends View
           console.log isExists,dir.getRealPathSync()
           unless isExists
             @errorMsg.addClass('hide')
-
           else
-            @errorMsg.removeClass('hide')
+            @errorMsg.removeClass('hide') if appId isnt ""
           @checkInput()
     else
       console.log 'empty'

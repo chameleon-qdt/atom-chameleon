@@ -14,20 +14,22 @@ class CreateOrSynchronize extends View
 
   @content: ->
     @div class: 'create-project container', =>
+      @h2 '请选择要创建的应用类型:'
       @div class: 'row',outlet: 'main', =>
         @div class: 'col-xs-6', =>
           @div class: 'item new-project text-center', 'data-type':'newProject', =>
-            @img class: 'pic', src: desc.getImgPath 'icon.png'
+            @div class: 'itemIcon', =>
+              @img src: desc.getImgPath 'icon_new.png'
             @h3 desc.newProject, class: 'title'
             @div class: 'desc', '创建一个本地应用'
         @div class: 'col-xs-6', =>
           @div class: 'item sync-project text-center', 'data-type':'syncProject', =>
-            @img class: 'pic', src: desc.getImgPath 'icon.png'
+            @div class: 'itemIcon', =>
+              @img src: desc.getImgPath 'icon_sync.png'
             @h3 desc.syncProject, class: 'title'
-            @div class: 'desc', '同步已登录账户中的项目到本地，未登录的用户请登录'
+            @div class: 'desc', '同步已登录账户中的应用到本地，未登录的用户请登录'
 
   attached: ->
-    console.log 'c'
     @parentView.disableNext()
     @parentView.hidePrevBtn()
     $('.item.select').removeClass 'select'
@@ -47,9 +49,9 @@ class CreateOrSynchronize extends View
     @parentView.enableNext()
 
   nextStep: (box)->
-    nextStepView = new @v[@createType]()
+    nextStepView = @v[@createType]
     box.setPrevStep @
-    box.mergeOptions {subview:nextStepView}
+    box.mergeOptions {subview: nextStepView}
     box.nextStep()
 
 module.exports =

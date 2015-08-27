@@ -16,12 +16,13 @@
       'label':'模块配置'
       'command':'chameleon:configure-module'
     }
-    {
-      'label':'应用配置'
-      'command':'chameleon:configure-application'
-    }
+    # {
+    #   'label':'应用配置'
+    #   'command':'chameleon:configure-application'
+    # }
     {
       'label':'构建应用'
+      'command':'chameleon:bulid-project'
     }
     {'type': 'separator'}
   ]
@@ -42,10 +43,10 @@
     'label':'变色龙QDT'
     'submenu':[
       {
-        'label':'项目'
+        'label':'应用'
         'submenu':[
           {
-            'label':'创建项目',
+            'label':'创建应用',
             'command':'chameleon:create-project'
           }
           {
@@ -67,7 +68,7 @@
           }
           {
             'label':'上传模块',
-            'command':'chameleon:publish-module'
+            'command':'chameleon:publish-module-select-path'
           }
           # {
           #   'label':'下载模块'

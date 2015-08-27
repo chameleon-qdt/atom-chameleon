@@ -10,21 +10,21 @@ _ = ChameleonBox._
 # module.exports =
 class AppView extends View
   @content: ->
-    @div class: 'build_project_vew', =>
-      @div class: "col-xs-12", =>
-        @label class: 'col-sm-3 col-md-3', "应用标识"
-        @div class: 'col-sm-9 col-md-9', =>
+    @div class: 'configure_project_vew', =>
+      @div class: "col-sm-12", =>
+        @label class: 'col-sm-3 ', "应用标识"
+        @div class: 'col-sm-9 ', =>
           @div outlet: 'appId', class: 'textEditStyle'
-      @div class: "col-xs-12 ", =>
-        @label class: 'col-sm-3 col-md-3', "应用名称"
-        @div class: 'col-sm-9 col-md-9', =>
+      @div class: "col-sm-12 ", =>
+        @label class: 'col-sm-3', "应用名称"
+        @div class: 'col-sm-9', =>
           @subview 'appName', new TextEditorView(mini: true,placeholderText: 'appName...')
-      @div class: "col-xs-12 ", =>
-        @label class: 'col-sm-3 col-md-3', "应用版本"
-        @div class: 'col-sm-9 col-md-9', =>
+      @div class: "col-sm-12 ", =>
+        @label class: 'col-sm-3', "应用版本"
+        @div class: 'col-sm-9', =>
           @subview 'appVersion', new TextEditorView(mini: true,placeholderText: 'appVersion...')
-      @div class: "col-xs-12 ", =>
-        @label class: 'col-sm-3 col-md-3', "启动模块"
+      @div class: "col-sm-12 ", =>
+        @label class: 'col-sm-3', "启动模块"
         @div class: 'col-sm-9 ', =>
           @select class: 'form-control', outlet: 'selectModule'
 

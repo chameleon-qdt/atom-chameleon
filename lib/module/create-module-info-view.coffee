@@ -9,31 +9,28 @@ class CreateModuleInfoView extends View
 
   @content: ->
     @div class: 'create-module', =>
-      @h2 desc.CreateModuleTitle
-      @div class: 'form-horizontal', =>
-        @div class: 'form-group', =>
-          @label '模块所在项目', class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
+      @h2 desc.CreateModuleTitle, class: 'box-subtitle'
+      @div class: 'box-form', =>
+        @div class: 'form-row clearfix', =>
+          @label '模块所在应用', class: 'row-title pull-left'
+          @div class: 'row-content pull-left', =>
             @select class: 'form-control', outlet: 'selectProject'
-        @div class: 'form-group', =>
-          @label desc.modulePath, class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
-            @subview 'modulePath', new TextEditorView(mini: true)
+        @div class: 'form-row clearfix', =>
+          @label desc.modulePath, class: 'row-title pull-left'
+          @div class: 'row-content pull-left', =>
+            # @subview 'modulePath', new TextEditorView(mini: true)
+            @div class: 'textEditStyle', outlet: 'modulePath'
             @span class: 'inline-block status-added icon icon-file-directory openFolder', click: 'openFolder'
-        @div class: 'form-group', =>
-          @label desc.moduleId, class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
+        @div class: 'form-row clearfix', =>
+          @label desc.moduleId, class: 'row-title pull-left'
+          @div class: 'row-content pull-left', =>
             @subview 'moduleId', new TextEditorView(mini: true)
-        @div class: 'form-group', =>
-          @label desc.moduleName, class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
+        @div class: 'form-row clearfix', =>
+          @label desc.moduleName, class: 'row-title pull-left'
+          @div class: 'row-content pull-left', =>
             @subview 'moduleName', new TextEditorView(mini: true)
-        @div class: 'form-group', =>
-          @label desc.mainEntry, class: 'col-sm-3 control-label'
-          @div class: 'col-sm-9', =>
-            @subview 'mainEntry', new TextEditorView(mini: true)
-        @div class: 'col-sm-9 col-sm-offset-3', =>
-          @div desc.createModuleErrorMsg, class: 'text-warning hide', outlet: 'errorMsg'
+        @div class: 'form-row msg clearfix hide', =>
+          @div desc.createModuleErrorMsg, class: 'text-warning', outlet: 'errorMsg'
 
   initialize: ->
     # @modulePath.getModel().onDidChange => @checkPath()
@@ -43,15 +40,15 @@ class CreateModuleInfoView extends View
     # @selectProject.on 'change',(e) => @onSelectChange(e)
 
   attached: ->
-    @modulePath.getModel().onDidChange => @checkPath()
+    # @modulePath.getModel().onDidChange => @checkPath()
     @moduleId.getModel().onDidChange => @checkPath()
     @moduleName.getModel().onDidChange => @checkInput()
-    @mainEntry.getModel().onDidChange => @checkInput()
+    # @mainEntry.getModel().onDidChange => @checkInput()
     @selectProject.on 'change',(e) => @onSelectChange(e)
     @moduleName.setText ''
     @moduleId.setText ''
-    @mainEntry.setText desc.mainEntryFileName
-    @modulePath.setText desc.newProjectDefaultPath
+    # @mainEntry.setText desc.mainEntryFileName
+    @modulePath.html desc.newProjectDefaultPath
 
     @parentView.setNextBtn('finish')
     @parentView.disableNext()
@@ -62,12 +59,12 @@ class CreateModuleInfoView extends View
     if projectNum isnt 0
       @selectProject.empty()
       @setSelectItem path for path in projectPaths
-      @modulePath.parents('.form-group').addClass 'hide'
-      @selectProject.parents('.form-group').removeClass 'hide'
-      @modulePath.setText pathM.join @selectProject.val(),'modules'
+      @modulePath.parents('.form-row').addClass 'hide'
+      @selectProject.parents('.form-row').removeClass 'hide'
+      @modulePath.html pathM.join @selectProject.val(),'modules'
     else
-      @selectProject.parents('.form-group').addClass 'hide'
-      @modulePath.parents('.form-group').removeClass 'hide'
+      @selectProject.parents('.form-row').addClass 'hide'
+      @modulePath.parents('.form-row').removeClass 'hide'
     # console.log @
     @checkPath()
 
@@ -86,7 +83,7 @@ class CreateModuleInfoView extends View
   serialize: ->
 
   getModuleInfo: ->
-    modulePath = @modulePath.getText()
+    modulePath = @modulePath.html()
     hasModulesFolder = modulePath.lastIndexOf('modules') isnt '-1'
     if hasModulesFolder
       projectHome = pathM.dirname modulePath
@@ -96,7 +93,7 @@ class CreateModuleInfoView extends View
     isProject = Util.isFileExist configPath,'sync'
 
     info =
-      mainEntry: @mainEntry.getText()
+      mainEntry: desc.mainEntryFileName
       moduleId: @moduleId.getText()
       moduleName: @moduleName.getText()
       modulePath: modulePath
@@ -108,36 +105,39 @@ class CreateModuleInfoView extends View
     atom.pickFolder (paths) =>
       if paths?
         console.log paths[0]
-        @modulePath.setText paths[0]
+        @modulePath.html paths[0]
 
   onSelectChange: (e) ->
     el = e.currentTarget
     # console.log el.value
-    @modulePath.setText pathM.join el.value,'modules'
+    @modulePath.html pathM.join el.value,'modules'
+    @checkPath()
 
   checkPath: ->
     path = @moduleId.getText().trim()
     if path isnt ""
-      projectPath = @modulePath.getText().trim()
+      projectPath = @modulePath.html().trim()
       path = pathM.join projectPath,path
+      console.log path
       dir = new Directory(path);
       dir.exists()
         .then (isExists) =>
+          console.log isExists,@errorMsg
           unless isExists
-            @errorMsg.addClass('hide')
+            @errorMsg.parent().addClass('hide')
           else
-            @errorMsg.removeClass('hide')
+            @errorMsg.parent().removeClass('hide')
           @checkInput()
 
 
   checkInput: ->
     flag1 = @moduleId.getText().trim() isnt ""
     flag2 = @moduleName.getText().trim() isnt ""
-    flag3 = @mainEntry.getText().trim() isnt ""
-    flag4 = @modulePath.getText().trim() isnt ""
-    flag5 = @errorMsg.hasClass 'hide'
+    # flag3 = @mainEntry.getText().trim() isnt ""
+    flag4 = @modulePath.html().trim() isnt ""
+    flag5 = @errorMsg.parent().hasClass 'hide'
 
-    if flag1 and flag2 and flag3 and flag4 and flag5
+    if flag1 and flag2 and flag4 and flag5
       @parentView.enableNext()
     else
       @parentView.disableNext()

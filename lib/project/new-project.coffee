@@ -13,23 +13,26 @@ class NewProjectView extends View
 
   @content: (params) ->
     @div class: 'new-project', =>
-        @h2 '请选择要创建的项目类型:'
+        @h2 '请选择要创建的应用类型:'
         @div class: 'flex-container', =>
           @button class:'btn btn-lg btn-action', outlet: 'prevPage',click: 'onPrevPageClick', =>
-            @span class: 'icon icon-chevron-left'
+            @img src: desc.getImgPath 'arrow_left.png'
           @div class: 'frameList', outlet:'frameList', =>
             @div class: 'new-item text-center', 'data-type': 'empty',  =>
-              @img class: 'pic', src: desc.getImgPath 'icon.png'
-              @h3 '空白项目',class: 'project-name'
+              @div class: 'itemIcon', =>
+                @img src: desc.getImgPath 'icon_empty.png'
+              @h3 '空白应用',class: 'project-name'
             @div class: 'new-item text-center', 'data-type': 'frame', =>
-              @img class: 'pic', src: desc.getImgPath 'icon.png'
-              @h3 '自带框架项目',class: 'project-name'
+              @div class: 'itemIcon', =>
+                @img src: desc.getImgPath 'icon_frame.png'
+              @h3 '自带框架应用',class: 'project-name'
             @div class: 'new-item text-center', 'data-type': 'template',  =>
-              @img class: 'pic', src: desc.getImgPath 'icon.png'
+              @div class: 'itemIcon', =>
+                @img src: desc.getImgPath 'icon_template.png'
               @h3 '业务模板',class: 'project-name'
             @div outlet:'divider'
           @button class:'btn btn-lg btn-action',outlet: 'nextPage',click: 'onNextPageClick', =>
-            @span class: 'icon icon-chevron-right'
+            @img src: desc.getImgPath 'arrow_right.png'
 
   attached: ->
     @disableNextPage()
@@ -39,16 +42,19 @@ class NewProjectView extends View
     @frameworks =
       [
         {
+          icon: desc.getImgPath 'icon_empty.png'
           dataName:''
-          displayName: '空白项目'
+          displayName: '空白应用'
           type: 'empty'
         },
         {
+          icon: desc.getImgPath 'icon_frame.png'
           dataName:''
-          displayName: '自带框架项目'
+          displayName: '自带框架应用'
           type: 'frame'
         },
         {
+          icon: desc.getImgPath 'icon_template.png'
           dataName: ''
           displayName: '业务模板'
           type: 'template'
@@ -101,7 +107,7 @@ class NewProjectView extends View
     Util.readDir fp, (err,files) =>
       return console.error err if err
       files.forEach (file,i) =>
-        unless file is '.githolder' or file is 'butterfly-slim'
+        unless file is '.githolder' or file is 'butterfly-slim' or file is '.gitkeep'
           configPath = Path.join fp,file,desc.moduleConfigFileName
           Util.readJson configPath, (err,json) =>
             # return console.error err if err
@@ -125,10 +131,12 @@ class NewProjectView extends View
 
 
   renderListItem: (data) ->
-    data.icon?=desc.getImgPath 'icon.png'
+    data.icon?=desc.getImgPath 'icon_template.png'
     html = """
     <div class="new-item text-center" data-type="#{data.type}" data-name="#{data.dataName}">
-      <img class="pic" src="#{data.icon}">
+      <div class="itemIcon">
+        <img src="#{data.icon}">
+      </div>
       <h3 class="project-name">#{data.displayName}</h3>
     </div>
     """

@@ -11,15 +11,17 @@ class addNewFrameworkView extends View
   LoadingMask: loadingMask
   frameworksDir: pathM.join desc.chameleonHome,'src','frameworks'
   @content: ->
-    @div class: 'addnewframework-view container', =>
-      @h1 '添加框架'
-      @div class: 'inputContianer', =>
-        @label for:'gitAddress', 'Git地址:'
-        @subview 'gitAddress', new TextEditorView(mini: true, placeholderText: '请输入Git地址')
-        @ul class:'error-messages block', outlet: 'messagesList'
-      @div class: 'btn-group', =>
-        @button class: 'btn icon icon-x inline-block', click: 'onCancelClick', '取消'
-        @button class: 'btn icon icon-check inline-block', disabled: true, id: 'sure', click: 'getThisRepo', '确定'
+    @div class: 'addnewframework-view', =>
+      @div class: 'head', =>
+        @h2 '添加框架'
+      @div class: 'content', =>
+        @div class: 'inputContianer', =>
+          @label for:'gitAddress', 'Git地址:'
+          @subview 'gitAddress', new TextEditorView(mini: true, placeholderText: '请输入Git地址')
+          @ul class:'error-messages block', outlet: 'messagesList'
+        @div class: 'btn-group', =>
+          @button class: 'btn icon icon-x inline-block', click: 'onCancelClick', '取消'
+          @button class: 'btn icon icon-check inline-block', disabled: true, id: 'sure', click: 'getThisRepo', '确定'
       
 
   initialize: ->
@@ -30,6 +32,8 @@ class addNewFrameworkView extends View
         @messagesList.html ''
       else
         @showErrorAddress()
+        if @inputAddress.length is 0
+          @messagesList.html ''
 
   getThisRepo: =>
     LoadingMask = new @LoadingMask()
@@ -51,12 +55,12 @@ class addNewFrameworkView extends View
     gitsuccess = (state, appPath) =>
       console.log state
       if state is 0
-        alert '添加成功'
         @.children(".loading-mask").remove()
+        alert '添加成功'
         @onCancelClick()
         @rerenderList()
       else
-        alert '项目创建失败：git clone失败，请检查网络连接、git地址或者已存在同名框架'
+        alert '添加失败：git clone失败，请检查网络连接、git地址或者已存在同名框架'
         @.children(".loading-mask").remove()
     Util.getRepo @frameworksDir, @inputAddress, gitsuccess
 

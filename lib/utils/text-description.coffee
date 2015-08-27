@@ -15,7 +15,7 @@ module.exports = TextDescription =
   email : '邮箱'
   pwd : '密码'
   save : '保存'
-  createProject : '创建项目'
+  createProject : '创建应用'
 
   createModule : '创建模块'
   CreateModuleTitle: '请填写要创建的模块信息'
@@ -25,9 +25,9 @@ module.exports = TextDescription =
   mainEntry: '模块入口'
   createModuleErrorMsg: '模块或同名目录已存在'
 
-  newProject: '新建项目'
+  newProject: '新建应用'
 
-  syncProject: '同步账号中的项目'
+  syncProject: '同步账号中的应用'
 
   registerUrl : 'http://www.baidu.com'
 
@@ -42,7 +42,7 @@ module.exports = TextDescription =
 
 
   publishModule: "上传模块"
-  publishModulePageOneTitle: '请选择需要发布的模块：'
+  publishModulePageOneTitle: '请选择需要发布的模块'
   publishModulePageTwoTitle: '确认发布模块信息'
 
   moduleConfigFileName: 'package.json'
@@ -56,10 +56,5 @@ module.exports = TextDescription =
   menuAccount: '开发者账号'
   menuCode: '框架、模版'
 
-  buildProjectMainTitle: "构建项目"
+  buildProjectMainTitle: "构建应用"
   uploadProjectTitle: "上传应用"
-
-  newsTemplate:
-    name: '新闻'
-    type: 'news'
-    pic: 'http://7xifa4.com1.z0.glb.clouddn.com/a.png'

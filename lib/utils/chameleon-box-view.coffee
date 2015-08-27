@@ -16,7 +16,7 @@ class ChameleonBoxView extends View
       @div class: 'box', outlet: 'contentBox', =>
         if options?
           @subview  'contentView', options.subview
-      @div class: 'clearfix', =>
+      @div class: 'box-actions clearfix', =>
         @button desc.cancel, class: 'btn cancel pull-left', outlet: 'cancelBtn', click: 'onCancelClick'
         @button desc.next, class: 'btn next pull-right', outlet: 'nextBtn', click: 'onNextClick'
         @button desc.prev, class: 'btn prev pull-right', outlet: 'prevBtn', click: 'onPrevClick'
@@ -24,6 +24,7 @@ class ChameleonBoxView extends View
 
   initialize: (options) ->
     # console.log options,@options
+    @cancelBtn.addClass('hide')
     @order = 0
     @options ?= {}
     @prevStep = []
@@ -39,13 +40,20 @@ class ChameleonBoxView extends View
     @remove()
 
   _refresh: ->
-    console.log 'refresh...'
+    console.log 'refresh...',@prevStep, @options
     @_destroyCurrentStep()
     # @options.subviews[@order]
     @setPrevBtn()
     @setNextBtn()
     @title.text @options.title
-    @contentView = @options.subview
+
+    if typeof @options.subview is 'function'
+      @contentView = new @options.subview()
+    else if typeof @options.subview is 'object' and @options.subview instanceof View
+      @contentView = new @options.subview.constructor()
+    else
+      @contentView = document.createElement('div');
+
     @contentView.parentView = @
     @contentBox.append(@contentView)
 
@@ -62,7 +70,7 @@ class ChameleonBoxView extends View
     _.extend @options, options
 
   setPrevStep:(prevStep) ->
-    @prevStep.unshift prevStep
+    @prevStep.unshift prevStep.constructor
     @prevStep
 
   getPrevStep: ->
@@ -83,7 +91,7 @@ class ChameleonBoxView extends View
     else
       @order--
       console.log @options,@prevStep
-      @mergeOptions {subview:prevView} if prevView = @getPrevStep()
+      @mergeOptions {subview: prevView} if prevView = @getPrevStep()
       @_refresh()
 
   onFinish: (callback) ->
@@ -137,7 +145,7 @@ class ChameleonBoxView extends View
 
     # console.log @modalPanel,atom.workspace.getModalPanels(),@,atom.workspace.getModalPanels()[0].item is @
     # console.dir @element.parentElement
-    view = new @options.begining?()
+    view = @options.begining
     @mergeOptions subview:view if view?
     @findModalPanel()
     # console.log @modalPanel,@modalPanel?.isVisible()

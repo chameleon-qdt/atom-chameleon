@@ -4,37 +4,84 @@ infoView = require './new-project-info'
 _ = require 'underscore-plus'
 config = require '../../config/config'
 module.exports =
-  class SelectTemplate extends View
-    @content: ->
-      @div class: 'new-project', =>
-        @h2 '请选择业务模板:'
-        @div class: 'col-sm-12 col-md-12', outlet:'template', =>
-          @div class: 'new-template text-center', 'data-type': desc.newsTemplate.type, click: 'onItemClick',  =>
-            @img class: 'pic', src: desc.newsTemplate.pic
-            @h3 desc.newsTemplate.name, class: 'project-name'
-        @div class: 'col-sm-12 col-md-12', outlet:'show-template', =>
-          @div class : 'template-item text-center', =>
-            @img class: 'pic', src: desc.getImgPath '3.jpeg'
-          @div class : 'template-item text-center', =>
-            @img class: 'pic', src: desc.getImgPath '8.jpeg'
-          @div class : 'template-item text-center', =>
-            @img class: 'pic', src: desc.getImgPath '5.jpg'
+class SelectTemplate extends View
+  @content: ->
+    @div class: 'new-project template', =>
+      @h2 '请选择业务模板:'
+      @div class: 'flex-container ', =>
+        @div class: 'frameList', outlet:'projectList', =>
+          @div class: 'new-item text-center', projectId: 'data.identifier', click: 'onItemClick', =>
+            @div class: 'itemIcon', =>
+              @img src: desc.getImgPath 'icon.png'
+            @h3 config.tempList[0].name, class: 'project-name'
+      @div class: 'flex-container', =>
+        @button class:'btn btn-lg btn-action', outlet: 'prevPage', click: 'onPrevPageClick', disabled: true, =>
+          @img src: desc.getImgPath 'arrow_left.png'
+        @div class: 'frameList', outlet:'thumbList'
+        @button class:'btn btn-lg btn-action',outlet: 'nextPage', click: 'onNextPageClick', disabled: true, =>
+          @img src: desc.getImgPath 'arrow_right.png'
 
-    attached: ->
-      # console.log @
-      @parentView.disableNext()
+  pageSize: 4
+  currentIndex: 1
+  thumbsList: config.tempList[0].thumbnail
 
-    getElement: ->
-      @element
+  attached: ->
+    # console.log @
+    @parentView.disableNext()
+    @renderThumbList()
 
-    nextStep:(box) ->
-      nextStepView = new infoView()
-      box.setPrevStep @
-      box.mergeOptions {subview:nextStepView, tmpType: @createType}
-      box.nextStep()
+  getElement: ->
+    @element
 
-    onItemClick: (e, el) ->
-      $('.new-template.select').removeClass 'select'
-      el.addClass 'select'
-      @createType = el.data('type')
-      @parentView.enableNext()
+  nextStep:(box) ->
+    nextStepView = new infoView()
+    box.setPrevStep @
+    box.mergeOptions {subview:nextStepView, tmpType: @createType}
+    box.nextStep()
+
+  renderThumbList: () ->
+    thumbs = @thumbsList.slice( @currentIndex * @pageSize - @pageSize, @currentIndex * @pageSize)
+    @thumbList.html('')
+    thumbs.forEach (url)=>
+      thumbItem = new thumbnail(url)
+      @thumbList.append(thumbItem)
+    @canClick()
+
+  canClick: () ->
+    pageNum = Math.ceil(@thumbsList.length/@pageSize)
+    if @currentIndex < pageNum
+      @enableClick('nextPage')
+    else
+      @disabledClick('nextPage')
+
+    if @currentIndex > 1
+      @enableClick('prevPage')
+    else
+      @disabledClick('prevPage')
+
+  enableClick: (direction) ->
+    dom = if direction is 'prevPage' then @prevPage else @nextPage
+    dom.removeAttr('disabled')
+
+  disabledClick: (direction) ->
+    dom = if direction is 'prevPage' then @prevPage else @nextPage
+    dom.attr('disabled', true)
+
+  onNextPageClick: () ->
+    @currentIndex++
+    @renderThumbList()
+    
+  onPrevPageClick: () ->
+    @currentIndex--
+    @renderThumbList()
+
+  onItemClick: (e, el) ->
+    $('.new-item.select').removeClass 'select'
+    el.addClass 'select'
+    @createType = el.data('type')
+    @parentView.enableNext()
+
+class thumbnail extends View
+  @content: (url) ->
+    @div class: 'temp-pic', =>
+      @img src: url

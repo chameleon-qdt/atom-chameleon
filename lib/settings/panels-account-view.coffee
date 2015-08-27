@@ -20,7 +20,8 @@ class AccountPanel extends View
 class notFoundAccount extends View
   @content: ->
     @div =>
-      @h3 '没有账号信息，请先登录'
+      @div class: 'accountMsg', =>
+        @h3 '没有账号信息，请先登录或者注册。'
       @button '登录', class: 'btn', click: 'login'
       @a '注册', class: 'btn', href: config.registerUrl
 
@@ -32,7 +33,8 @@ class notFoundAccount extends View
 class hadAccount extends View
   @content: (account) ->
     @div =>
-      @h3 "你好, #{account}"
+      @div class: 'accountMsg', =>
+        @h3 "你好, #{account}"
       @button '退出', class: 'btn', click: 'logout'
 
   logout: ->
