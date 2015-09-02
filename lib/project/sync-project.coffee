@@ -122,7 +122,7 @@ class ProjectItem extends View
   @content: (data) ->
     @div class: 'new-item text-center', projectId: data.identifier,  =>
       @div class: 'itemIcon', =>
-        @img src: desc.getImgPath 'icon.png'
+        @img src: src = if data.logoUrl is null then desc.getImgPath 'icon.png' else data.logoUrl
       @h3 data.name, class: 'project-name'
 
 class notProjectItem extends View

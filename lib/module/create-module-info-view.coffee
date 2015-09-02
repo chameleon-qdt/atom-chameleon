@@ -31,6 +31,8 @@ class CreateModuleInfoView extends View
             @subview 'moduleName', new TextEditorView(mini: true)
         @div class: 'form-row msg clearfix hide', =>
           @div desc.createModuleErrorMsg, class: 'text-warning', outlet: 'errorMsg'
+        @div class: 'form-row msg clearfix hide', =>
+          @div '模块标识长度必须在6-32个字符范围内,只能输入数字，字母，下划线', class: 'text-warning', outlet: 'errorMsg2'
 
   initialize: ->
     # @modulePath.getModel().onDidChange => @checkPath()
@@ -116,6 +118,11 @@ class CreateModuleInfoView extends View
   checkPath: ->
     path = @moduleId.getText().trim()
     if path isnt ""
+      regEx = /^\w{6,32}$/
+      if regEx.test path
+        @errorMsg2.parent().addClass('hide')
+      else
+        @errorMsg2.parent().removeClass('hide')
       projectPath = @modulePath.html().trim()
       path = pathM.join projectPath,path
       console.log path

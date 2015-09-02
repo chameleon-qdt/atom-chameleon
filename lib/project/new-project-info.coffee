@@ -15,9 +15,9 @@ class NewProjectView extends View
         @div class: 'form-row clearfix', =>
           @label '请输入应用标识', class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
-            @subview 'appId', new TextEditorView(mini: true, placeholderText: '应用标识需以字母开头,且不能有中文')
+            @subview 'appId', new TextEditorView(mini: true, placeholderText: '应用标识需以字母开头,且不能有中文,长度限制10到64个字符')
         @div class: 'form-row msg clearfix in-row', =>
-          @div '应用标识非法，应用标识不能以数字开头,且不能有中文', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
+          @div '应用标识非法，应用标识不能以数字开头,且不能有中文，长度不能低于10个字符且不大于64个字符', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
         @div class: 'form-row clearfix', =>
           @label '请输入应用名称', class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
@@ -84,8 +84,8 @@ class NewProjectView extends View
   checkProjectName: ->
     # currPath = @appPath.basePath
     str = @appId.getText().trim()
-    console.log Util.checkProjectName str
-    if Util.checkProjectName str
+    console.log str,Util.checkProjectName str
+    if str is "" or Util.checkProjectName str
       @errorMsg2.addClass('hide')
     else
       @errorMsg2.removeClass('hide')

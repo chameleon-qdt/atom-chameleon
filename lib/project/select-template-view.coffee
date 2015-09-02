@@ -10,7 +10,7 @@ class SelectTemplate extends View
       @h2 '请选择业务模板:'
       @div class: 'flex-container ', =>
         @div class: 'frameList', outlet:'projectList', =>
-          @div class: 'new-item text-center', projectId: 'data.identifier', click: 'onItemClick', =>
+          @div class: 'new-item text-center', projectId: 'data.identifier', click: 'onItemClick', type: 'news', =>
             @div class: 'itemIcon', =>
               @img src: desc.getImgPath 'icon.png'
             @h3 config.tempList[0].name, class: 'project-name'
@@ -78,7 +78,7 @@ class SelectTemplate extends View
   onItemClick: (e, el) ->
     $('.new-item.select').removeClass 'select'
     el.addClass 'select'
-    @createType = el.data('type')
+    @createType = el.attr('type')
     @parentView.enableNext()
 
 class thumbnail extends View

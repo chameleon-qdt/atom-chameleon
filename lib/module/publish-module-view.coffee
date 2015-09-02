@@ -7,9 +7,9 @@ UtilExtend = require './../utils/util-extend'
 ChameleonBox = require '../utils/chameleon-box-view'
 fs = require 'fs-extra'
 client = require '../utils/client'
+loadingMask = require '../utils/loadingMask'
 
 class PublishModuleInfoView extends View
-
   @content:() ->
     @div class : "upload-module", =>
       @div outlet : 'first' , =>
@@ -369,7 +369,7 @@ class PublishModuleInfoView extends View
   # attached: ->
 
 class ModuleMessageItem extends View
-
+  LoadingMask: loadingMask
   @content: (obj) ->
     @div class: 'module_item', =>
       @div class: 'upload-view-padding', =>
@@ -531,7 +531,8 @@ class ModuleMessageItem extends View
     client.uploadFile(fileParams,"module","")
 
   # upload_module
-  postModuleMessage:(btn,btn2) ->
+  postModuleMessage:(btn,btn2) =>
+    LoadingMask = new @LoadingMask()
     zipPath = PathM.join $(btn2).val(),"..",".."
     console.log zipPath
     zipName = PathM.basename(PathM.join $(btn2).val(),"..") + '.zip'
@@ -585,8 +586,10 @@ class ModuleMessageItem extends View
                   console.log "upload success"
                 error: =>
                   alert "configFilePathCallBack error"
+                complete: =>
+                  @.children(".loading-mask").remove()
+
               client.postModuleMessage(params)
-              console.log "sdsd"
               util.removeFileDirectory(PathM.join zipPath,zipName)
           else
             util.removeFileDirectory(PathM.join zipPath,zipName)
@@ -617,7 +620,10 @@ class ModuleMessageItem extends View
               alert "上传icon失败"
           client.uploadFile(fileParams2,"module","")
       error: =>
+        @.children(".loading-mask").remove()
         alert "上传文件失败"
+
+    @.append(LoadingMask)
     client.uploadFile(fileParams,"module","")
 
 module.exports =

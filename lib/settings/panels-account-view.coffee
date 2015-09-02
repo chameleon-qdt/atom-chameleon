@@ -4,6 +4,7 @@ LoginView = require '../login/login'
 config = require '../../config/config'
 util = require '../utils/util'
 client = require '../utils/client'
+
 module.exports =
 
 class AccountPanel extends View

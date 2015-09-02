@@ -20,19 +20,26 @@ module.exports =
       console.log httpResponse
       # console.log err
       # console.log body
-      if !err && httpResponse.statusCode is 200
-        headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
-        params.success(JSON.parse(body), headerCookie)
-      else if httpResponse.statusCode is 403
-        util.removeStore('chameleon-cookie')
-        util.removeStore('chameleon')
-        alert '登录超时，请重新登录'
-        atom.workspace.getPanes()[0].destroyActiveItem()
-        @settings.activate()
-        util.findCurrModalPanel()?.item.closeView?()
-        util.rumAtomCommand('chameleon:login')
-      else
-        params.error(err)
+      if httpResponse.complete
+        if typeof params.complete is 'function'
+          params.complete()
+
+        if !err && httpResponse.statusCode is 200
+          headerCookie = if typeof httpResponse.headers['set-cookie'] is 'undefined' then '' else httpResponse.headers['set-cookie'][0]
+          params.success(JSON.parse(body), headerCookie)
+        else if httpResponse.statusCode is 403
+          util.removeStore('chameleon-cookie')
+          util.removeStore('chameleon')
+          if httpResponse.request.path isnt '/qdt-web/api/v1/usermanger/logout'
+            alert '登录超时，请重新登录'
+            util.findCurrModalPanel()?.item.closeView?()
+            util.rumAtomCommand('chameleon:login')
+
+          atom.workspace.getPanes()[0].destroyActiveItem()
+          @settings.activate()
+
+        else
+          params.error(err)
     request params, cb
 
   login: (params) ->
@@ -78,6 +85,10 @@ module.exports =
     userMail = util.store('chameleon').mail
     params.url = "app/app_plugins/?account=#{userMail}&identifier=#{identifier}&platform=#{platform}"
     # console.log params.url
+    @send params
+
+  getAppAllPlugins:(params,identifier) ->
+    params.url = "app/app_all_plugins?identifier=#{identifier}"
     @send params
 
   buildApp: (params) ->

@@ -55,21 +55,11 @@ module.exports = Util =
 
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
   checkProjectName: (str)->
-    # return false if str.trim() is ''
-    regEx1 = /[\`\~\!\@\#\$\%\^\&\*\(\)\+\=\|\{\}\'\:\;\,\·\\\[\]\<\>\/\?\~\！\@\#\￥\%\…\…\&\*\（\）\—\—\+\|\{\}\【\】\‘\；\：\”\“\’\。\，\、\？]/g
-    regEx2 = /[^\x00-\xff]/g
-    regEx3 = /\d/
-    firstchar = str[0]
-    flag1 = regEx1.test str
-    flag2 = regEx2.test str
-    flag3 = regEx3.test firstchar
-    flag4 = firstchar is "-"
-    # strcheck = str.replace(/[^\x00-\xff]/g,"")
-    # strcheck = strcheck.replace(regEx,"")
-    # strcheck = strcheck.replace(/-+/g, '-')
-    # # 特殊处理
-    # strcheck = '...' if strcheck is '.' or strcheck is '..'
-    return !(flag1 or flag2 or flag3 or flag4)
+    regEx5 = /^([A-Za-z]+\w*\.){2,}[A-Za-z]+\w*$/
+    regEx6 = /^.{10,64}$/
+    flag5 = regEx5.test str
+    flag6 = regEx6.test str
+    return flag5 and flag6
 
   getRepo: (appPath,repoUri, cb) ->
     options =

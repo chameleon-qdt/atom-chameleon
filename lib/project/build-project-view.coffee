@@ -7,13 +7,15 @@ fs = require 'fs-extra'
 client = require '../utils/client'
 UtilExtend = require './../utils/util-extend'
 
+qrCode = require 'qrcode-npm'
+
 class BuildProjectInfoView extends View
   checkBuildResultTimer: {}
   ticketTimer:{}
   buildPlatformId:{}
 
   @content: ->
-    @div class: 'build_project_vew', =>
+    @div class: 'build_project_view', =>
       @div outlet: 'main', =>
         @div class: 'col-xs-12', =>
           @label "选择需要构建的应用平台"
@@ -35,7 +37,7 @@ class BuildProjectInfoView extends View
         # @div class: 'form-group', =>
         @label '选择构建的应用', class: 'col-sm-3 control-label'
         @div class: 'col-sm-9', =>
-          @select class: '', outlet: 'selectProject'
+          @select class: 'form-control', outlet: 'selectProject'
       @div outlet: 'buildMessage',  =>
         @div class: 'form-horizontal', =>
           @div class: 'form-group', =>
@@ -44,11 +46,11 @@ class BuildProjectInfoView extends View
               @button 'iOS', class: 'btn formBtn', value: 'iOS', outlet: 'iosBtn'
               @button 'Android',class: 'btn formBtn', value: 'Android', outlet: 'androidBtn'
           @div class: 'form-group', =>
-            @label '应用标识' , class: 'col-sm-3 text-align-right'
+            @label '应用标识' , class: 'col-sm-3 control-label'
             # @div class: 'col-sm-9', =>
             @label class: 'col-sm-9 disabled-text',outlet:'identifier'
           @div class: 'form-group', =>
-            @label "构建平台", class: 'col-sm-3 text-align-right'
+            @label "构建平台", class: 'col-sm-3 control-label'
             # @div class: 'col-sm-9', =>
             @label class: 'col-sm-9 disabled-text',outlet:'platform'
         @div class: 'form-horizontal', outlet: 'iosForm', =>
@@ -89,27 +91,26 @@ class BuildProjectInfoView extends View
           @div class: "col-sm-12 text-center", =>
             @span "" ,class: "androidTips"
       @div outlet: 'urlCodeList', =>
-        @div class: 'col-sm-12', =>
-          @label "构建成功后返回的二维码"
-        @div class:'col-sm-12 text-center',  =>
-          @div class: 'col-sm-6 text-center', outlet: 'ios_code_view' ,=>
-            @div class: 'col-sm-12', outlet: 'ios_build_result_tips'
-            @div class: 'col-sm-12', =>
-              @img class:'codeImg', outlet: 'iOSCode',src: desc.getImgPath 'iphone.png'
-            @div class: 'col-sm-12 label_pad', =>
+        # @div class: 'success-tips',  =>
+        #   @span class: 'success-icon'
+        #   @span class: 'success-txt', '构建成功'
+        @div class:'',  =>
+          @div class: 'platform-item', outlet: 'ios_code_view' ,=>
+            @div class: 'build-status text-center', outlet: 'ios_build_result_tips'
+            @img class:'codeImg', outlet: 'iOSCode',src: desc.getImgPath 'iphone.png'
+            @div class: 'label_pad', =>
               @img src: desc.getImgPath 'icon_apple02.png'
               @label "iOS",class:'iosTips platform_tips_label'
-            @div class: 'col-sm-12', =>
+            @div class: 'code-url', =>
               @a outlet:'iosUrl'
 
-          @div class: 'col-sm-6 text-center', outlet: 'android_code_view', =>
-            @div class: 'col-sm-12', outlet: 'android_build_result_tips'
-            @div class: 'col-sm-12', =>
-              @img class:'codeImg',outlet: 'androidCode', src: desc.getImgPath 'android.png'
-            @div class: 'col-sm-12 label_pad', =>
+          @div class: 'platform-item', outlet: 'android_code_view', =>
+            @div class: 'build-status text-center', outlet: 'android_build_result_tips'
+            @img class:'codeImg',outlet: 'androidCode', src: desc.getImgPath 'android.png'
+            @div class: 'label_pad', =>
               @img src: desc.getImgPath 'icon_android02.png'
               @label "Andoird",class:'androidTips platform_tips_label'
-            @div class: 'col-sm-12', =>
+            @div class: 'code-url', =>
               @a outlet:'androidUrl'
 
 
@@ -249,63 +250,104 @@ class BuildProjectInfoView extends View
         jsonContent = JSON.parse(strContent)
         @identifier.attr('value',jsonContent['identifier'])
         @identifier.html(jsonContent['identifier'])
-        showBuildMessage = (checkbox) =>
-          # console.log $(checkbox).attr('value')
-          if $(checkbox).attr('value') is 'iOS'
-            hasIos = true
-            # 获取IOS插件信息
-            params =
-              sendCookie: true
-              success: (data) =>
-                # console.log data
-                strContent = ""
-                showPlaugins = (obj) ->
-                  strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
-                showPlaugins obj for obj in data
+        #获取插件信息
+        pluginsObj = null
+        params =
+          sendCookie: true
+          success: (data) =>
+            pluginsObj = data
+            console.log pluginsObj
+            showBuildMessage_Mod = (checkbox) =>
+              strContent = ""
+              showPlaugins = (obj) =>
+                strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
+              # console.log $(checkbox).attr('value')
+              if $(checkbox).attr('value') is 'iOS'
+                hasIos = true
+                # console.log "ios #{hasIos}"
+                showPlaugins obj for obj in pluginsObj['ios']
+                # console.log 'IOS'
+                # console.log pluginsObj['ios']
                 if strContent == ""
                   @iOSPluginsFormgroup.hide()
                 else
                   @iOSPluginsFormgroup.show()
                 @iOSPlugins.html(strContent)
-              error: =>
-                # console.log "console.error"
-            client.getAppPlugins(params, jsonContent['identifier'], 'IOS')
-          else
-            params =
-              sendCookie: true
-              success: (data) =>
-                # console.log data
-                strContent = ""
-                showPlaugins = (obj) ->
-                  strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
-                showPlaugins obj for obj in data
+              else
+                showPlaugins obj for obj in pluginsObj['android']
+                # console.log 'ANDROID'
                 if strContent == ""
                   @androidPluginsFormgroup.hide()
                 else
                   @androidPluginsFormgroup.show()
                 @androidPlugins.html(strContent)
-              error: =>
-                # console.log "console.error"
-            client.getAppPlugins(params, jsonContent['identifier'], 'ANDROID')
-            # 结束获取插件信息
-        showBuildMessage checkbox for checkbox in checkboxList
-        @main.addClass('hide')
-        @buildMessage.removeClass('hide')
+            showBuildMessage_Mod checkbox for checkbox in checkboxList
+            # pluginsObj = null
+            # console.log hasIos
+            if hasIos
+              @androidForm.hide()
+              # console.log "show IOS"
+              @iosForm.show()
+              @platform.html('iOS')
+              @iosBtn.attr( 'disabled', false)
+              @androidBtn.attr( 'disabled', false)
+              if checkboxList.length is 1
+                @androidBtn.attr( 'disabled', true)
+            else
+              @platform.html('Android')
+              @androidBtn.attr( 'disabled', false)
+              @iosBtn.attr( 'disabled', true)
+              @iosForm.hide()
+              @androidForm.show()
+            @main.addClass('hide')
+            @buildMessage.removeClass('hide')
+          error: =>
+            console.log "console.error"
+        client.getAppAllPlugins(params,jsonContent['identifier'])
+        # console.log pluginsObj
+        # showBuildMessage = (checkbox) =>
+        #   # console.log $(checkbox).attr('value')
+        #   if $(checkbox).attr('value') is 'iOS'
+        #     hasIos = true
+        #     # 获取IOS插件信息
+        #     params =
+        #       sendCookie: true
+        #       success: (data) =>
+        #         # console.log data
+        #         strContent = ""
+        #         showPlaugins = (obj) ->
+        #           strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
+        #         showPlaugins obj for obj in data
+        #         if strContent == ""
+        #           @iOSPluginsFormgroup.hide()
+        #         else
+        #           @iOSPluginsFormgroup.show()
+        #         @iOSPlugins.html(strContent)
+        #       error: =>
+        #         # console.log "console.error"
+        #     client.getAppPlugins(params, jsonContent['identifier'], 'IOS')
+        #   else
+        #     params =
+        #       sendCookie: true
+        #       success: (data) =>
+        #         # console.log data
+        #         strContent = ""
+        #         showPlaugins = (obj) ->
+        #           strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
+        #         showPlaugins obj for obj in data
+        #         if strContent == ""
+        #           @androidPluginsFormgroup.hide()
+        #         else
+        #           @androidPluginsFormgroup.show()
+        #         @androidPlugins.html(strContent)
+        #       error: =>
+        #         # console.log "console.error"
+        #     client.getAppPlugins(params, jsonContent['identifier'], 'ANDROID')
+        #     # 结束获取插件信息
+        # showBuildMessage checkbox for checkbox in checkboxList
+        # @main.addClass('hide')
+        # @buildMessage.removeClass('hide')
         # console.log @androidBtn
-        if hasIos
-          @androidForm.hide()
-          @iosForm.show()
-          @platform.html('iOS')
-          @iosBtn.attr( 'disabled', false)
-          @androidBtn.attr( 'disabled', false)
-          if checkboxList.length is 1
-            @androidBtn.attr( 'disabled', true)
-        else
-          @platform.html('Android')
-          @androidBtn.attr( 'disabled', false)
-          @iosBtn.attr( 'disabled', true)
-          @iosForm.hide()
-          @androidForm.show()
       else
         alert "请选择构建平台"
         return
@@ -355,16 +397,20 @@ class BuildProjectInfoView extends View
       moduleIdentifer = modules[index]['identifier']
       moduleVersion = modules[index]['version']
       moduleRealPath = pathM.join modulePath, moduleIdentifer
+      moduleList = [moduleIdentifer]
       params =
+        formData:{
+          identifier:JSON.stringify(moduleList)
+        }
         sendCookie: true
         success: (data) =>
           # console.log "check version success"
-          build = data['build']
-          if data['version'] != ""
+          build = data[0]['build']
+          if data[0]['version'] != ""
             # uploadVersion = moduleVersion.split('.')
             # version = data['version'].split('.')
             # 判断是否需要上传模块
-            result = UtilExtend.checkUploadModuleVersion(moduleVersion,data['version'])
+            result = UtilExtend.checkUploadModuleVersion(moduleVersion,data[0]['version'])
             if result['error']
               console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
               if modules.length == index+1
@@ -450,7 +496,7 @@ class BuildProjectInfoView extends View
             alert "不存在#{moduleRealPath}"
         error : =>
           console.log "获取模板最新版本 的url 调不通"
-      client.getModuleLastVersion(params,moduleIdentifer)
+      client.getModuleLastVersion(params)
     # console.log
 
   sendBuildMessage: ->
@@ -483,6 +529,7 @@ class BuildProjectInfoView extends View
     userMail = Util.store('chameleon').mail
     bodyJSON =
       identifier: @identifier.attr("value"),
+      name:contentList["name"],
       platformInfo: platformInfo,
       # account: userMail
       mainModule: contentList["mainModule"]
@@ -492,6 +539,7 @@ class BuildProjectInfoView extends View
       modules: contentList["modules"]
       releaseNote: contentList["releaseNote"]
     bodyStr = JSON.stringify(bodyJSON)
+    # console.log bodyStr
     params =
       body: bodyStr
       sendCookie: true
@@ -575,23 +623,38 @@ class BuildProjectInfoView extends View
               window.clearTimeout(@checkBuildResultTimer[platform])
             if @ticketTimer[platform]
               window.clearTimeout(@ticketTimer[platform])
-          str = "<img src='"+ desc.getImgPath 'icon_success.png' +"'/>构建成功"
+          str = "<img src='"+ desc.getImgPath 'icon_success.png' +"'/><span class='built-span'>构建成功,开始加载二位码</span>"
           if @.find('#ios').is(':checked')
             @ios_code_view.removeClass('hide')
           if @.find('#android').is(':checked')
             @android_code_view.removeClass('hide')
           if platform == 'IOS'
             @.find(".iosTips").html("iOS")
-            @iOSCode.attr('src',"http://qr.liantu.com/api.php?text=#{data['url']}")
             @iosUrl.attr('href',data['url'])
             @iosUrl.html("app下载地址[IOS]")
             @ios_build_result_tips.html(str)
           else
             @.find(".androidTips").html("Android")
-            @androidCode.attr('src',"http://qr.liantu.com/api.php?text=#{data['url']}")
             @androidUrl.attr('href',data['url'])
             @androidUrl.html("app下载地址[Android]")
             @android_build_result_tips.html(str)
+          str = "<img src='"+ desc.getImgPath 'icon_success.png' +"'/><span class='built-span'>构建成功</span>"
+          if platform == 'IOS'
+            qr1 = qrCode.qrcode(8, 'L')
+            qr1.addData(data['url'])
+            qr1.make()
+            img1 = qr1.createImgTag(4)
+            @ios_build_result_tips.html(str)
+            @iOSCode.attr('src', $(img1).attr('src'))
+            qr1 = null
+          else
+            qr2 = qrCode.qrcode(8, 'L')
+            qr2.addData(data['url'])
+            qr2.make()
+            img2 = qr2.createImgTag(4)
+            @android_build_result_tips.html(str)
+            @androidCode.attr('src', $(img2).attr('src'))
+            qr2 = null
         else if data['status'] == "BUILDING"
           @buildTips.html("正在构建请耐心等待......")
           if platform == "IOS"
@@ -621,7 +684,7 @@ class BuildProjectInfoView extends View
           else
             console.log "ios is hide"
           if @.find('#android').is(':checked')
-            @andoird_code_view.removeClass('hide')
+            @android_code_view.removeClass('hide')
           else
             console.log "android is hide"
           if !@urlCodeList.is(':visible')
@@ -629,10 +692,21 @@ class BuildProjectInfoView extends View
             @urlCodeList.removeClass('hide')
             @parentView.nextBtn.hide()
             @parentView.prevBtn.hide()
-          str = "<img src='"+ desc.getImgPath 'btn_close.png' +"'/>构建失败"
+          str = "<img src='"+ desc.getImgPath 'btn_close.png' +"'/><span class='built-span'>构建失败</span>"
           if platform == 'IOS'
+            @.find(".iosTips").html("iOS")
+            @iosUrl.addClass('hide')
+            # @iosUrl.html("app下载地址[IOS]")
             @ios_build_result_tips.html(str)
           else
+            @android_build_result_tips.html(str)
+          if platform == 'IOS'
+
+            @ios_build_result_tips.html(str)
+          else
+            @.find(".androidTips").html("Android")
+            @androidUrl.addClass('hide')
+            # @androidUrl.html("app下载地址[Android]")
             @android_build_result_tips.html(str)
           # alert "#{platform}构建失败"
       error: =>
@@ -665,18 +739,28 @@ class BuildProjectInfoView extends View
       @parentView.prevBtn.text('上一步')
       @parentView.nextBtn.show()
       console.log "kill timer"
-      if @checkBuildResultTimer["IOS"]
-        window.clearTimeout(@checkBuildResultTimer["IOS"])
-      if @checkBuildResultTimer["ANDROID"]
-        window.clearTimeout(@checkBuildResultTimer["ANDROID"])
-      if @ticketTimer["ANDROID"]
-        window.clearTimeout(@ticketTimer["ANDROID"])
-      if @ticketTimer["IOS"]
-        window.clearTimeout(@ticketTimer["IOS"])
+      @killTimer()
       #检测是否需要取消之前的构建
+  killTimer: ->
+    # console.log "kill timer"
+    if @checkBuildResultTimer["IOS"]
+      window.clearTimeout(@checkBuildResultTimer["IOS"])
+    if @checkBuildResultTimer["ANDROID"]
+      window.clearTimeout(@checkBuildResultTimer["ANDROID"])
+    if @ticketTimer["ANDROID"]
+      window.clearTimeout(@ticketTimer["ANDROID"])
+    if @ticketTimer["IOS"]
+      window.clearTimeout(@ticketTimer["IOS"])
 
 module.exports =
   class BuildProjectView extends ChameleonBox
     options :
       title: desc.buildProjectMainTitle
       subview: new BuildProjectInfoView()
+    killTimer: ->
+      console.log "kill timer"
+      @options.subview.killTimer()
+
+    closeView: ->
+      super()
+      @killTimer()
