@@ -74,8 +74,18 @@ module.exports = ModuleManager =
                   fs.writeJson projectConfigPath,contentList,null
           # console.log 'end'
           @addProjectModule info
-          atom.project.addPath(filePath)
-          Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+          isInProject = false
+          atom.project.getDirectories().forEach (dir) =>
+            # console.log dir,filePath
+            flag = dir.contains filePath
+            # console.log flag
+            if flag
+              isInProject = flag
+
+          console.log isInProject
+          if isInProject is no
+            atom.project.addPath(filePath)
+            Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
           alert "新建模块成功！"
           @chameleonBox.closeView()
       # .finally =>

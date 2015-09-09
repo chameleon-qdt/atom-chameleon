@@ -15,9 +15,9 @@ class NewProjectView extends View
         @div class: 'form-row clearfix', =>
           @label '请输入应用标识', class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
-            @subview 'appId', new TextEditorView(mini: true, placeholderText: '应用标识需以字母开头,且不能有中文,长度限制10到64个字符')
+            @subview 'appId', new TextEditorView(mini: true, placeholderText: '例如: com.foreveross.myapp')
         @div class: 'form-row msg clearfix in-row', =>
-          @div '应用标识非法，应用标识不能以数字开头,且不能有中文，长度不能低于10个字符且不大于64个字符', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
+          @div '应用标识不能以数字开头，且不能有中文，例如: com.foreveross.myapp', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
         @div class: 'form-row clearfix', =>
           @label '请输入应用名称', class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>

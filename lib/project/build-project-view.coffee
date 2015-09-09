@@ -34,7 +34,6 @@ class BuildProjectInfoView extends View
             @input type: 'checkbox', value: 'Android', id:'android',class:'hide'
             @label "Android", for: "android"
       @div outlet: 'selectApp', class:'form-horizontal form_width',=>
-        # @div class: 'form-group', =>
         @label '选择构建的应用', class: 'col-sm-3 control-label'
         @div class: 'col-sm-9', =>
           @select class: 'form-control', outlet: 'selectProject'
@@ -47,18 +46,11 @@ class BuildProjectInfoView extends View
               @button 'Android',class: 'btn formBtn', value: 'Android', outlet: 'androidBtn'
           @div class: 'form-group', =>
             @label '应用标识' , class: 'col-sm-3 control-label'
-            # @div class: 'col-sm-9', =>
             @label class: 'col-sm-9 disabled-text',outlet:'identifier'
           @div class: 'form-group', =>
             @label "构建平台", class: 'col-sm-3 control-label'
-            # @div class: 'col-sm-9', =>
             @label class: 'col-sm-9 disabled-text',outlet:'platform'
         @div class: 'form-horizontal', outlet: 'iosForm', =>
-          # @div class: 'form-group', =>
-          #   @label '应用logo' , class: 'col-sm-3 control-label'
-          #   @div class: 'col-sm-9', =>
-          #     @subview 'iOSLogo', new TextEditorView(mini: true)
-          #     @span class: 'inline-block status-added icon icon-file-directory openFolder', click: 'openIOS'
           @div class: 'form-group', =>
             @label '应用名称' , class: 'col-sm-3 control-label'
             @div class: 'col-sm-9', =>
@@ -67,11 +59,6 @@ class BuildProjectInfoView extends View
             @label '所选插件' , class: 'col-sm-3 control-label'
             @label class: 'col-sm-9 padding-left',outlet: 'iOSPlugins'
         @div class: 'form-horizontal', outlet: 'androidForm', =>
-          # @div class: 'form-group', =>
-          #   @label '应用logo' , class: 'col-sm-3 control-label'
-          #   @div class: 'col-sm-9', =>
-          #     @subview 'androidLogo', new TextEditorView(mini: true)
-          #     @span class: 'inline-block status-added icon icon-file-directory openFolder', click: 'openAndroid'
           @div class: 'form-group', =>
             @label '应用名称' , class: 'col-sm-3 control-label'
             @div class: 'col-sm-9', =>
@@ -91,10 +78,7 @@ class BuildProjectInfoView extends View
           @div class: "col-sm-12 text-center", =>
             @span "" ,class: "androidTips"
       @div outlet: 'urlCodeList', =>
-        # @div class: 'success-tips',  =>
-        #   @span class: 'success-icon'
-        #   @span class: 'success-txt', '构建成功'
-        @div class:'',  =>
+        @div class:'text-center',  =>
           @div class: 'platform-item', outlet: 'ios_code_view' ,=>
             @div class: 'build-status text-center', outlet: 'ios_build_result_tips'
             @img class:'codeImg', outlet: 'iOSCode',src: desc.getImgPath 'iphone.png'
@@ -113,7 +97,6 @@ class BuildProjectInfoView extends View
             @div class: 'code-url', =>
               @a outlet:'androidUrl'
 
-
   clickIcon:(e) ->
     console.log "hinhs"
     el = e.currentTarget
@@ -131,12 +114,8 @@ class BuildProjectInfoView extends View
 
   initialize: ->
     @.find('.selectBuildTemplate').on 'click',(e) => @clickIcon(e)
-    # @selectProject.on 'change',(e) => @onSelectChange(e)
-    # @.find('.formBtn').on 'click', (e) => @formBtnClick(e)
 
   attached: ->
-    # android_img_checkbox_html = "<input type='checkbox' value='android' id='android' class='hide'/><label for='android'>Android</label>"
-    # @android_img_checkbox.html(android_img_checkbox_html)
     if @.find("#ios").is(":checked")
       console.log "no"
 
@@ -156,8 +135,6 @@ class BuildProjectInfoView extends View
     @selectApp.removeClass('hide')
     @buildingTips.addClass('hide')
     @urlCodeList.addClass('hide')
-    # @urlCodeList.removeClass('hide')
-    # return
     @ios_code_view.addClass('hide')
     @android_code_view.addClass('hide')
     @parentView.nextBtn.attr('disabled',false)
@@ -187,8 +164,6 @@ class BuildProjectInfoView extends View
       projectName = pathM.basename path
       optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
       @selectProject.append optionStr
-
-  # initialize: ->
 
   formBtnClick: (e) ->
     el = e.currentTarget
@@ -232,11 +207,7 @@ class BuildProjectInfoView extends View
       @parentView.prevBtn.show()
     else if @main.is(':visible')
       checkboxList = this.find('input[type=checkbox]:checked')
-      # console.log checkboxList
-      # console.log  @.find('#ios').is(':checked')
-      # console.log @.find('#android').is(':checked')
       if checkboxList.length isnt 0
-        # console.log 'Build'
         hasIos = false
         configPath = pathM.join this.find('select').val(),desc.ProjectConfigFileName
         options =
@@ -246,7 +217,6 @@ class BuildProjectInfoView extends View
           alert "文件不存在"
           return
         strContent = fs.readFileSync(configPath,options)
-        # fs.closeSync(configPath)
         jsonContent = JSON.parse(strContent)
         @identifier.attr('value',jsonContent['identifier'])
         @identifier.html(jsonContent['identifier'])
@@ -304,50 +274,6 @@ class BuildProjectInfoView extends View
           error: =>
             console.log "console.error"
         client.getAppAllPlugins(params,jsonContent['identifier'])
-        # console.log pluginsObj
-        # showBuildMessage = (checkbox) =>
-        #   # console.log $(checkbox).attr('value')
-        #   if $(checkbox).attr('value') is 'iOS'
-        #     hasIos = true
-        #     # 获取IOS插件信息
-        #     params =
-        #       sendCookie: true
-        #       success: (data) =>
-        #         # console.log data
-        #         strContent = ""
-        #         showPlaugins = (obj) ->
-        #           strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
-        #         showPlaugins obj for obj in data
-        #         if strContent == ""
-        #           @iOSPluginsFormgroup.hide()
-        #         else
-        #           @iOSPluginsFormgroup.show()
-        #         @iOSPlugins.html(strContent)
-        #       error: =>
-        #         # console.log "console.error"
-        #     client.getAppPlugins(params, jsonContent['identifier'], 'IOS')
-        #   else
-        #     params =
-        #       sendCookie: true
-        #       success: (data) =>
-        #         # console.log data
-        #         strContent = ""
-        #         showPlaugins = (obj) ->
-        #           strContent = strContent+" | "+ "#{obj['identifier']} : #{obj['version']}(#{obj['type']})"
-        #         showPlaugins obj for obj in data
-        #         if strContent == ""
-        #           @androidPluginsFormgroup.hide()
-        #         else
-        #           @androidPluginsFormgroup.show()
-        #         @androidPlugins.html(strContent)
-        #       error: =>
-        #         # console.log "console.error"
-        #     client.getAppPlugins(params, jsonContent['identifier'], 'ANDROID')
-        #     # 结束获取插件信息
-        # showBuildMessage checkbox for checkbox in checkboxList
-        # @main.addClass('hide')
-        # @buildMessage.removeClass('hide')
-        # console.log @androidBtn
       else
         alert "请选择构建平台"
         return
@@ -564,25 +490,14 @@ class BuildProjectInfoView extends View
     # console.log params
 
   checkBuildResult: (id,platform,time) ->
-    # console.log id,platform,time
-    # ticket = (timeTips,loopTime,waitTime) =>
-    #   console.log timeTips,loopTime
-    #   if loopTime <= 1
-    #     return
-    #   loopTime = loopTime - 1
-    #   num = waitTime - 1
-    #   @.find(timeTips).html(num)
-    #   # console.log timeTips,num,@.find(timeTips).html(num),waitTime
-    #   setTimeout =>
-    #     ticket timeTips,loopTime,num
-    #   ,1000
-      # @.find(timeTips).html(num-1)
     params =
       sendCookie: true
       success: (data) =>
         # data['status'] = "SUCCESS"
         # data['url'] = "http://baidu.com"
         console.log data
+        icon_success = desc.getImgPath 'icon_success.png'
+        btn_close = desc.getImgPath 'btn_close.png'
         if data['code'] == -1
           alert "#{platform}构建不存在！"
           return
@@ -623,7 +538,7 @@ class BuildProjectInfoView extends View
               window.clearTimeout(@checkBuildResultTimer[platform])
             if @ticketTimer[platform]
               window.clearTimeout(@ticketTimer[platform])
-          str = "<img src='"+ desc.getImgPath 'icon_success.png' +"'/><span class='built-span'>构建成功,开始加载二位码</span>"
+          str = "<img src='#{icon_success}'/><span class='built-span'>构建成功,开始加载二位码</span>"
           if @.find('#ios').is(':checked')
             @ios_code_view.removeClass('hide')
           if @.find('#android').is(':checked')
@@ -638,7 +553,7 @@ class BuildProjectInfoView extends View
             @androidUrl.attr('href',data['url'])
             @androidUrl.html("app下载地址[Android]")
             @android_build_result_tips.html(str)
-          str = "<img src='"+ desc.getImgPath 'icon_success.png' +"'/><span class='built-span'>构建成功</span>"
+          str = "<img src='#{icon_success}'/><span class='built-span'>构建成功</span>"
           if platform == 'IOS'
             qr1 = qrCode.qrcode(8, 'L')
             qr1.addData(data['url'])
@@ -692,7 +607,7 @@ class BuildProjectInfoView extends View
             @urlCodeList.removeClass('hide')
             @parentView.nextBtn.hide()
             @parentView.prevBtn.hide()
-          str = "<img src='"+ desc.getImgPath 'btn_close.png' +"'/><span class='built-span'>构建失败</span>"
+          str = "<img src='#{btn_close}'/><span class='built-span'>构建失败</span>"
           if platform == 'IOS'
             @.find(".iosTips").html("iOS")
             @iosUrl.addClass('hide')

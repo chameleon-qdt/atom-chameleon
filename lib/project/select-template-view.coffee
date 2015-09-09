@@ -78,6 +78,7 @@ class SelectTemplate extends View
   onItemClick: (e, el) ->
     $('.new-item.select').removeClass 'select'
     el.addClass 'select'
+    console.log el
     @createType = el.attr('type')
     @parentView.enableNext()
 

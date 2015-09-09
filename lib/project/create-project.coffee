@@ -204,6 +204,7 @@ module.exports = CreateProject =
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建应用根目录成功后 将空白应用的应用内容复制到根目录
 
     # 首先，判断本地是否有框架
+    console.log pathM.join(@templateDir, fileName)
     Util.isFileExist pathM.join(@templateDir, fileName), (exists) =>
       if exists
         Util.createDir info.appPath, createSuccess #有，执行第二步：创建应用根目录

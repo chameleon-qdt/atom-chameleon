@@ -86,13 +86,11 @@ class CreateModuleInfoView extends View
 
   getModuleInfo: ->
     modulePath = @modulePath.html()
-    hasModulesFolder = modulePath.lastIndexOf('modules') isnt '-1'
-    if hasModulesFolder
-      projectHome = pathM.dirname modulePath
+    if @modulePath.isProject
+      modulePath = pathM.join modulePath,'modules'
+      isProject = true
     else
-      projectHome = modulePath
-    configPath = pathM.join projectHome,desc.ProjectConfigFileName
-    isProject = Util.isFileExist configPath,'sync'
+      isProject = false
 
     info =
       mainEntry: desc.mainEntryFileName
@@ -106,13 +104,13 @@ class CreateModuleInfoView extends View
     console.log 'openFolder'
     atom.pickFolder (paths) =>
       if paths?
-        console.log paths[0]
+        console.log "select path:#{paths[0]}"
         @modulePath.html paths[0]
 
   onSelectChange: (e) ->
     el = e.currentTarget
     # console.log el.value
-    @modulePath.html pathM.join el.value,'modules'
+    @modulePath.html el.value
     @checkPath()
 
   checkPath: ->
@@ -124,6 +122,12 @@ class CreateModuleInfoView extends View
       else
         @errorMsg2.parent().removeClass('hide')
       projectPath = @modulePath.html().trim()
+
+      configPath = pathM.join projectPath,desc.ProjectConfigFileName
+      isProject = @modulePath.isProject = Util.isFileExist configPath,'sync'
+      projectPath = pathM.join projectPath,'modules' if isProject
+
+
       path = pathM.join projectPath,path
       console.log path
       dir = new Directory(path);
