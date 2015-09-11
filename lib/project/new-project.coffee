@@ -74,6 +74,7 @@ class NewProjectView extends View
     $('.new-item.select').removeClass 'select'
     el.classList.add 'select'
     @newType = el.dataset.type
+    @name = el.dataset.name
     @parentView.enableNext()
 
   onPrevPageClick: (e) ->
@@ -98,7 +99,7 @@ class NewProjectView extends View
     else
       nextStepView = new infoView()
     box.setPrevStep @
-    box.mergeOptions {subview:nextStepView,newType:@newType}
+    box.mergeOptions {subview:nextStepView,newType:@newType,name:@name}
     box.nextStep()
 
   findFrameworks: ->
