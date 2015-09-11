@@ -1,5 +1,5 @@
 {
-  "name": "chameleon-test",
+  "name": "chameleon-qdt-atom",
   "main": "./lib/chameleon",
   "version": "0.2.9",
   "private": true,
@@ -17,11 +17,11 @@
       "chameleon:publish-module",
       "chameleon:login",
       "chameleon:settings",
-      "chameleon:openSource",
       "chameleon:configure-module",
       "chameleon:configure-application",
       "chameleon:bulid-project",
-      "chameleon:upload-project"
+      "chameleon:upload-project",
+      "chameleon:publish-module-select-path"
     ]
   },
   "repository": "https://github.com/chameleon-qdt/atom-chameleon.git",

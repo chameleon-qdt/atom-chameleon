@@ -31,7 +31,7 @@ module.exports = TextDescription =
 
   registerUrl : 'http://www.baidu.com'
 
-  chameleonHome: atom.packages.getLoadedPackage('chameleon-test').path
+  chameleonHome: atom.packages.getLoadedPackage('chameleon-qdt-atom').path
   getFrameworkPath: ->
     Path.join @chameleonHome,'src','frameworks'
   newProjectDefaultPath: atom.config.get('core').projectHome
