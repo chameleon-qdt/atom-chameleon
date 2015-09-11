@@ -93,8 +93,8 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
-          targetPath = pathM.join info.appPath,'modules',options.name
-          frameworksPath = pathM.join @frameworksDir,options.name
+          targetPath = pathM.join info.appPath,'modules','butterfly-tiny'
+          frameworksPath = pathM.join @frameworksDir,'butterfly-tiny'
           Util.copy frameworksPath, targetPath, (err) => # 复制成功后，将框架复制到应用的 modules 下
             throw err if err
             alert '应用创建成功'
@@ -134,20 +134,20 @@ module.exports = CreateProject =
             @chameleonBox.closeView()
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建应用根目录成功后 将空白应用的应用内容复制到根目录
 
-    Util.createDir info.appPath, createSuccess
+    # Util.createDir info.appPath, createSuccess
     # 首先，判断本地是否有框架
-    # Util.isFileExist pathM.join(@frameworksDir, 'butterfly-slim'), (exists) =>
-    #   if exists
-    #     Util.createDir info.appPath, createSuccess #有，执行第二步：创建应用根目录
-    #   else
-    #     success = (state, appPath) =>
-    #       if state is 0
-    #         Util.createDir info.appPath, createSuccess
-    #       else
-    #         alert '应用创建失败：git clone失败，请检查网络连接'
-    #         @modalPanel.item.children(".loading-mask").remove()
+    Util.isFileExist pathM.join(@frameworksDir, 'butterfly-slim'), (exists) =>
+      if exists
+        Util.createDir info.appPath, createSuccess #有，执行第二步：创建应用根目录
+      else
+        success = (state, appPath) =>
+          if state is 0
+            Util.createDir info.appPath, createSuccess
+          else
+            alert '应用创建失败：git clone失败，请检查网络连接'
+            @modalPanel.item.children(".loading-mask").remove()
 
-    #     Util.getRepo(@frameworksDir, config.repoUri, success) #没有，执行 git clone，成功后执行第二步
+        Util.getRepo(@frameworksDir, config.repoUri, success) #没有，执行 git clone，成功后执行第二步
 
 
     LoadingMask = new @LoadingMask()
