@@ -12,7 +12,7 @@ fs = require 'fs-extra'
 module.exports = CreateProject =
   chameleonBox: null
   modalPanel: null
-  repoDir: pathM.join desc.chameleonHome,'src','frameworks','butterfly-slim'
+  repoDir: pathM.join desc.chameleonHome,'src','frameworks','butterfly-tiny'
   frameworksDir: pathM.join desc.chameleonHome,'src','frameworks'
   projectTempDir: pathM.join desc.chameleonHome,'src','ProjectTemp'
   templateDir: pathM.join desc.chameleonHome,'src','templates'

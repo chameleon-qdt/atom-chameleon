@@ -108,7 +108,7 @@ class NewProjectView extends View
     Util.readDir fp, (err,files) =>
       return console.error err if err
       files.forEach (file,i) =>
-        unless file is '.githolder' or file is 'butterfly-slim' or file is '.gitkeep'
+        unless file is '.githolder' or file is 'butterfly-tiny' or file is '.gitkeep'
           configPath = Path.join fp,file,desc.moduleConfigFileName
           Util.readJson configPath, (err,json) =>
             # return console.error err if err
