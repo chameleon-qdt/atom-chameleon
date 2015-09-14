@@ -147,8 +147,9 @@ class CreateModuleInfoView extends View
     # flag3 = @mainEntry.getText().trim() isnt ""
     flag4 = @modulePath.html().trim() isnt ""
     flag5 = @errorMsg.parent().hasClass 'hide'
+    flag6 = @errorMsg2.parent().hasClass 'hide'
 
-    if flag1 and flag2 and flag4 and flag5
+    if flag1 and flag2 and flag4 and flag5 and flag6
       @parentView.enableNext()
     else
       @parentView.disableNext()
