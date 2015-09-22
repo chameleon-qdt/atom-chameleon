@@ -21,7 +21,7 @@ module.exports =
             @div class: 'input-container', id: 'psw', =>
               @subview 'loginPassword', new TextEditorView(mini: true, placeholderText: 'Password...')
           @div class: 'login-row', =>
-            @a class: 'forgetpsw', href: 'http://bsl.foreveross.com/qdt-web/html/account/forget_pwd.html', '忘记密码?'
+            @a class: 'forgetpsw', href: config.forgetpwdrUrl, '忘记密码?'
           @div class: 'login-row', =>
             @button id: 'login', class: 'btn login-btn', '登陆'
             @a '注册', class: 'btn login-btn', href: config.registerUrl

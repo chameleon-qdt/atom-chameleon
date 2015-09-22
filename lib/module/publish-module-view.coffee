@@ -100,7 +100,7 @@ class PublishModuleInfoView extends View
         @first.removeClass('hide')
     else
       alert '不存在路径['+appPath+']'
-      @parentView.closeView()
+      # @parentView.closeView()
     # console.log 'init finish'
   nextStep: ->
     _parentView = @parentView
@@ -123,61 +123,6 @@ class PublishModuleInfoView extends View
       moduleList = []
       modulePathJson = {}
       printModuleMessage = (checkbox) =>
-        # if $(checkbox).is(':checked')
-        #   moduleFolderCallBack = (exists) =>
-        #     if exists
-        #       moduleConfigCallBack = (exists) =>
-        #         if exists
-        #           console.log $(checkbox).attr('value')
-        #           contentList = JSON.parse(fs.readFileSync($(checkbox).attr('value')))
-        #           obj =
-        #             moduleName: contentList['name']
-        #             uploadVersion: contentList['version']
-        #             identifier: contentList['identifier']
-        #             version: contentList['serviceVersion']
-        #             modulePath: $(checkbox).attr('value')
-        #           console.log contentList['identifier']
-        #           if contentList['identifier'] is "undefined" || contentList['identifier'] is ""
-        #             console.log contentList['identifier']
-        #             alert "模块#{contentList['name']}的identifer不存在！"
-        #             @prevStep()
-        #             return
-        #           if contentList['version'] is "undefined" || contentList['version'] is ""
-        #             alert "模块#{contentList['name']}的version不存在！"
-        #             @prevStep()
-        #             return
-        #           params =
-        #             sendCookie: true
-        #             success: (data) =>
-        #               if true
-        #                 # console.log "check version success"
-        #                 console.log  "获取最新版本和上传次数"+ data
-        #                 #获取版本 和 上传次数 ， 并判断和初始化  obj['build'] obj['version']
-        #                 if data['build']? and data['build'] != ""
-        #                   obj["build"] = parseInt(data['build'])
-        #                 else
-        #                   obj["build"] = 0
-        #
-        #                 if data['version']? and data['version'] != ""
-        #                   obj['version'] = data['version']
-        #                 else
-        #                   obj['version'] = "0.0.0"
-        #                 item = new ModuleMessageItem(obj)
-        #                 # item.find('button').attr('disabled',true)
-        #                 # console.log item.find('button')
-        #                 _moduleMessageList.append(item)
-        #                 # util.fileCompression(PathM.join $(checkbox).attr('value'),'..')
-        #                 # callbackOper = ->
-        #                 #   item.find('button').attr("disabled",false)
-        #                 # $(".#{obj.identifier}").fadeOut(3000,callbackOper)
-        #             error : =>
-        #               console.log "获取模板最新版本 的url 调不通"
-        #           client.getModuleLastVersion(params,obj.identifier)
-        #       configFilePath = PathM.join $(checkbox).attr('value')
-        #       fs.exists(configFilePath,moduleConfigCallBack)
-        #
-        #   folderPath = PathM.join $(checkbox).attr('value'),'..'
-        #   fs.exists(folderPath,moduleFolderCallBack)
         if $(checkbox).is(':checked')
           identifer =PathM.basename PathM.join $(checkbox).attr('value'),".."
           moduleList.push(identifer)

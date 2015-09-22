@@ -136,7 +136,7 @@ module.exports = CreateProject =
 
     # Util.createDir info.appPath, createSuccess
     # 首先，判断本地是否有框架
-    Util.isFileExist pathM.join(@frameworksDir, 'butterfly-slim'), (exists) =>
+    Util.isFileExist pathM.join(@frameworksDir, 'butterfly-tiny'), (exists) =>
       if exists
         Util.createDir info.appPath, createSuccess #有，执行第二步：创建应用根目录
       else

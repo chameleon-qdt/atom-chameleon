@@ -19,17 +19,17 @@ class ModuleInfoView extends View
           @label '选择要配置的模块'
         @div outlet : 'moduleList',class:'col-sm-12'
       @div class: 'row hide',outlet: "second", =>
-        @div class: "col-sm-12", =>
-          @label class: 'col-sm-3', "logo"
-          @div class: 'col-sm-3 padding-none', =>
+        @div class: "hole-line", =>
+          @label class: 'label-extend', "logo"
+          @div class: 'input-line-1', =>
             @img outlet:"logo",class:'pic', src: desc.getImgPath 'icon.png'
-        @div class: "col-sm-12", =>
-          @label class: 'col-sm-3', "模块名称"
-          @div class: 'col-sm-9', =>
+        @div class: "hole-line ", =>
+          @label class: 'label-extend', "模块名称"
+          @div class: 'input-line-2', =>
             @subview 'moduleName', new TextEditorView(mini: true,placeholderText: 'moduleName...')
-        @div class: "col-sm-12 ", =>
-          @label class: 'col-sm-3', "模块版本"
-          @div class: 'col-sm-9', =>
+        @div class: " hole-line", =>
+          @label class: 'label-extend', "模块版本"
+          @div class: 'input-line-2', =>
             @subview 'moduleVersion', new TextEditorView(mini: true,placeholderText: 'moduleVersion...')
       @div class: 'layout hide',outlet:"layout"
         # @div class: "col-sm-12 ", =>

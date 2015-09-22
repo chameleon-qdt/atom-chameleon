@@ -49,7 +49,8 @@ module.exports = Login =
     params =
       form: {
         mail: mail,
-        password: password
+        password: password,
+        platform: 'qdt'
       }
       success: (data, cookie) =>
         console.log data

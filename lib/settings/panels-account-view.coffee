@@ -51,4 +51,4 @@ class hadAccount extends View
         $('.accountMessage').html(new notFoundAccount)
       error: (err) ->
         console.log err
-    client.loggout(params)
+    client.logout(params)

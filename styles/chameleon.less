@@ -18,6 +18,7 @@ atom-panel.modal.from-top.down {
   top: 100px;
   // padding: 15px;
   padding: 0;
+  width: 550px;
   font-family: "microsoft yahei, 'SF UI Text', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif"
 }
 .modal.down:before {
@@ -350,7 +351,12 @@ atom-panel.modal > .login-box {
   border-radius: @radius;
 }
 .configure-module {
+  .label-extend{
+    position: absolute;
+  }
   label {
+
+    width: 20%;
     font-size: 12px;
     text-align: right;
     padding-top: 5px;
@@ -363,25 +369,36 @@ atom-panel.modal > .login-box {
     top: 0px;
     left: 0px;
   }
-  .col-sm-12 {
-    width: 100%;
-    padding: 10px 15px;
+  .hole-line{
+     padding-bottom: 20px;
+  }
+  .input-line-1{
+    padding-right: 150px;
 
   }
-  .col-sm-9 {
-    // width: 390px;
-    height: 30px;
-    border: #181b20;
-    background: @input_bgc;
-    border-radius: 3px;
-    padding: 0px;
+  .input-line-2{
+    padding-left: 134px;
+
   }
-  .col-sm-3 {
-    width: 90px;
-    padding-left: 0px;
-    padding-right: 0px;
-    margin-right: 20px;
-  }
+  // .col-sm-12 {
+  //   width: 100%;
+  //   padding: 10px 15px;
+  //
+  // }
+  // .col-sm-9 {
+  //   // width: 390px;
+  //   height: 30px;
+  //   border: #181b20;
+  //   background: @input_bgc;
+  //   border-radius: 3px;
+  //   padding: 0px;
+  // }
+  // .col-sm-3 {
+  //   width: 90px;
+  //   padding-left: 0px;
+  //   padding-right: 0px;
+  //   margin-right: 20px;
+  // }
   .padding-none {
     padding: 0px;
   }
@@ -392,7 +409,7 @@ atom-panel.modal > .login-box {
     display: block;
   }
   .pic {
-    width: 100%;
+    width: 100px;
     height: inherit;
     display: block;
     margin-top: 0px;

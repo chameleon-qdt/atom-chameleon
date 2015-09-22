@@ -25,14 +25,14 @@ class CreateModuleInfoView extends View
           @label desc.moduleId, class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
             @subview 'moduleId', new TextEditorView(mini: true)
+        @div class: 'form-row msg clearfix in-row', =>
+          @div '模块标识长度必须在6-32个字符范围内,只能输入数字，字母，下划线', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
         @div class: 'form-row clearfix', =>
           @label desc.moduleName, class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
             @subview 'moduleName', new TextEditorView(mini: true)
-        @div class: 'form-row msg clearfix hide', =>
-          @div desc.createModuleErrorMsg, class: 'text-warning', outlet: 'errorMsg'
-        @div class: 'form-row msg clearfix hide', =>
-          @div '模块标识长度必须在6-32个字符范围内,只能输入数字，字母，下划线', class: 'text-warning', outlet: 'errorMsg2'
+        @div class: 'form-row msg clearfix', =>
+          @div desc.createModuleErrorMsg, class: 'text-warning hide errorMsg', outlet: 'errorMsg'
 
   initialize: ->
     # @modulePath.getModel().onDidChange => @checkPath()
@@ -118,9 +118,9 @@ class CreateModuleInfoView extends View
     if path isnt ""
       regEx = /^\w{6,32}$/
       if regEx.test path
-        @errorMsg2.parent().addClass('hide')
+        @errorMsg2.addClass('hide')
       else
-        @errorMsg2.parent().removeClass('hide')
+        @errorMsg2.removeClass('hide')
       projectPath = @modulePath.html().trim()
 
       configPath = pathM.join projectPath,desc.ProjectConfigFileName
@@ -135,9 +135,9 @@ class CreateModuleInfoView extends View
         .then (isExists) =>
           console.log isExists,@errorMsg
           unless isExists
-            @errorMsg.parent().addClass('hide')
+            @errorMsg.addClass('hide')
           else
-            @errorMsg.parent().removeClass('hide')
+            @errorMsg.removeClass('hide')
           @checkInput()
 
 
@@ -146,9 +146,10 @@ class CreateModuleInfoView extends View
     flag2 = @moduleName.getText().trim() isnt ""
     # flag3 = @mainEntry.getText().trim() isnt ""
     flag4 = @modulePath.html().trim() isnt ""
-    flag5 = @errorMsg.parent().hasClass 'hide'
+    flag5 = @errorMsg.hasClass 'hide'
+    flag6 = @errorMsg2.hasClass 'hide'
 
-    if flag1 and flag2 and flag4 and flag5
+    if flag1 and flag2 and flag4 and flag5 and flag6
       @parentView.enableNext()
     else
       @parentView.disableNext()

@@ -108,9 +108,9 @@ module.exports = Util =
   isLogin: () ->
     user = @store('chameleon').account_id
     if typeof user is 'undefined'
-      alert('请先登录')
-      @findCurrModalPanel()?.item.closeView?()
-      @rumAtomCommand('chameleon:login')
+      if confirm('请先登录')
+        @findCurrModalPanel()?.item.closeView?()
+        @rumAtomCommand('chameleon:login')
       return false
     else
       return true

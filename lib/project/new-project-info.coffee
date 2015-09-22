@@ -17,7 +17,7 @@ class NewProjectView extends View
           @div class: 'row-content pull-left', =>
             @subview 'appId', new TextEditorView(mini: true, placeholderText: '例如: com.foreveross.myapp')
         @div class: 'form-row msg clearfix in-row', =>
-          @div '应用标识不能以数字开头，且不能有中文，例如: com.foreveross.myapp', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
+          @div '只能输入文字和点，且至少三级目录，例如: com.foreveross.myapp', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
         @div class: 'form-row clearfix', =>
           @label '请输入应用名称', class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>

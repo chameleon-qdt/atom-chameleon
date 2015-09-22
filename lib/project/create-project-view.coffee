@@ -4,6 +4,7 @@ desc = require '../utils/text-description'
 syncProjectView = require './sync-project'
 newProjectView = require './new-project'
 ChameleonBox = require '../utils/chameleon-box-view'
+Util = require '../utils/util'
 
 # module.exports =
 class CreateOrSynchronize extends View
@@ -49,10 +50,17 @@ class CreateOrSynchronize extends View
     @parentView.enableNext()
 
   nextStep: (box)->
-    nextStepView = @v[@createType]
-    box.setPrevStep @
-    box.mergeOptions {subview: nextStepView}
-    box.nextStep()
+    if @createType is 'syncProject'
+      if Util.isLogin()
+        nextStepView = @v[@createType]
+        box.setPrevStep @
+        box.mergeOptions {subview: nextStepView}
+        box.nextStep()
+    else
+      nextStepView = @v[@createType]
+      box.setPrevStep @
+      box.mergeOptions {subview: nextStepView}
+      box.nextStep()
 
 module.exports =
 class CreateProjectView extends ChameleonBox

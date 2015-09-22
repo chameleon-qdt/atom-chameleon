@@ -32,17 +32,17 @@ class SyncProjectView extends View
 
   attached: ->
     @parentView.disableNext()
-    if Util.isLogin()
-      @parentView.setNextBtn()
-      @parentView.setPrevBtn('back')
-      @account_id = Util.store('chameleon').mail
+    # if Util.isLogin()
+    @parentView.setNextBtn()
+    @parentView.setPrevBtn('back')
+    @account_id = Util.store('chameleon').mail
 
-      if @projects.length is 0
-        @getProjectList 1, (data)=>
-          @projects = @projects.concat(data.data)
-          @totalCount = data.totalCount
-          @renderCurrentList()
-          @.children(".loading-mask").remove()
+    if @projects.length is 0
+      @getProjectList 1, (data)=>
+        @projects = @projects.concat(data.data)
+        @totalCount = data.totalCount
+        @renderCurrentList()
+        @.children(".loading-mask").remove()
 
   canClick: () =>
     pageNum = Math.ceil(@totalCount/3)
