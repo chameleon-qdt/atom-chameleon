@@ -1,4 +1,4 @@
-mode = 'dev'
+mode = 'test'
 getModeUrl = ->
 	switch mode
 		when 'dev' then 'qdt-web-dev'
