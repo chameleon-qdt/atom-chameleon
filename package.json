@@ -1,7 +1,7 @@
 {
   "name": "chameleon-qdt-atom",
   "main": "./lib/chameleon",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "private": true,
   "author": "chameleon-qdt",
   "description": "Atom package for Chameleon Quick Development Tool",
