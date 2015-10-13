@@ -28,11 +28,13 @@ class PublishModuleInfoView extends View
             @div class: 'form-row clearfix col-sm-12 padding-none', =>
               @div class:'col-sm-3', =>
                 @label '请选择应用路径', class: 'row-title pull-left'
-                @div class:'hide', =>
-                  @subview 'appPath', new TextEditorView(mini: true)
+                # @div class:'', =>
+                #   @subview 'appPath', new TextEditorView(mini: true)
               @div class:'col-sm-9 textEditStyle',=>
-                @label outlet:'show_path',class:'padding-left'
-                @span outlet:'openFolder', class: 'inline-block status-added icon icon-file-directory openFolder'
+                # @label outlet:'show_path',class:'padding-left'
+                @div class:'file_path', =>
+                  @subview 'appPath', new TextEditorView(mini: true)
+                @span outlet:'openFolder', class: 'inline-block status-added icon icon-file-directory openFolder right-icon'
 
   open :(e) ->
     console.log "ssss"
@@ -42,7 +44,7 @@ class PublishModuleInfoView extends View
         path = PathM.join paths[0]
         console.log  path
         @appPath.setText path
-        @show_path.html(path)
+        # @show_path.html(path)
 
   prevStep: ->
     @first.removeClass('hide')
@@ -84,7 +86,7 @@ class PublishModuleInfoView extends View
               if contetnList['identifier']? and contetnList['name']?
                 length = length + 1
                 # console.log "length ++ "
-                _moduleList.append('<div class="col-sm-4"><div class="checkboxFive"><input id="'+path+'" value="'+path+'" type="checkbox" class="hide"><label for="'+path+'"></label></div><label for="'+path+'"class="label-empty">'+contetnList['name']+'</label></div>')
+                _moduleList.append('<div class="checkbox-layout"><div class="checkboxFive"><input id="'+path+'" value="'+path+'" type="checkbox" class="hide"><label for="'+path+'"></label></div><label for="'+path+'"class="label-empty">'+contetnList['name']+'</label></div>')
     if fs.existsSync(appPath)
       stats = fs.statSync(appPath)
       if stats.isDirectory()
@@ -180,6 +182,9 @@ class PublishModuleInfoView extends View
       @parentView.closeView()
 
   attached: ->
+
+    # util.fileCompression("C:\\Users\\dell\\github\\yuzhe.www.mppp")
+    # return
     @appPath.setText("")
     @attached2()
 
@@ -291,7 +296,7 @@ class PublishModuleInfoView extends View
                   console.log "error"
                 else
                   contentList = JSON.parse(data)
-                  _moduleList.append('<div class="col-sm-4"><div class="checkboxFive"><input id="module-upload'+basename+'" value="'+packageFilePath+'" type="checkbox" class="hide" /><label for="module-upload'+basename+'"></label></div><label for="module-upload'+basename+'" class="label-empty">'+contentList['name']+'</label></div>')
+                  _moduleList.append('<div class="checkbox-layout"><div class="checkboxFive"><input id="module-upload'+basename+'" value="'+packageFilePath+'" type="checkbox" class="hide" /><label for="module-upload'+basename+'"></label></div><label for="module-upload'+basename+'" class="label-empty">'+contentList['name']+'</label></div>')
                   # console.log data
               options =
                 encoding: "UTF-8"
@@ -361,11 +366,12 @@ class ModuleMessageItem extends View
           if object is null
             return
           length = length + 1
+          module_id = $(btn2).val()
           if object.name?
             object.name = object.name #+ "(#{object.id})"
           else
             object.name = object.id #+ "(#{object.id})"
-          options = options + "<div class='upload-view-padding'><div class='checkboxFive'><input type='checkbox' class='hide' id='#{object.id}_#{length}' value='#{object.id}' /><label for='#{object.id}_#{length}'></label></div><label for='#{object.id}_#{length}' class='label-empty'>#{object.name}</label></div>"
+          options = options + "<div class='upload-view-padding'><div class='checkboxFive'><input type='checkbox' class='hide' id='#{module_id}_#{object.id}_#{length}' value='#{object.id}' /><label for='#{module_id}_#{object.id}_#{length}'></label></div><label for='#{module_id}_#{object.id}_#{length}' class='label-empty'>#{object.name}</label></div>"
         printAppList object for object in data
         options = options + "<div class='upload-view-padding btngroup'><button name='hideAppListbtn' class='btn'>取消</button><button class='btn' name='uploadMApp'>确认</button><div>"
         if length == 0
@@ -382,6 +388,8 @@ class ModuleMessageItem extends View
 
   #  upload_module_use_to_application
   actModuleToApp:(e) ->
+    _btn = @.find("button[name=uploadMApp]")
+    _btn.attr("disabled",true)
     # alert "ssss"
     checkboxList = this.find('input[type=checkbox]')
     app_ids = []
@@ -424,7 +432,7 @@ class ModuleMessageItem extends View
               contentList['build'] = parseInt(_version.attr('value'))
               contentList['build'] = contentList['build'] + 1
               params =
-                form:{
+                formData:{
                   module_tag: contentList['identifier'],
                   module_name: contentList['name'],
                   module_desc: "",
@@ -447,9 +455,11 @@ class ModuleMessageItem extends View
                   alert "error"
               client.uploadModuleAndAct(params)
               util.removeFileDirectory(PathM.join zipPath,zipName)
+              _btn.attr("disabled",false)
           else
             util.removeFileDirectory(PathM.join zipPath,zipName)
             console.log "文件不存在#{$(btn2).val()}"
+            _btn.attr("disabled",false)
         iconPath = PathM.join @uploadBtn.val(),"..","icon.png"
         #当存在 icon 时 上传Icon后再上传模块信息
         #否则直接上床模块信息
@@ -468,6 +478,7 @@ class ModuleMessageItem extends View
               fs.exists(@uploadBtn.val(),configFilePathCallBack)
             error: =>
               # console.log iconPath
+              _btn.attr("disabled",false)
               console.log "上传icon失败"
               alert "上传icon失败"
           client.uploadFile(fileParams2,"module","")
@@ -533,7 +544,6 @@ class ModuleMessageItem extends View
                   alert "configFilePathCallBack error"
                 complete: =>
                   @.children(".loading-mask").remove()
-
               client.postModuleMessage(params)
               util.removeFileDirectory(PathM.join zipPath,zipName)
           else

@@ -55,7 +55,7 @@ module.exports = Util =
 
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
   checkProjectName: (str)->
-    regEx5 = /^([A-Za-z]+\w*\.){2,}[A-Za-z]+\w*$/
+    regEx5 = /^([A-Za-z]+\.){2,}[A-Za-z]+\w*$/
     regEx6 = /^.{10,64}$/
     flag5 = regEx5.test str
     flag6 = regEx6.test str
@@ -123,14 +123,14 @@ module.exports = Util =
   writeFile: (file, textContent, cb) ->
     fs.writeFile file, textContent, cb
 
-  writeJson: (file, obj, cb) ->
-    fs.writeJson file, obj, cb
+  writeJson: (filePath, obj, cb) ->
+    fs.writeJson filePath, obj, cb
 
-  readJson: (file,cb) ->
-    fs.readJson file, cb
+  readJson: (filePath,cb) ->
+    fs.readJson filePath, cb
 
-  readJsonSync: (file) ->
-    fs.readJsonSync file, throws: false
+  readJsonSync: (filePath) ->
+    fs.readJsonSync filePath, throws: false
 
   copy: (sourcePath, destinationPath, cb) ->
     fs.copy(sourcePath, destinationPath, cb)
@@ -198,21 +198,54 @@ module.exports = Util =
   fileCompression: (folderPath) ->
     zip = new JSZip()
     zipPath = pathM.join folderPath,'..',pathM.basename(folderPath)+'.zip'
-    compressionZip= (node,filePath) ->
+    flag = "root"
+    # 递归函数 当遇到文件或者文件夹里面没有文件时结束
+    compressionZip= (node,filePath) =>
       # console.log filePath
+      # windows 和 linux 文件路径兼容处理
       stats = fs.statSync(filePath)
+      # 1、将 windows 文件路径的 \ 转为 linux 文件路径的 /
+      str1=node.replace(/\\/g,"/")
+      # console.log str1
+      # 2、切割路径
+      strs=str1.split("/")
+      # console.log strs
+      tmp = zip
+      isroot = false
+      # 3、以 tmp 保存当前 最外层文件夹
+      getLast = (filePath) =>
+        tmp = tmp.folder(filePath)
+      if strs isnt null and strs.length isnt 0
+        getLast fileItem for fileItem in strs
+        if strs.length is 1 and strs[0] is "."
+          isroot = true
+      # 4、保存文件夹或者文件
       if stats.isFile()
+        console.log filePath
         fileName = pathM.basename(filePath)
         # fileZipPath = pathM.join node,fileName
         # zip.file(fileZipPath,fs.readFileSync(filePath))
-        zip.folder(node).file(fileName,fs.readFileSync(filePath))
+        if isroot
+          zip.file(fileName,fs.readFileSync(filePath))
+          # console.log "==============>>  strs is null or 0"
+        else
+          tmp.file(fileName,fs.readFileSync(filePath))
+        # console.log pathM.basename(fileName)
       else
-        folderZipPath = pathM.join node,pathM.basename(filePath)
-        zip.folder(folderZipPath)
+        if flag is "root"
+          flag = "children"
+          folderZipPath = node
+        else
+          folderZipPath = pathM.join node,pathM.basename(filePath)
+          if isroot
+            zip.folder(pathM.basename(filePath))
+          else
+            tmp.folder(pathM.basename(filePath))
         fileList = fs.readdirSync(filePath)
         if fileList isnt null and fileList.length isnt 0
           compressionZip folderZipPath,pathM.join filePath,filePathItem for  filePathItem in fileList
     compressionZip ".",folderPath
+    # 5、保存 zip
     content = zip.generate({type:"nodebuffer"})
     fs.writeFileSync(zipPath,content)
     console.log "打包完了"

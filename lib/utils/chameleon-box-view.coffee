@@ -157,10 +157,23 @@ class ChameleonBoxView extends View
       @hide()
       @destroy()
 
+  closeOtherView: ->
+    tempArr = []
+    for panel in atom.workspace.getModalPanels()
+      el = panel.item
+      if el isnt @ && el.hasClass 'chameleon'
+        tempArr.push panel
+    for panel in tempArr
+      panel.item.remove();
+      panel.hide()
+      panel.destroy()
+    tempArr = null
+
   openView: ->
     if @enable isnt yes
       return
     @findModalPanel()
+    @closeOtherView()
     if @modalPanel?.isVisible() is no
       @modalPanel.show()
       return @modalPanel.isVisible()

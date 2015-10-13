@@ -31,6 +31,7 @@ class UploadProjectInfoView extends View
               @div outlet: "moduleList"
 
   attached: ->
+    Util.fileCompression("Q:/test002")
     @parentView.nextBtn.attr('disabled',false)
     projectPaths = atom.project.getPaths()
     projectNum = projectPaths.length
@@ -129,7 +130,7 @@ class UploadProjectInfoView extends View
             # 判断是否需要上传模块
             result = UtilExtend.checkUploadModuleVersion(moduleVersion,data[0]['version'])
             if result['error']
-              console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
+              console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data[0]['version']}"
               if modules.length == index+1
                 @sendBuildMessage()
               else
@@ -161,6 +162,9 @@ class UploadProjectInfoView extends View
                       else
                         contentList['build'] = 1
                       # alert contentList['build']+"  "+data2['url_id']
+                      console.log "============================================================================="
+                      console.log data2['url_id']
+                      console.log contentList['identifier'],contentList['name'],contentList['version'],data['url_id'],contentList['build'],data2['url_id'],"构建应用时发现本地版本高于服务器版本，所以上传 #{contentList['identifier']} 模块"
                       params =
                         formData:{
                           module_tag: contentList['identifier'],
@@ -181,7 +185,8 @@ class UploadProjectInfoView extends View
                             @checkModuleNeedUpload(modulePath, modules, index+1)
                         error: =>
                           @.children(".loading-mask").remove()
-                          alert "上传#{modulePath}失败"
+                          console.log "============================================================================="
+                          alert "上传#{moduleRealPath}失败"
                       client.postModuleMessage(params)
                     else
                       console.log "文件不存在#{pathM.join modulePath,'package.json'}"
@@ -195,7 +200,7 @@ class UploadProjectInfoView extends View
                       success: (data) =>
                         #给 data2 初始化
                         data2 = data
-                        # console.log data2
+                        console.log "data2 = "+data2
                         methodUploadModule()
                       error: =>
                         # console.log iconPath

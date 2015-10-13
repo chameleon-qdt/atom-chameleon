@@ -15,20 +15,20 @@ class ModuleInfoView extends View
   @content: ->
     @div class: 'configure-module container', =>
       @div class: 'row',outlet: 'main', =>
-        @div class:'col-sm-12', =>
+        @div class:'', =>
           @label '选择要配置的模块'
-        @div outlet : 'moduleList',class:'col-sm-12'
+        @div outlet : 'moduleList'
       @div class: 'row hide',outlet: "second", =>
         @div class: "hole-line", =>
-          @label class: 'label-extend', "logo"
+          @label class: 'label-extend label-right', "logo"
           @div class: 'input-line-1', =>
             @img outlet:"logo",class:'pic', src: desc.getImgPath 'icon.png'
         @div class: "hole-line ", =>
-          @label class: 'label-extend', "模块名称"
+          @label class: 'label-extend label-right', "模块名称"
           @div class: 'input-line-2', =>
             @subview 'moduleName', new TextEditorView(mini: true,placeholderText: 'moduleName...')
         @div class: " hole-line", =>
-          @label class: 'label-extend', "模块版本"
+          @label class: 'label-extend label-right', "模块版本"
           @div class: 'input-line-2', =>
             @subview 'moduleVersion', new TextEditorView(mini: true,placeholderText: 'moduleVersion...')
       @div class: 'layout hide',outlet:"layout"
@@ -90,7 +90,7 @@ class ModuleInfoView extends View
         path = pathM.join filePath,"package.json"
         if fs.existsSync(path)
           contentList = JSON.parse(fs.readFileSync(path))
-          _moduleList.append('<div class="col-sm-4 "><div class="checkboxFive"><input value="'+path+'" id="module-config'+basename+'" type="checkbox" class="modulecheckbox hide"/><label for="module-config'+basename+'"></label></div><label class="label-empty" for="module-config'+basename+'">'+contentList['name']+'</label></div>')
+          _moduleList.append('<div class="checkbox-layout"><div class="checkboxFive"><input value="'+path+'" id="module-config'+basename+'" type="checkbox" class="modulecheckbox hide"/><label for="module-config'+basename+'"></label></div><label class="label-empty" for="module-config'+basename+'">'+contentList['name']+'</label></div>')
           index = index + 1
     printName pathM.join project_path,file for file in list
     if index is 0

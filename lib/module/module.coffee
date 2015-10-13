@@ -2,9 +2,11 @@
 Util = require '../utils/util'
 pathM = require 'path'
 desc = require '../utils/text-description'
+config = require '../../config/config'
 ChameleonBox = require '../utils/chameleon-box-view'
 CreateModuleView = require './create-module-view'
-fs = require 'fs-extra'
+LoadingMask = require '../utils/loadingMask'
+# fs = require 'fs-extra'
 
 module.exports = ModuleManager =
   chameleonBox: null
@@ -31,7 +33,17 @@ module.exports = ModuleManager =
       console.log 'CreateModuleView was opened!'
       @modalPanel.show()
 
+
   CreateModule: (options)->
+    loadingMask = new LoadingMask()
+    switch options.createType
+      when 'empty' then @CreateEmptyModule options
+      when 'simple' then @CreateSimpleModule options
+      when 'template' then @CreateTemplateModule options
+    @modalPanel.item.append(loadingMask)
+
+
+  CreateEmptyModule: (options) ->
     console.log options
     info = options.moduleInfo
     filePath = pathM.join info.modulePath,info.moduleId
@@ -48,7 +60,6 @@ module.exports = ModuleManager =
         if isSuccess is yes
           configFile.setEncoding('utf8')
           console.log 'CreateModule Success'
-          # configFile.writeSync(configFileContent)
           cb = (err) =>
             console.log err
           Util.writeJson(configFilePath,configFileContent,cb)
@@ -58,40 +69,89 @@ module.exports = ModuleManager =
       .then (isSuccess) =>
         if isSuccess is yes
           entryFile.writeSync(htmlString)
-          # console.log 'begin'
-          if info.isChameleonProject
-            # console.log info.moduleId
-            projectConfigPath = pathM.join info.modulePath,'..','appConfig.json'
-            # console.log projectConfigPath
-            appConfig = new File(projectConfigPath)
-            appConfig.exists().then (resolve,reject) =>
-              if resolve
-                appConfig.read(false).then (content) =>
-                  contentList = JSON.parse(content)
-                  contentList['modules'][info.moduleId] = "0.0.1"
-                  if contentList['mainModule'] == ""
-                    contentList['mainModule'] = info.moduleId
-                  fs.writeJson projectConfigPath,contentList,null
-          # console.log 'end'
           @addProjectModule info
-          isInProject = false
-          atom.project.getDirectories().forEach (dir) =>
-            # console.log dir,filePath
-            flag = dir.contains filePath
-            # console.log flag
-            if flag
-              isInProject = flag
-
-          console.log isInProject
-          if isInProject is no
-            atom.project.addPath(filePath)
-            Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0
+          @openTreeView filePath
           alert "新建模块成功！"
           @chameleonBox.closeView()
       # .finally =>
         # console.log 'CreateModule Success',@
 
-  addProjectModule: (moduleInfo) ->
+  CreateSimpleModule: (options) ->
+    console.log 'SimpleModule'
+    console.log options
+    @chameleonBox.closeView()
 
-    if moduleInfo.modulePath.lastIndexOf 'modules' isnt -1
-      console.log moduleInfo.modulePath
+
+  CreateTemplateModule: (options) ->
+    console.log 'tmp'
+    console.log options
+    info = options.moduleInfo
+    sourcePath = pathM.join desc.getFrameworkPath(),options.source
+    targetPath = pathM.join info.modulePath,info.moduleId
+
+
+    if options.source is desc.defaultModule and Util.isFileExist(sourcePath) is no
+      @gitCloneDefaultModule options
+      return
+
+    copyCallback = (err) =>
+      if err
+        @modalPanel.item.children(".loading-mask").remove()
+        return console.error err
+      console.log 'success'
+      moduleConfigPath = pathM.join targetPath,desc.moduleConfigFileName
+      moduleConfig = Util.readJsonSync moduleConfigPath
+      console.log moduleConfig
+      moduleConfig = @editModuleConfig moduleConfig,info
+      Util.writeJson moduleConfigPath,moduleConfig,(err) ->
+        console.log err
+      @addProjectModule info
+      @openTreeView targetPath
+      alert "新建模块成功！"
+    console.log sourcePath,targetPath
+    Util.copy sourcePath,targetPath,copyCallback
+    @chameleonBox.closeView()
+
+  gitCloneDefaultModule: (options) ->
+    success = (state, appPath) =>
+      if state is 0
+        @CreateTemplateModule options
+      else
+        alert '应用创建失败：git clone失败，请检查网络连接'
+        @modalPanel.item.children(".loading-mask").remove()
+    Util.getRepo(desc.getFrameworkPath(), config.repoUri, success) #没有，执行 git clone，成功后执行第二步
+
+
+  editModuleConfig: (config,info) ->
+    config.template = config.identifier
+    config.name = info.moduleName
+    config.identifier = info.moduleId
+    config.version = desc.minVersion
+    config.build = 1
+    config.hidden ?= false
+    config.dependencies ?= {}
+    return config
+
+  addProjectModule: (moduleInfo) ->
+    console.log moduleInfo
+    if moduleInfo.isChameleonProject is yes
+      projectConfigPath = pathM.join moduleInfo.modulePath, '..', desc.ProjectConfigFileName
+      appConfig = Util.readJsonSync projectConfigPath
+      appConfig.mainModule = moduleInfo.moduleId if appConfig.mainModule is ''
+      appConfig.modules[moduleInfo.moduleId] = desc.minVersion
+      Util.writeJson projectConfigPath,appConfig,(err) ->
+        console.log err
+
+  openTreeView: (filePath) ->
+    isInProject = false
+    atom.project.getDirectories().forEach (dir) =>
+      # console.log dir,filePath
+      flag = dir.contains filePath
+      # console.log flag
+      if flag
+        isInProject = flag
+
+    console.log isInProject
+    if isInProject is no
+      atom.project.addPath(filePath)
+      Util.rumAtomCommand 'tree-view:toggle' if ChameleonBox.$('.tree-view-resizer').length is 0

@@ -3,6 +3,7 @@ Util = require '../utils/util'
 pathM = require 'path'
 {Directory} = require 'atom'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
+CreateModuleTypeView = require './create-module-type-view'
 
 module.exports =
 class CreateModuleInfoView extends View
@@ -52,15 +53,15 @@ class CreateModuleInfoView extends View
     # @mainEntry.setText desc.mainEntryFileName
     @modulePath.html desc.newProjectDefaultPath
 
-    @parentView.setNextBtn('finish')
+    # @parentView.setNextBtn('finish')
     @parentView.disableNext()
     @parentView.hidePrevBtn()
 
-    projectPaths = atom.project.getPaths()
-    projectNum = projectPaths.length
+    projects = @findProject()
+    projectNum = projects.length
     if projectNum isnt 0
       @selectProject.empty()
-      @setSelectItem path for path in projectPaths
+      @setSelectItem path for path in projects
       @modulePath.parents('.form-row').addClass 'hide'
       @selectProject.parents('.form-row').removeClass 'hide'
       @modulePath.html pathM.join @selectProject.val(),'modules'
@@ -83,6 +84,16 @@ class CreateModuleInfoView extends View
     @element
 
   serialize: ->
+
+  findProject: ->
+    projects = []
+    projectPaths = atom.project.getPaths()
+    projectNum = projectPaths.length
+    if projectNum isnt 0
+      projectPaths.forEach (path,i) ->
+        configPath = pathM.join path,desc.ProjectConfigFileName
+        projects.push path if yes is Util.isFileExist configPath,'sync'
+    return projects
 
   getModuleInfo: ->
     modulePath = @modulePath.html()
@@ -116,7 +127,7 @@ class CreateModuleInfoView extends View
   checkPath: ->
     path = @moduleId.getText().trim()
     if path isnt ""
-      regEx = /^\w{6,32}$/
+      regEx = /^[a-zA-z]\w{5,31}$/
       if regEx.test path
         @errorMsg2.addClass('hide')
       else
@@ -156,5 +167,5 @@ class CreateModuleInfoView extends View
 
   nextStep: (box)->
     box.setPrevStep @
-    box.mergeOptions {moduleInfo:@getModuleInfo()}
+    box.mergeOptions {moduleInfo:@getModuleInfo(),subview:CreateModuleTypeView}
     box.nextStep()

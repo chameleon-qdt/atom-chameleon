@@ -12,10 +12,10 @@ fs = require 'fs-extra'
 module.exports = CreateProject =
   chameleonBox: null
   modalPanel: null
-  repoDir: pathM.join desc.chameleonHome,'src','frameworks','butterfly-tiny'
-  frameworksDir: pathM.join desc.chameleonHome,'src','frameworks'
-  projectTempDir: pathM.join desc.chameleonHome,'src','ProjectTemp'
-  templateDir: pathM.join desc.chameleonHome,'src','templates'
+  repoDir: pathM.join desc.getFrameworkPath(),desc.defaultModule
+  frameworksDir: desc.getFrameworkPath()
+  projectTempDir: desc.getProjectTempPath()
+  templateDir: desc.getTemplatePath()
   LoadingMask: loadingMask
 
   activate: (state) ->
@@ -93,8 +93,8 @@ module.exports = CreateProject =
       else
         copySuccess = (err) =>
           throw err if err
-          targetPath = pathM.join info.appPath,'modules','butterfly-tiny'
-          frameworksPath = pathM.join @frameworksDir,'butterfly-tiny'
+          targetPath = pathM.join info.appPath,'modules',desc.defaultModule
+          frameworksPath = pathM.join @frameworksDir,desc.defaultModule
           Util.copy frameworksPath, targetPath, (err) => # 复制成功后，将框架复制到应用的 modules 下
             throw err if err
             alert '应用创建成功'
@@ -136,7 +136,7 @@ module.exports = CreateProject =
 
     # Util.createDir info.appPath, createSuccess
     # 首先，判断本地是否有框架
-    Util.isFileExist pathM.join(@frameworksDir, 'butterfly-tiny'), (exists) =>
+    Util.isFileExist pathM.join(@frameworksDir, desc.defaultModule), (exists) =>
       if exists
         Util.createDir info.appPath, createSuccess #有，执行第二步：创建应用根目录
       else

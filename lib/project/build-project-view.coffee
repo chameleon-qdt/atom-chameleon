@@ -34,9 +34,9 @@ class BuildProjectInfoView extends View
             @input type: 'checkbox', value: 'Android', id:'android',class:'hide'
             @label "Android", for: "android"
       @div outlet: 'selectApp', class:'form-horizontal form_width',=>
-        @label '选择构建的应用', class: 'col-sm-3 control-label'
-        @div class: 'col-sm-9', =>
-          @select class: 'form-control', outlet: 'selectProject'
+        @label '选择构建的应用', class: 'label-width control-label'
+        @div class: 'input-width', =>
+          @select class: '', outlet: 'selectProject'
       @div outlet: 'buildMessage',  =>
         @div class: 'form-horizontal', =>
           @div class: 'form-group', =>
@@ -293,7 +293,8 @@ class BuildProjectInfoView extends View
       # @parentView.nextBtn.attr('disabled',true)
       # 开始构建
       # 1、检查本地模块信息在服务器是否已经存在
-      #   如果存在则不需上传模块；
+      #   如果存在则不需
+      #模块；
       #   如果不存在则需要上床模块。
       # 2、上传完模块后需要上传应用信息
       configPath = pathM.join this.find('select').val(),desc.ProjectConfigFileName
@@ -338,7 +339,7 @@ class BuildProjectInfoView extends View
             # 判断是否需要上传模块
             result = UtilExtend.checkUploadModuleVersion(moduleVersion,data[0]['version'])
             if result['error']
-              console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data['version']}"
+              console.log "无需更新#{moduleIdentifer} 本地版本为#{moduleVersion},服务器版本为：#{data[0]['version']}"
               if modules.length == index+1
                 @sendBuildMessage()
               else
