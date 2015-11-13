@@ -35,7 +35,7 @@ class CodePanel extends View
       if files.length > 0
         @codePackList.html ''
         files.forEach (file) =>
-          packageDir = pathM.join repoDir, file, 'package.json'
+          packageDir = pathM.join repoDir, file, desc.moduleConfigFileName
           util.isFileExist packageDir, (exists) =>
             if exists
               util.readJson packageDir, (err, packageObj) =>
@@ -73,7 +73,7 @@ class CodePanel extends View
       if files.length > 0
         @templatesList.html ''
         files.forEach (file) =>
-          packageDir = pathM.join repoDir, file, 'package.json'
+          packageDir = pathM.join repoDir, file, desc.moduleConfigFileName
           util.isFileExist packageDir, (exists) =>
             if exists
               util.readJson packageDir, (err, packageObj) =>

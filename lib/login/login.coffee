@@ -2,7 +2,7 @@
 desc = require '../utils/text-description'
 LoginView = require './login-view'
 Settings = require '../settings/settings'
-
+Config = require '../../config/config'
 util = require '../utils/util'
 
 client = require '../utils/client'
@@ -28,8 +28,12 @@ module.exports = Login =
 
     @loginView.find('#login').on 'click', ()=>
       @login()
+    @loginView.find('#osclogin').on 'click', ()=>
+      @closeView()
+      util.rumAtomCommand('chameleon:openOschinaLogin')
+
     @loginView.find('#sign').on 'click', ()=>
-      # window.location.href = 'http://bsl.foreveross.com/qdt-web/html/account/login.html'
+      window.location.href = Config.registerUrl
     @loginView.on 'keydown', (event)=>
       if event.keyCode is 13
         @login()
@@ -55,20 +59,22 @@ module.exports = Login =
       success: (data, cookie) =>
         console.log data
         switch data.flag
-          when '0'
-            alert "登录失败：邮箱或密码不正确"
-          when '1' or '3'
+          when 'unregister'
+            alert "登录失败：用户未注册"
+          when 'ordinary' or 'admin'
             util.store('chameleon', data)
             util.store('chameleon-cookie', cookie)
             @closeView()
-            atom.workspace.getPanes()[0].destroyActiveItem()
+            util.getPanes().destroyItem(util.getThatPane("atom://ChameleonSettings"))
             @settings.activate()
-          when '2'
+          when 'unactivation'
             alert "登录失败：用户未激活"
-          when '4'
+          when 'forbidden'
             alert "登录失败：用户被禁用"
-          when '5'
-            alert "邮箱或密码不正确"
+          when 'emailwrongful'
+            alert "登录失败：邮箱不正确"
+          when 'errorpassword'
+            alert "登录失败：密码错误"
       error: (err) =>
         alert err
 

@@ -10,6 +10,10 @@ loadingMask = require '../utils/loadingMask'
 
 class UploadProjectInfoView extends View
   LoadingMask: loadingMask
+  moduleConfigFileName: desc.moduleConfigFileName
+  projectConfigFileName: desc.projectConfigFileName
+  moduleLogoFileName: desc.moduleLogoFileName
+  moduleLocatFileName: desc.moduleLocatFileName
   @content: ->
     @div class: "upload_project_view", =>
       @div outlet: "select_upload_project", class:'box-form form_width', =>
@@ -31,7 +35,6 @@ class UploadProjectInfoView extends View
               @div outlet: "moduleList"
 
   attached: ->
-    Util.fileCompression("Q:/test002")
     @parentView.nextBtn.attr('disabled',false)
     projectPaths = atom.project.getPaths()
     projectNum = projectPaths.length
@@ -48,7 +51,7 @@ class UploadProjectInfoView extends View
       @showProjectMessage(@selectUploadProject.val())
 
   setSelectItem:(path) ->
-    filePath = pathM.join path,desc.ProjectConfigFileName
+    filePath = pathM.join path,@projectConfigFileName
     obj = Util.readJsonSync filePath
     if obj
       projectName = pathM.basename path
@@ -61,7 +64,6 @@ class UploadProjectInfoView extends View
 
   onSelectChange: (e) ->
     el = e.currentTarget
-    console.log "xxx"
     if el.value is 'other'
       @open()
     else
@@ -72,7 +74,7 @@ class UploadProjectInfoView extends View
       if paths?
         path = pathM.join paths[0]
         # console.log  path
-        filePath = pathM.join path,desc.ProjectConfigFileName
+        filePath = pathM.join path,@projectConfigFileName
         # console.log filePath
         obj = Util.readJsonSync filePath
         if obj
@@ -88,7 +90,7 @@ class UploadProjectInfoView extends View
         @selectUploadProject.get(0).selectedIndex = 0
 
   showProjectMessage:(configPath) ->
-    path = pathM.join configPath,desc.ProjectConfigFileName
+    path = pathM.join configPath,@projectConfigFileName
     if fs.existsSync(path)
       stats = fs.statSync(path)
       if stats.isFile()
@@ -100,7 +102,7 @@ class UploadProjectInfoView extends View
         getMessage = (key,value) =>
           str = str + "<label>#{key}&nbsp;:&nbsp;#{value}</label>"
         getMessage key,value for key,value of contentList['modules']
-        console.log str
+        # console.log str
         @moduleList.html(str)
 
   checkModuleNeedUpload: (modulePath, modules, index) ->
@@ -121,9 +123,9 @@ class UploadProjectInfoView extends View
         sendCookie: true
         success: (data) =>
           # console.log "check version success"
-          console.log data
+          # console.log data
           build = data[0]['build']
-          console.log data[0]['version']
+          # console.log data[0]['version']
           if data['version'] != ""
             # uploadVersion = moduleVersion.split('.')
             # version = data['version'].split('.')
@@ -150,8 +152,8 @@ class UploadProjectInfoView extends View
                   Util.removeFileDirectory(zipPath)
                   data2 = {}
                   methodUploadModule = =>
-                    if fs.existsSync(pathM.join moduleRealPath,'package.json')
-                      packagePath = pathM.join moduleRealPath,'package.json'
+                    if fs.existsSync(pathM.join moduleRealPath,@moduleConfigFileName)
+                      packagePath = pathM.join moduleRealPath,@moduleConfigFileName
                       options =
                         encoding: 'utf-8'
                       contentList = JSON.parse(fs.readFileSync(packagePath,options))
@@ -162,9 +164,9 @@ class UploadProjectInfoView extends View
                       else
                         contentList['build'] = 1
                       # alert contentList['build']+"  "+data2['url_id']
-                      console.log "============================================================================="
-                      console.log data2['url_id']
-                      console.log contentList['identifier'],contentList['name'],contentList['version'],data['url_id'],contentList['build'],data2['url_id'],"构建应用时发现本地版本高于服务器版本，所以上传 #{contentList['identifier']} 模块"
+                      # console.log "============================================================================="
+                      # console.log data2['url_id']
+                      # console.log contentList['identifier'],contentList['name'],contentList['version'],data['url_id'],contentList['build'],data2['url_id'],"构建应用时发现本地版本高于服务器版本，所以上传 #{contentList['identifier']} 模块"
                       params =
                         formData:{
                           module_tag: contentList['identifier'],
@@ -185,16 +187,16 @@ class UploadProjectInfoView extends View
                             @checkModuleNeedUpload(modulePath, modules, index+1)
                         error: =>
                           @.children(".loading-mask").remove()
-                          console.log "============================================================================="
+                          # console.log "============================================================================="
                           alert "上传#{moduleRealPath}失败"
                       client.postModuleMessage(params)
                     else
-                      console.log "文件不存在#{pathM.join modulePath,'package.json'}"
+                      console.log "文件不存在#{pathM.join modulePath,@moduleConfigFileName}"
                   #判断是否存在  icon
-                  if fs.existsSync(pathM.join moduleRealPath,'icon.png')
+                  if fs.existsSync(pathM.join moduleRealPath,@moduleLogoFileName)
                     fileParams2 =
                       formData: {
-                        up_file: fs.createReadStream(pathM.join moduleRealPath,'icon.png')
+                        up_file: fs.createReadStream(pathM.join moduleRealPath,@moduleLogoFileName)
                       }
                       sendCookie: true
                       success: (data) =>
@@ -207,7 +209,7 @@ class UploadProjectInfoView extends View
                         console.log "上传icon失败"
                         @.children(".loading-mask").remove()
                         alert "上传icon失败"
-                    client.uploadFile(fileParams2,"module","")
+                    client.uploadFile(fileParams2,@moduleLocatFileName,"")
                   else
                     data2["url_id"] = ""
                     methodUploadModule()
@@ -234,7 +236,7 @@ class UploadProjectInfoView extends View
 
 
   sendBuildMessage: ->
-    path = pathM.join @selectUploadProject.val(),desc.ProjectConfigFileName
+    path = pathM.join @selectUploadProject.val(),desc.projectConfigFileName
     if fs.existsSync(path)
       stats = fs.statSync(path)
       if stats.isFile()
@@ -273,7 +275,7 @@ class UploadProjectInfoView extends View
 
   nextBtnClick: ->
     # 检查是否需要上传信息
-    path = pathM.join @selectUploadProject.val(),desc.ProjectConfigFileName
+    path = pathM.join @selectUploadProject.val(),desc.projectConfigFileName
     if fs.existsSync(path)
       stats = fs.statSync(path)
       if stats.isFile()
@@ -282,7 +284,7 @@ class UploadProjectInfoView extends View
         strContent = fs.readFileSync(path,options)
         jsonContent = JSON.parse(strContent)
         modules = jsonContent['modules']
-        projectPath = pathM.join this.find('select').val(), 'modules'
+        projectPath = pathM.join this.find('select').val(), @moduleLocatFileName
         moduleList = []
         getModuleMessage = (identifier,version) =>
           module =
@@ -292,7 +294,7 @@ class UploadProjectInfoView extends View
         # UtilExtend.checkModuleNeedUpload identifier, version, projectPath for identifier, version of modules
         getModuleMessage identifier,version for identifier, version of modules
         @checkModuleNeedUpload projectPath, moduleList, 0
-        # path = pathM.join @selectUploadProject.val(),desc.ProjectConfigFileName
+        # path = pathM.join @selectUploadProject.val(),desc.projectConfigFileName
         # if fs.existsSync(path)
         #   stats = fs.statSync(path)
         #   if stats.isFile()

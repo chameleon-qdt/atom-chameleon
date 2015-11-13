@@ -13,24 +13,23 @@ class NewProjectView extends View
 
   @content: (params) ->
     @div class: 'new-project', =>
-        @h2 '请选择要创建的应用类型:'
+        @h2 "#{desc.selectAPPFrameworks}:"
         @div class: 'flex-container', =>
           @button class:'btn btn-lg btn-action', outlet: 'prevPage',click: 'onPrevPageClick', =>
             @img src: desc.getImgPath 'arrow_left.png'
           @div class: 'frameList', outlet:'frameList', =>
-            @div class: 'new-item text-center', 'data-type': 'empty',  =>
+            @div class: 'new-item text-center', 'data-type': 'quick',  =>
               @div class: 'itemIcon', =>
-                @img src: desc.getImgPath 'icon_empty.png'
-              @h3 '空白应用',class: 'project-name'
-            @div class: 'new-item text-center', 'data-type': 'frame', =>
+                @img src: desc.getImgPath 'icon_quick.png'
+              @h3 desc.simpleMoudle,class: 'project-name'
+            @div class: 'new-item text-center', 'data-type': 'empty', =>
               @div class: 'itemIcon', =>
                 @img src: desc.getImgPath 'icon_frame.png'
-              @h3 '自带框架应用',class: 'project-name'
-            @div class: 'new-item text-center', 'data-type': 'template',  =>
+              @h3 desc.defaultModule,class: 'project-name'
+            @div class: 'new-item text-center', 'data-type': 'frame',  =>
               @div class: 'itemIcon', =>
-                @img src: desc.getImgPath 'icon_template.png'
-              @h3 '业务模板',class: 'project-name'
-            @div outlet:'divider'
+                @img src: desc.getImgPath 'icon_frame.png'
+              @h3 "#{desc.framework}:#{desc.defaultModuleName}",class: 'project-name'
           @button class:'btn btn-lg btn-action',outlet: 'nextPage',click: 'onNextPageClick', =>
             @img src: desc.getImgPath 'arrow_right.png'
 
@@ -42,26 +41,26 @@ class NewProjectView extends View
     @frameworks =
       [
         {
-          icon: desc.getImgPath 'icon_empty.png'
+          icon: desc.getImgPath 'icon_quick.png'
           dataName:''
-          displayName: '空白应用'
-          type: 'empty'
+          displayName: desc.simpleMoudle
+          type: 'quick'
         },
         {
           icon: desc.getImgPath 'icon_frame.png'
           dataName:''
-          displayName: '自带框架应用'
-          type: 'frame'
+          displayName: desc.defaultModule
+          type: 'empty'
         },
         {
-          icon: desc.getImgPath 'icon_template.png'
+          icon: desc.getImgPath 'icon_frame.png'
           dataName: ''
-          displayName: '业务模板'
-          type: 'template'
+          displayName: "#{desc.defaultModuleName}"
+          type: 'frame'
         }
       ]
     @findFrameworks()
-    @parentView.setPrevBtn('back')
+    # @parentView.setPrevBtn('back')
     @parentView.disableNext()
 
     $('.new-item').on 'click',(e) => @onItemClick(e)
@@ -76,13 +75,13 @@ class NewProjectView extends View
     @newType = el.dataset.type
     @name = el.dataset.name
     @parentView.enableNext()
+    @parentView.disableNext() if @newType is 'quick'
 
   onPrevPageClick: (e) ->
     @frameList.empty()
     @pageIndex--
     @disablePrevPage() if @pageIndex is 0
     @enableNextPage() if @nextPage.prop('disabled') is yes
-    # console.log @pageIndex*3,@pageIndex,@pageSize,@frameworks,@frameworks[3]
     @addFrameworkItems()
 
   onNextPageClick: (e) ->
@@ -90,7 +89,6 @@ class NewProjectView extends View
     @pageIndex++
     @disableNextPage() if @pageIndex is @pageSize-1
     @enablePrevPage() if @prevPage.prop('disabled') is yes
-    # console.log @pageIndex*3,@pageIndex,@pageSize,@frameworks,@frameworks[3]
     @addFrameworkItems()
 
   nextStep:(box) ->
@@ -103,15 +101,13 @@ class NewProjectView extends View
     box.nextStep()
 
   findFrameworks: ->
-    # fp = Path.join desc.chameleonHome,'empty'
     fp = desc.getFrameworkPath()
     Util.readDir fp, (err,files) =>
       return console.error err if err
       files.forEach (file,i) =>
-        unless file is '.githolder' or file is desc.defaultModule or file is '.gitkeep'
+        unless file is '.githolder' or file is desc.defaultModuleName or file is '.gitkeep'
           configPath = Path.join fp,file,desc.moduleConfigFileName
           Util.readJson configPath, (err,json) =>
-            # return console.error err if err
             unless err
               obj =
                 dataName: json.name
@@ -133,12 +129,13 @@ class NewProjectView extends View
 
   renderListItem: (data) ->
     data.icon?=desc.getImgPath 'icon_template.png'
+    data.displayDesc = if data.type is 'frame' then "#{desc.framework}:#{data.displayName}" else data.displayName
     html = """
     <div class="new-item text-center" data-type="#{data.type}" data-name="#{data.dataName}">
       <div class="itemIcon">
         <img src="#{data.icon}">
       </div>
-      <h3 class="project-name">#{data.displayName}</h3>
+      <h3 class="project-name">#{data.displayDesc}</h3>
     </div>
     """
     @frameList.append html

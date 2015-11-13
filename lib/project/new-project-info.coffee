@@ -10,26 +10,25 @@ class NewProjectView extends View
 
   @content: (params) ->
     @div class: 'new-project', =>
-      @h2 '请填写要创建的应用信息:', class: 'box-subtitle'
+      @h2 "#{desc.createAppInfo}:", class: 'box-subtitle'
       @div class: 'box-form', =>
         @div class: 'form-row clearfix', =>
-          @label '请输入应用标识', class: 'row-title pull-left'
+          @label desc.inputAppID, class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
-            @subview 'appId', new TextEditorView(mini: true, placeholderText: '例如: com.foreveross.myapp')
+            @subview 'appId', new TextEditorView(mini: true, placeholderText: desc.appIDPlaceholder)
         @div class: 'form-row msg clearfix in-row', =>
-          @div '只能输入文字和点，且至少三级目录，例如: com.foreveross.myapp', class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
+          @div desc.appIDError, class: 'text-warning hide errorMsg', outlet: 'errorMsg2'
         @div class: 'form-row clearfix', =>
-          @label '请输入应用名称', class: 'row-title pull-left'
+          @label desc.inputAppName, class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
-            @subview 'appName', new TextEditorView(mini: true, placeholderText: '应用显示的名称')
+            @subview 'appName', new TextEditorView(mini: true, placeholderText: desc.appNamePlaceholder)
         @div class: 'form-row clearfix', =>
-          @label '应用创建位置', class: 'row-title pull-left'
+          @label desc.inputAppPath, class: 'row-title pull-left'
           @div class: 'row-content pull-left', =>
-            # @subview 'appPath', new TextEditorView(mini: true)
             @div class: 'textEditStyle',outlet: 'appPath'
             @span class: 'inline-block status-added icon icon-file-directory openFolder', click: 'openFolder'
         @div class: 'form-row msg clearfix', =>
-          @div '该应用目录已存在', class: 'text-warning hide errorMsg', outlet: 'errorMsg'
+          @div desc.appPathExist, class: 'text-warning hide errorMsg', outlet: 'errorMsg'
 
   initialize: ->
     @appId.getModel().onDidChange => @checkProjectName()
@@ -40,7 +39,8 @@ class NewProjectView extends View
     console.log @parentView.options
     @type = @parentView.options.newType
     # if @type isnt 'template'
-    @parentView.setNextBtn('finish')
+    btnText = if @parentView.options.newType is 'quick' then desc.next else desc.finish
+    @parentView.setNextBtn('finish',btnText)
     @parentView.disableNext()
     @appPath.html desc.newProjectDefaultPath
 
@@ -48,9 +48,8 @@ class NewProjectView extends View
     atom.pickFolder (paths) =>
       if paths?
         console.log paths[0]
-        # path = pathM.join paths[0],@appId.getText()
-        # console.log  path
         @appPath.html paths[0]
+        @checkPath()
 
   getElement: ->
     @element
@@ -58,15 +57,11 @@ class NewProjectView extends View
   getProjectInfo: ->
     appId = @appId.getText().trim()
     appPath = @appPath.html().trim()
-    path = pathM.join appPath,appId
-    dir = new Directory(path)
-    path = pathM.join desc.newProjectDefaultPath,dir.getBaseName() if dir.getParent().isRoot() is yes
     projectInfo =
       appId : @appId.getText()
       appName : @appName.getText()
-      appPath : path
+      appPath : appPath
 
-    console.log projectInfo
     projectInfo
 
   checkInput: ->
@@ -90,23 +85,21 @@ class NewProjectView extends View
     else
       @errorMsg2.removeClass('hide')
     # @appPath.setText pathM.join currPath,str if currPath isnt ""
-    @checkPath()
-    # @checkInput()
+    # @checkPath()
+    @checkInput()
 
   checkPath: ->
     appId = @appId.getText().trim()
     appPath = @appPath.html().trim()
-    path = pathM.join appPath,appId
-    if path isnt ""
-      dir = new Directory(path);
-      dir.exists()
-        .then (isExists) =>
-          console.log isExists,dir.getRealPathSync()
-          unless isExists
-            @errorMsg.addClass('hide')
-          else
-            @errorMsg.removeClass('hide') if appId isnt ""
-          @checkInput()
+    # path = pathM.join appPath,appId
+    if appPath isnt ''
+      appConfigPath = pathM.join appPath,desc.projectConfigFileName
+      isExists = Util.isFileExist(appConfigPath)
+      unless isExists
+        @errorMsg.addClass('hide')
+      else
+        @errorMsg.removeClass('hide') if appId isnt ""
+      @checkInput()
     else
       console.log 'empty'
 

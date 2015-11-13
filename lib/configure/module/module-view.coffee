@@ -11,6 +11,10 @@ _ = require 'underscore-plus'
 class ModuleInfoView extends View
 
   # version: null
+  moduleConfigFileName: desc.moduleConfigFileName
+  projectConfigFileName: desc.projectConfigFileName
+  moduleLogoFileName: desc.moduleLogoFileName
+  moduleLocatFileName: desc.moduleLocatFileName
 
   @content: ->
     @div class: 'configure-module container', =>
@@ -46,7 +50,7 @@ class ModuleInfoView extends View
 
   selectIcon:(e) ->
     real_path = $('.modulecheckbox:checked').attr('value')
-    img_path = pathM.join real_path,"..","icon.png"
+    img_path = pathM.join real_path,"..",@moduleLogoFileName
     options={}
     # console.log "bb"
     @layout.removeClass('hide')
@@ -71,7 +75,7 @@ class ModuleInfoView extends View
 
   attached: ->
     @logo.on 'click', (e) => @selectIcon(e)
-    project_path = pathM.join $('.entry.selected span').attr('data-path'),'modules'
+    project_path = pathM.join $('.entry.selected span').attr('data-path'),@moduleLocatFileName
     # 判断文件是否存在，存在则执行  || 后面的代码 即：判断文件是否为文件夹
     # 文件不存在 则提示，文件不是文件夹时 也输出
     if !fs.existsSync(project_path) || !fs.statSync(project_path).isDirectory()
@@ -82,12 +86,13 @@ class ModuleInfoView extends View
     _moduleList = @moduleList
     _moduleList.empty()
     index = 0
+    # moduleConfigFileName =  desc.moduleConfigFileName
     printName = (filePath) =>
       stats = fs.statSync(filePath)
       if stats.isDirectory()
         # console.log file.getPath()
         basename = pathM.basename filePath
-        path = pathM.join filePath,"package.json"
+        path = pathM.join filePath,@moduleConfigFileName
         if fs.existsSync(path)
           contentList = JSON.parse(fs.readFileSync(path))
           _moduleList.append('<div class="checkbox-layout"><div class="checkboxFive"><input value="'+path+'" id="module-config'+basename+'" type="checkbox" class="modulecheckbox hide"/><label for="module-config'+basename+'"></label></div><label class="label-empty" for="module-config'+basename+'">'+contentList['name']+'</label></div>')
@@ -106,6 +111,7 @@ class ModuleInfoView extends View
     el.checked = true
 
   nextStep: ->
+    # projectConfigFileName = desc.projectConfigFileName
     if @second.hasClass('hide')
       # console.log 'second has hide'
       flag = @getInitInput()
@@ -130,7 +136,7 @@ class ModuleInfoView extends View
           alert "模块名、版本不能为空"
           return
 
-        configPath = pathM.join real_path, '..', '..', '..', 'appConfig.json'
+        configPath = pathM.join real_path, '..', '..', '..', @projectConfigFileName
         # console.log configPath
         # console.log contentList
         cb = (err,written,string) =>
@@ -164,7 +170,7 @@ class ModuleInfoView extends View
     if this.find('input[type=checkbox]').is(':checked')
       console.log $('.modulecheckbox:checked')
       real_path = $('.modulecheckbox:checked').attr('value')
-      img_path = pathM.join real_path,"..","icon.png"
+      img_path = pathM.join real_path,"..",@moduleLogoFileName
       console.log real_path
     else
       alert('请选择模块')
@@ -176,7 +182,7 @@ class ModuleInfoView extends View
     if fs.existsSync(img_path)
       @logo.attr("src",img_path)
     else
-      @logo.attr("src",desc.getImgPath 'icon.png')
+      @logo.attr("src",desc.getImgPath @moduleLogoFileName)
     file.read(false).then (contents) =>
       # console.log JSON.parse(contents)
       contentList = JSON.parse(contents)

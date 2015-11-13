@@ -8,22 +8,23 @@ module.exports =
     @content: ->
       @div class:'login-box', =>
         @div class: 'head', =>
-          @h2 '登陆'
+          @h2 desc.login
           @span class: 'icon icon-remove-close close-view pull-right', click: 'onCancelClick'
         @div class: 'content', =>
           @img src: desc.getImgPath 'logo_login.png'
           @div class: 'login-row', =>
-            @label class: 'label_view', '邮箱:'
+            @label class: 'label_view', "#{desc.email}:"
             @div class: 'input-container', =>
               @subview 'loginEmail', new TextEditorView(mini: true, placeholderText: 'E-mail...')
           @div class: 'login-row', =>
-            @label class: 'label_view', '密码:'
+            @label class: 'label_view', "#{desc.pwd}:"
             @div class: 'input-container', id: 'psw', =>
               @subview 'loginPassword', new TextEditorView(mini: true, placeholderText: 'Password...')
           @div class: 'login-row', =>
-            @a class: 'forgetpsw', href: config.forgetpwdrUrl, '忘记密码?'
+            @a class: 'forgetpsw', href: config.forgetpwdrUrl, "#{desc.forgetPwd}?"
           @div class: 'login-row', =>
-            @button id: 'login', class: 'btn login-btn', '登陆'
+            @button id: 'login', class: 'btn login-btn', desc.login
+            @button id: 'osclogin', class: 'btn login-btn', desc.osclogin
             @a '注册', class: 'btn login-btn', href: config.registerUrl
 
 

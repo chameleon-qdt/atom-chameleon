@@ -1,18 +1,31 @@
-{BufferedProcess} = require 'atom'
+{BufferedProcess, File, Directory, Emitter} = require 'atom'
 JSZip = require 'jszip'
 zlib = require 'zlib'
 fs = require 'fs-extra'
 pathM = require 'path'
 _ = require 'underscore-plus'
 dialog = require('remote').require 'dialog'
-{File,Directory} = require 'atom'
 request = require 'request'
+portscanner = require 'portscanner'
+http = require 'http'
+desc = require './text-description'
+nodeStatic = require 'node-static'
+
+
+
 module.exports = Util =
+  emitter: new Emitter()
+  # windowEmitter: new Emmitter()
+  handlerList: {}
+  fsx: fs
 
   rumAtomCommand: (command) ->
      atom.views.getView(atom.workspace).dispatchEvent(new CustomEvent(command, bubbles: true, cancelable: true))
 
-  getIndexHtmlCore: ->
+  getIndexHtmlCore: (info) ->
+    info ?=
+      name: 'Module'
+    info.name ?= 'Module'
     """
     <!DOCTYPE html>
     <html lang="zh-CN">
@@ -22,10 +35,10 @@ module.exports = Util =
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <title>Empty Template</title>
+        <title>#{info.name}</title>
       </head>
       <body>
-        <h1>Hello World!</h1>
+        <h1>Hello #{info.name}!</h1>
       </body>
     </html>
     """
@@ -34,10 +47,11 @@ module.exports = Util =
     name: options.moduleName
     identifier: options.moduleId
     # main: options.mainEntry
-    version: '0.0.1'
+    version: desc.minVersion
     build: 1
     # description: ''
     dependencies: {}
+    plugins: []
     releaseNote: "module #{options.moduleName} init"
     hidden: false
 
@@ -46,11 +60,71 @@ module.exports = Util =
       identifier: options.appId
       mainModule: ''
       modules: {}
-      version: '0.0.1'
+      version: desc.minVersion
       build: 1
       description: ''
       dependencies: {}
       releaseNote: "app #{options.appName} init"
+
+  appConfigToModuleConfig: (info) ->
+    moduleIdMinLen = 6;
+    moduleIdMaxLen = 32;
+    testName = info.appId.split('.').slice(-1)[0]
+    if testName.length < moduleIdMinLen
+      testName = "#{testName}_module"
+    else if testName.length > moduleIdMaxLen
+      testName = testName.slice(0,32)
+    opt =
+      moduleName: info.appName
+      moduleId: testName
+    @formatModuleConfigToObj opt
+
+
+  createModule: (params,cb) ->
+    pages = params.builderConfig
+    moduleConfig = params.moduleConfig
+    moduleInfo = params.moduleInfo
+    modulePath = pathM.join moduleInfo.modulePath,moduleInfo.identifier
+    moduleConfigPath = pathM.join modulePath,desc.moduleConfigFileName
+    @createDir modulePath, (err) =>
+      return cb err if err?
+      @writeJson moduleConfigPath, moduleConfig, (err) =>
+        return cb err if err?
+        console.log 'writeJson Success!'
+        if pages.length is 0
+          htmlFilePath = pathM.join modulePath,desc.mainEntryFileName
+          htmlString = Util.getIndexHtmlCore moduleConfig
+          @writeFile htmlFilePath, htmlString, (err) =>
+            cb err
+        else
+          # 生成builder配置
+          builderConfigPath = pathM.join modulePath,desc.builderConfigFileName
+          builderConfig = _.map pages,(page) ->
+            result =
+              name: page.name
+              components: page.components
+            return result
+          @writeJson builderConfigPath, builderConfig, (err) =>
+            return cb err if err?
+            console.log 'writeBuilderJson Success!'
+          # 生成页面
+          len = pages.length
+          currIndex = 0
+          getPageInfo = (index) =>
+            page = pages[index]
+            result =
+              html: page.html
+              path: pathM.join modulePath,page.name
+            return result
+          info = getPageInfo currIndex
+          writeHtmlFileCB = (err) =>
+            return cb err if err?
+            if currIndex < len-1
+              info = getPageInfo ++currIndex
+              @writeFile info.path, info.html, writeHtmlFileCB
+            else
+              cb()
+          @writeFile info.path, info.html, writeHtmlFileCB
 
 
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
@@ -104,6 +178,29 @@ module.exports = Util =
       else
         cb()
     bp = new BufferedProcess({command, args, options, stdout, stderr, exit})
+
+  startServer: () ->
+    a = 0
+    file = new nodeStatic.Server pathM.join desc.chameleonHome, 'QDT_Builder'
+    @server = http.createServer (req, res) =>
+      req.on 'end', () =>
+        file.serve req, res
+      .resume()
+    portscanner.findAPortNotInUse 3000, 3020, '127.0.0.1', (error, port) =>
+      a = port
+      @server.listen(port);
+      @eventEmitter().emit 'server_on', 'http://localhost:' + port
+    return @server
+
+  stopServer: (server, cb) ->
+    # server.close( ()=>
+    #   console.info "http stopped!"
+    #   server = null
+    #   if typeof cb == "function" then cb()
+    # )
+    console.log @server
+    @server.close()
+
 
   isLogin: () ->
     user = @store('chameleon').account_id
@@ -318,3 +415,24 @@ module.exports = Util =
         console.log "not a file"
     else
       console.log "is not exists"
+
+  getThatPane: (uri) ->
+    panes = atom.workspace.getPanes()[0].items
+    thatPane = _.find panes, (pane) =>
+      if pane.uri and pane.uri is uri
+        return pane
+    return thatPane
+
+  getPanes: () ->
+    return atom.workspace.getPanes()[0]
+
+  eventEmitter: () ->
+    @emitter
+
+  addEventtoList: (origin, handler) ->
+    @handlerList[origin] = handler
+
+  windowEventInit: () ->
+    # window.addEventListener 'message', (e)=>
+    #   console.log @handlerList
+    #   @handlerList[e.origin](e)

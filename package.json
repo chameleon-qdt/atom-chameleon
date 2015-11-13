@@ -33,8 +33,10 @@
     "atom-space-pen-views": "^2.0.3",
     "fs-extra": "^0.20.1",
     "jszip": "^2.5.0",
-    "qrcode-npm": "0.0.3",
+    "node-static": "^0.7.7",
     "path": "^0.11.14",
+    "portscanner": "^1.0.0",
+    "qrcode-npm": "0.0.3",
     "request": "^2.58.0",
     "underscore-plus": "^1.0.0"
   }

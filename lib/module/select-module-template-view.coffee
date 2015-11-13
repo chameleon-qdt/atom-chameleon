@@ -1,8 +1,8 @@
 Path = require 'path'
 desc = require '../utils/text-description'
 Util = require '../utils/util'
+ModuleInfoView = require './create-module-info-view'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
-
 
 module.exports =
 class SelectModuleTmpView extends View
@@ -11,7 +11,7 @@ class SelectModuleTmpView extends View
 
   @content: (params) ->
     @div class: 'create-module-type', =>
-        @h2 '请选择模块模板:'
+        @h2 "#{desc.selectModuleTemplate}:"
         @div class: 'flex-container', =>
           @button class:'btn btn-lg btn-action', outlet: 'prevPage',click: 'onPrevPageClick', =>
             @img src: desc.getImgPath 'arrow_left.png'
@@ -20,7 +20,7 @@ class SelectModuleTmpView extends View
             @img src: desc.getImgPath 'arrow_right.png'
 
   attached: ->
-    @parentView.setNextBtn('finish')
+    # @parentView.setNextBtn('finish')
     @parentView.disableNext()
     @disableNextPage()
     @disablePrevPage()
@@ -58,13 +58,13 @@ class SelectModuleTmpView extends View
 
   nextStep:(box) ->
     box.setPrevStep @
-    box.mergeOptions {source:@dataSource}
+    box.mergeOptions {source:@dataSource,subview:ModuleInfoView}
     box.nextStep()
 
   findFrameworks: ->
     @frameworks =  @parentView.options.frameworks
-    @enableNextPage() if @nextPage.prop('disabled') is yes
     @pageSize = Math.ceil(@frameworks.length/3)
+    @enableNextPage() if @nextPage.prop('disabled') is yes and @pageSize >1
 
   addFrameworkItems: ->
     item1 = @frameworks[@pageIndex*3+0]

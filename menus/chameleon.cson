@@ -12,10 +12,10 @@
       'label': '上传模块'
       'command':'chameleon:publish-module'
     }
-    {
-      'label':'模块配置'
-      'command':'chameleon:configure-module'
-    }
+    # {
+    #   'label':'模块配置'
+    #   'command':'chameleon:configure-module'
+    # }
     # {
     #   'label':'应用配置'
     #   'command':'chameleon:configure-application'
@@ -53,10 +53,10 @@
             'label':'构建应用',
             'command':'chameleon:bulid-project'
           }
-          {
-            'label':'上传应用',
-            'command':'chameleon:upload-project'
-          }
+          # {
+          #   'label':'上传应用',
+          #   'command':'chameleon:upload-project'
+          # }
         ]
       }
       {
@@ -97,10 +97,18 @@
       #     }
       #   ]
       # }
+      # {
+      #   'label':'快速开发'
+      #   'command':'chameleon:rapid-dev'
+      # }
       {
         'label':'设置'
         'command':'chameleon:settings'
       }
+      # {
+      #   'label': 'builder'
+      #   'command': 'chameleon:builder'
+      # }
       # {
       #   'label':'登录'
       #   'command':'chameleon:login'

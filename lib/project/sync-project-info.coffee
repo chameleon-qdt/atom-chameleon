@@ -37,26 +37,29 @@ class SyncProjectView extends View
 
   attached: ->
     @type = @parentView.options.newType
+    @platform = @parentView.options.platform.split('/')
     @appPath.html desc.newProjectDefaultPath
-    @getProjectDetail(@parentView.options.projectId, @parentView.options.account_id)
+    @getProjectDetail(@parentView.options.projectId, @parentView.options.account_id, platform: @platform[0], version: @platform[1])
     @parentView.setNextBtn('finish')
     @parentView.disableNext()
     
 
-  getProjectDetail: (projectId, accountId) ->
+  getProjectDetail: (projectId, accountId, platform) ->
     params =
       sendCookie: true
       qs:
-        account: accountId
         identifier: projectId
+        platform: platform.platform
+        version: platform.version
       success: (data) =>
+        console.log data
         @projectDetail = data
         @appId.html @projectDetail.identifier
         @appName.setText @projectDetail.name
         @checkPath()
       error: (err) ->
         console.log err
-    client.getProjectDetail params
+    client.getProjectPlatformDetail params
 
   openFolder: ->
     atom.pickFolder (paths) =>

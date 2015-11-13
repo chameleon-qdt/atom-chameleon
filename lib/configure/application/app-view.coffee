@@ -9,6 +9,9 @@ _ = ChameleonBox._
 
 # module.exports =
 class AppView extends View
+  moduleConfigFileName: desc.moduleConfigFileName
+  projectConfigFileName: desc.projectConfigFileName
+  moduleLogoFileName: desc.moduleLogoFileName
   @content: ->
     @div class: 'configure_project_vew', =>
       @div class: "col-sm-12", =>
@@ -50,7 +53,7 @@ class AppView extends View
     if @checkInput() is no
       alert '所填内容不能未空!'
       return
-    project_path = if @configPath? then @configPath else PathM.join $('.entry.selected span').attr('data-path'),'appConfig.json'
+    project_path = if @configPath? then @configPath else PathM.join $('.entry.selected span').attr('data-path'),@projectConfigFileName
     mod =
       identifier: @appId.html().trim()
       name: @appName.getText().trim()
@@ -72,14 +75,14 @@ class AppView extends View
 
   searchAppConfig: ->
     select_path = $('.entry.selected span').attr('data-path')
-    if PathM.basename(select_path) is desc.ProjectConfigFileName
+    if PathM.basename(select_path) is @projectConfigFileName
       result =
         isExist: true
         path: select_path
     else
       projects = atom.project.getDirectories()
       currProject = (dir for dir in atom.project.getDirectories() when dir.path is select_path or dir.contains(select_path))[0]
-      appConfigPath = PathM.join currProject.path, desc.ProjectConfigFileName if currProject?
+      appConfigPath = PathM.join currProject.path, @projectConfigFileName if currProject?
       isExist = Util.isFileExist(appConfigPath,'sync') if appConfigPath?
       result =
         isExist: if isExist? then isExist else false
