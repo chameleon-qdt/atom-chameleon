@@ -11,7 +11,7 @@ class SyncProjectView extends View
   projectDetail: {}
 
   @content: (params) ->
-    @div class: 'new-project', =>
+    @div class: 'sync-project', =>
       @h2 '请填写要创建的应用信息:'
       @div class: 'form-horizontal', =>
         @div class: 'form-group', =>
@@ -37,12 +37,12 @@ class SyncProjectView extends View
 
   attached: ->
     @type = @parentView.options.newType
-    @platform = @parentView.options.platform.split('/')
+    @platform = if @parentView.options.platform then @parentView.options.platform.split('/') else ''
     @appPath.html desc.newProjectDefaultPath
     @getProjectDetail(@parentView.options.projectId, @parentView.options.account_id, platform: @platform[0], version: @platform[1])
     @parentView.setNextBtn('finish')
     @parentView.disableNext()
-    
+
 
   getProjectDetail: (projectId, accountId, platform) ->
     params =
@@ -110,17 +110,14 @@ class SyncProjectView extends View
     appId = @appId.html().trim()
     appPath = @appPath.html().trim()
     path = pathM.join appPath,appId
-    if path isnt ""
-      dir = new Directory(path);
-      dir.exists()
-        .then (isExists) =>
-          console.log isExists,dir.getRealPathSync()
-          unless isExists
-            @errorMsg.addClass('hide')
-
-          else
-            @errorMsg.removeClass('hide') if appId isnt ""
-          @checkInput()
+    if path isnt ''
+      appConfigPath = pathM.join path,desc.projectConfigFileName
+      isExists = Util.isFileExist(appConfigPath)
+      unless isExists
+        @errorMsg.addClass('hide')
+      else
+        @errorMsg.removeClass('hide') if appId isnt ""
+      @checkInput()
 
   nextStep:(box) ->
     box.setPrevStep @

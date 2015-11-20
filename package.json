@@ -17,11 +17,15 @@
       "chameleon:publish-module",
       "chameleon:login",
       "chameleon:settings",
+      "chameleon:openSource",
       "chameleon:configure-module",
       "chameleon:configure-application",
       "chameleon:bulid-project",
       "chameleon:upload-project",
-      "chameleon:publish-module-select-path"
+      "chameleon:publish-module-select-path",
+      "chameleon:builder",
+      "chameleon:openOschinaLogin",
+      "chameleon:rapid-dev"
     ]
   },
   "repository": "https://github.com/chameleon-qdt/atom-chameleon.git",
@@ -32,6 +36,7 @@
   "dependencies": {
     "atom-space-pen-views": "^2.0.3",
     "fs-extra": "^0.20.1",
+    "http": "0.0.0",
     "jszip": "^2.5.0",
     "node-static": "^0.7.7",
     "path": "^0.11.14",

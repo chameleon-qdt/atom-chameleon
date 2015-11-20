@@ -302,8 +302,8 @@ atom-panel.modal > .login-box {
     padding: 0;
     background-color: rgba(0, 0, 0, 0);
     border: none;
-    width: auto;
-    height: auto;
+    width: 30px;
+    height: 60px;
     margin-top: 55px;
     &:hover {
       background: none;
@@ -312,7 +312,7 @@ atom-panel.modal > .login-box {
   .choose-type {
     font-size: 0;
     margin-top: 5px;
-    margin-bottom: 5px; 
+    margin-bottom: 5px;
     .type {
       font-size: 12px;
       display: inline-block;
@@ -355,6 +355,9 @@ atom-panel.modal > .login-box {
       margin: 5px auto;
       height: 1em;
     }
+  }
+  .openFolder {
+    right: 15px;
   }
 }
 .create-module {
@@ -512,7 +515,7 @@ atom-panel.modal > .login-box {
     background-color: #0B0A0A;
   }
   .process-label{
-    font-size: -webkit-xxx-large;
+    // font-size: -webkit-xxx-large;
     text-align: center;
   }
   progress:indeterminate {
@@ -630,12 +633,19 @@ atom-panel.modal > .login-box {
     margin-left: 120px;
   }
   .tips_to_NoApp{
-    width: 100%;
-    background-color: #696969;
+    // width: 100%;
     text-align: center;
-    font-size: 23px;
     padding-top: 130px;
     height: 300px;
+  }
+  .icon_success_img{
+    width: 20px;
+    height: inherit;
+    vertical-align: -webkit-baseline-middle;
+  }
+  .no_app_list_show_view{
+    display: block;
+    text-align: center;
   }
 }
 .configure_project_vew {
@@ -1202,6 +1212,32 @@ atom-panel.modal > .login-box {
     padding-top: 80px;
   }
 
+  .pluginView li{
+    width: 100%;
+    padding: 5px;
+  }
+
+  .plugin-view-div{
+    // text-align: center;
+    background-color: #696969;
+  }
+  .label-select-view{
+    text-align: right;
+    width: 35%;
+  }
+  .label-plugin-param-view{
+    text-align: right;
+    width: 35%;
+    margin-right: 3px;
+  }
+  .pluginView select{
+    width: 20%
+  }
+  .inline-plugin-view{
+    display: inline-block;
+    vertical-align: -webkit-baseline-middle;
+    width: 320px;
+  }
 }
 
 .upload_project_view {
@@ -1257,7 +1293,7 @@ atom-panel.modal > .login-box {
   border-radius: 3px;
   color: #d7dae0;
   border: 1px solid #181a1f;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
   // display: -webkit-flex;
   width: 100%;
   // cursor: text;
@@ -1297,6 +1333,7 @@ atom-text-editor::shadow .password-lines .line {
       width: 25%;
       .project-name{
         margin-top: 10px;
+        text-align: center;
       }
     }
     .itemIcon{

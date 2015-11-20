@@ -57,10 +57,14 @@ class NewProjectView extends View
   getProjectInfo: ->
     appId = @appId.getText().trim()
     appPath = @appPath.html().trim()
+    path = pathM.join appPath,appId
+    dir = new Directory(path)
+    path = pathM.join desc.newProjectDefaultPath,dir.getBaseName() if dir.getParent().isRoot() is yes
+
     projectInfo =
       appId : @appId.getText()
       appName : @appName.getText()
-      appPath : appPath
+      appPath : path
 
     projectInfo
 
@@ -85,15 +89,15 @@ class NewProjectView extends View
     else
       @errorMsg2.removeClass('hide')
     # @appPath.setText pathM.join currPath,str if currPath isnt ""
-    # @checkPath()
-    @checkInput()
+    @checkPath()
+    # @checkInput()
 
   checkPath: ->
     appId = @appId.getText().trim()
     appPath = @appPath.html().trim()
-    # path = pathM.join appPath,appId
-    if appPath isnt ''
-      appConfigPath = pathM.join appPath,desc.projectConfigFileName
+    path = pathM.join appPath,appId
+    if path isnt ''
+      appConfigPath = pathM.join path,desc.projectConfigFileName
       isExists = Util.isFileExist(appConfigPath)
       unless isExists
         @errorMsg.addClass('hide')

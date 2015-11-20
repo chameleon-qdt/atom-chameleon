@@ -33,7 +33,7 @@ module.exports = TextDescription =
   inputAppName: '请输入应用名称'
   appNamePlaceholder: '应用显示的名称'
   inputAppPath: '应用创建位置'
-  appPathExist:'该应用已存在'
+  appPathExist:'该应用目录已存在'
   emptyApp: '空白应用'
   createLocalAppDesc: '创建一个本地应用'
   syncAccountAppDesc: '同步已登录帐户中的应用到本地，未登录的用户请登录'

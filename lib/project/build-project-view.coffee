@@ -6,10 +6,11 @@ ChameleonBox = require '../utils/chameleon-box-view'
 fs = require 'fs-extra'
 client = require '../utils/client'
 UtilExtend = require './../utils/util-extend'
-
+loadingMask = require '../utils/loadingMask'
 qrCode = require 'qrcode-npm'
 
 class BuildProjectInfoView extends View
+  LoadingMask: loadingMask
   checkBuildResultTimer: {}
   ticketTimer:{}
   buildPlatformId:{}
@@ -26,6 +27,8 @@ class BuildProjectInfoView extends View
   appConfigNoExistTips:"本地应用配置文件不存在"
   appConfigIsNoCompleteTips:"本地配置文件有缺损"
   pleaseSelectRealProjectTips:"请选择正确的应用"
+  noPluginIsExistTips:"存在未上传的插件"
+  conflictPluginIsExistTips:"存在冲突的插件未处理"
   passCheckTips:"校验通过"
   unPassCheckTips:"校验不通过"
   projectPath:null #项目的路径
@@ -35,21 +38,24 @@ class BuildProjectInfoView extends View
   imageList:{}          # 对应构建应用的 images
   projectConfigContent:null
   projectLastContent:null
-  projectIdFromServer:null
+  projectIdFromServer:null  #服务器的最新版本
   logoImage:null        # 对应构建应用的 logoFileId
   moduleList :{}        # 对应构建应用的 moduleList 不过需要转一下格式 []
-  pluginList:{}         # 对应构建应用的 pluginList 不过需要转一下格式 []
+  pluginList:[]         # 对应构建应用的 pluginList
   mainModuleId:null     # 对应构建应用的 mainModuleId
   pageSize:4
   pageIndex:1
   engineId:null
   pageTotal:1
-  # projectId:null
+  noPluginIsExist:false  # 存在所需插件未上传          在获取插件时初始化
+  conflictPluginIsExist:true  #存在插件冲突未处理     在获取插件时初始化
   httpType:"http"
   engineMessage:null
   certInfo:null
   buildingId:null
   timerEvent:null
+  textEditorViewItems:{}
+  pluginFromServer:null
   # buildStep:1 #1、表示上传图片 2、表示调构建接口 3、表示见识构建结果 4、表示显示结果
   step:1 #1、代表第一步选择应用  2、为选择选择平台 3、为选择引擎 4、为选择引擎的版本 5、为引擎基本信息
          #6、应用基本信息，上传各个分辨率的封面图片  7、 选择模块 8、选择插件 9、证书管理 10、构建预览
@@ -190,8 +196,8 @@ class BuildProjectInfoView extends View
       @div outlet:"selectPluginView",class:"form-horizontal form_width", =>
         @div outlet:"noPluginView",=>
           @label "没有任何插件",class:"tips_to_NoPlugins"
-        @div outlet:"pluginView", =>
-          @div outlet:"clashPluginView"
+        @div outlet:"pluginView",class:"pluginView", =>
+          @div outlet:"clashPluginView",class:"clashPluginView"
           @div outlet:"noClashPluginView"
       @div outlet:"certSelectView",class:"form-horizontal form_width",=>
         @div =>
@@ -395,6 +401,7 @@ class BuildProjectInfoView extends View
         error:=>
           console.log "call the last version api fail"
       # 获取 该模块最新版本 和 build
+
       client.getModuleLastVersion(params)
     else
       return false
@@ -462,6 +469,7 @@ class BuildProjectInfoView extends View
       @step = 7
       # @uploadFileSync(callBack)
     else if @step is 7 # 7、插件选择
+      @noPluginIsExist = false
       if !@mainModuleId
         alert @selectModuleTxt
         return
@@ -474,6 +482,13 @@ class BuildProjectInfoView extends View
       @initSelectPluginView([],@pageIndex,@pageSize)
       @step = 8
     else if @step is 8 # 8、
+      if @noPluginIsExist
+        alert @noPluginIsExistTips
+        return
+      if @.find(".clashPluginView button").length > 0
+        alert @conflictPluginIsExistTips
+        return
+      @initPluginList()
       @selectPluginView.hide()
       @initCertView()
       @certSelectView.show()
@@ -494,6 +509,30 @@ class BuildProjectInfoView extends View
       @parentView.nextBtn.text("生成安装")
     else if @step is 10
       @buildAppMethod()
+
+  initPluginList: ->
+    arrayPlugin = @.find(".clashPluginView select")
+    console.log @.find(".clashPluginView select")
+    arr = []
+    initPlugin = (item) =>
+      console.log $(item).attr("class")
+      pluginId = $(item).attr("name")
+      params = {}
+      getParamsFromTextView = (key,value) =>
+        params[key] = value.getText()
+      getParamsFromTextView key,value for key,value of @textEditorViewItems[pluginId]
+      obj =
+        pluginVersionId: $(item).val()
+        pluginId: pluginId
+        appVersionId:""
+        appId:""
+        pluginType:$(item).attr("class")
+        params:params
+      arr.push(obj)
+    initPlugin item for item in arrayPlugin
+    @pluginList = arr
+    console.log @pluginList
+
 
   selectCertViewFile:(e) ->
     el = e.currentTarget
@@ -735,19 +774,20 @@ class BuildProjectInfoView extends View
         modules.push(tmp)
       formatModuleList key,item for key,item of @moduleList
       plugins = []
-      formatPlugineList = (key,item) =>
-        tmp =
-          "pluginVersionId":item["pluginVersionId"]
-          "pluginId": item["pluginId"]
-          "appVersionId":""
-          "appId":""
-        plugins.push(tmp)
-      formatPluginList key,item for key,item of @pluginList
+      # formatPlugineList = (key,item) =>
+      #   tmp =
+      #     "pluginVersionId":item["pluginVersionId"]
+      #     "pluginId": item["pluginId"]
+      #     "appVersionId":""
+      #     "appId":""
+      #   plugins.push(tmp)
+      # formatPluginList key,item for key,item of @pluginList
       data["moduleList"] = modules
-      data["pluginList"] = plugins
+      data["pluginList"] = @pluginList
       data["mainModuleId"] = @mainModuleId
       data["engineId"] = @engineMessage["engineId"]
       data["engineVersionId"] = @engineMessage["id"]
+      console.log data
       params =
         sendCookie:true
         body: JSON.stringify(data)
@@ -777,7 +817,7 @@ class BuildProjectInfoView extends View
     params =
       sendCookie:true
       success:(data) =>
-        # console.log data
+        console.log data
         waitTime = 0
         if data["code"] == -1
           alert @buildIsExist
@@ -795,7 +835,10 @@ class BuildProjectInfoView extends View
               loopTime = loopTime + 2
         else if data["status"] == "BUILDING"
           waitTime = data['remainTime']
-          @buildingTips.html("正在构建<span class='waitTime'>#{waitTime}</span>秒")
+          number = @.find(".waitTime").html()
+          console.log number,typeof(number)
+          if typeof(number) is "undefined"
+            @buildingTips.html("正在构建，已完成<span class='waitTime'>98</span>%")
           loopTime = 25
           if waitTime < loopTime
             loopTime = waitTime
@@ -809,13 +852,14 @@ class BuildProjectInfoView extends View
           @imgForDownloadApp.attr("src",$(img1).attr('src'))
           @urlForDownloadApp.attr('href',data['url'])
           @urlForDownloadApp.html("app下载地址")
+          window.clearTimeout(@timerEvent)
         else
           alert @buildIsFail
           @parentView.closeView()
           return
         @timerEvent = setTimeout =>
           @timerMethod buildingId,loopTime
-        ,1000
+        ,2000
       error:(msg) =>
         console.log msg
     client.getBuildUrl(params,buildingId)
@@ -826,12 +870,15 @@ class BuildProjectInfoView extends View
     if loopTime <= 0
       @checkBuildStatusByBuildId(buildingId)
     else
-      number = parseInt(@.find(".waitTime").html()) - 1
+      number = parseInt(@.find(".waitTime").html())
+      if number < 99
+        number = number+1
+      # console.log number
       @.find(".waitTime").html(number)
       loopTime = loopTime - 1
       @timerEvent = setTimeout =>
         @timerMethod buildingId,loopTime
-      ,1000
+      ,2000
 
   # 初始化插件
   # array 需要过滤掉的插件数据
@@ -854,48 +901,223 @@ class BuildProjectInfoView extends View
     dataStr = UtilExtend.convertJsonToUrlParams(dataJson)
     if !dataStr
       dataStr = null
+    LoadingMask = new @LoadingMask()
     params =
       sendCookie:true
       success:(data) =>
         console.log data
         if data.length > 0
           @pluginView.show()
-          @initPluginViewTableBody(data["datas"])
+          @initPluginViewTableBody(data)
         else
           @noPluginView.show()
           console.log "没有任何插件"
+        $(LoadingMask).remove()
       error:(msg) =>
         console.log "initSelectPluginView api error = #{msg}"
+        $(LoadingMask).remove()
+    @.append(LoadingMask)
     client.getPluginByModuleIds(params,dataStr)
 
+  # 初始化插件信息
   initPluginViewTableBody:(data) ->
-    htmlArray = []
-    getHtmlItem = (item) =>
-      selectItem = []
-      getChildOptions = (optionItem) =>
-        optionStr = """
-        <option value="#{optionItem["value"]}">#{optionItem["text"]}</option>
-        """
-        selectItem.push(optionStr)
-      getChildOptions optionItem for optionItem in item["versions"]
-      str = """
-      <tr>
-        <td><span class="#{item["id"]}">#{item["name"]}</span></td>
-        <td>
-            <select class="#{item["id"]}">
-              #{itemArray.join("")}
-            </select>
-        </td>
-        <td>
-        <button value="#{item["id"]}">选择</button>
-        <button value="#{item["id"]}" class="cancelSelect">取消</button>
-        </td>
-      </tr>
-      """
-      htmlArray.push(str)
-    getHtmlItem item for item in data
-    @pluginsShowView.html(htmlArray.join(""))
+    noPluginList = []
+    conflictList = []
+    normalList = []
+    console.log data
+    classifyItems = (item) =>
+      if item["type"] is "zero"
+        noPluginList.push(item)
+      else if item["type"] is "many"
+        conflictList.push(item)
+      else
+        normalList.push(item)
+    classifyItems item for item in data
+    if noPluginList.length > 0
+      @noPluginIsExist = true
+    @pluginFromServer = data
+    noPluginListHtmlStr = @noPluginListToHtml(noPluginList)
+    @clashPluginView.html(noPluginListHtmlStr)
+    conflictListHtmlStr = @conflictListToHtml(conflictList)
+    @clashPluginView.append(conflictListHtmlStr)
+    normalListHtmlStr = @normalListToHtml(normalList)#conflictList  normalList
+    clickConflictBtn = (e) =>
+      el = e.currentTarget
+      pluginIndex = parseInt($(el).attr("value"))
+      itemIndex = parseInt($(el).parent().attr("value"))
+      console.log $(el).parent("div")
+      @initPluginItemView(conflictList[itemIndex],pluginIndex,"many",el)
+    @.find(".conflictBtn").on "click",(e) => clickConflictBtn(e)
+    @.find(".clashPluginView").on "change","select",(e) => @changePluginVersionEvent(e)
 
+  changePluginVersionEvent:(e) ->
+    console.log "changePluginVersionEvent"
+    el = e.currentTarget
+    authority = $(el).attr("class")
+    pluginDocId = $(el).attr("name")
+    identifier = $(el).attr("text")
+    id = $(el).val()
+    console.log authority,pluginDocId,identifier
+    pluginList = []
+    console.log @pluginFromServer
+    getPluginList = (item) =>
+      if item["identifier"] is identifier
+        if item["type"] is "many"
+          if item["plugin"][0][0]["pluginDocId"] is pluginDocId and item["plugin"][0][0]["authority"] is authority
+            pluginList = item["plugin"][0]
+          else
+            pluginList = item["plugin"][1]
+        else
+          pluginList = item["plugin"]
+    getPluginList item for item in @pluginFromServer
+    console.log pluginList
+    plugin = {}
+    getPlugin = (itemPlugin) =>
+      if itemPlugin["id"] is id
+        plugin = itemPlugin
+        console.log itemPlugin
+    getPlugin itemPlugin for itemPlugin in pluginList
+    @reShowPluginParamsView(plugin,el)
+
+
+  reShowPluginParamsView:(plugin,el) ->
+    tmpEl = $(el).parent().parent().find(".paramsView")
+    tmpEl.html("")
+    paramObj = {}
+    console.log plugin
+    getParams = (item) =>
+      obj =
+        display:item["display"]
+      paramView = new ParamsItem(obj)
+      tmpEl.append(paramView)
+      paramView.display.setText(item["value"])
+      paramObj[item["key"]] = paramView.display
+    getParams item for item in plugin["params"]
+    @textEditorViewItems["#{plugin["pluginDocId"]}"] = paramObj
+
+  # 对象数组   noPluginList
+  noPluginListToHtml:(noPluginList) ->
+    console.log noPluginList
+    identifierList = []
+    printIdentifierList = (item) =>
+      identifierList.push(item["identifier"])
+    printIdentifierList item for item in noPluginList
+    if identifierList.length > 0
+      """
+        <div class="plugin-view-div">
+          <label style="color: red;">插件#{identifierList.join(",")}不存在，请先上传这些插件。</label>
+        </div>
+        <br>
+      """
+    else
+      ""
+
+  # 对象数组   noPluginList
+  conflictListToHtml:(conflictList) ->
+    console.log conflictList
+    conflictMessageShow = []
+    itemLength = 0
+    printPluginItem = (item) =>
+      pluginMessage = []
+      length = 0
+      printPluginMessage = (pluginItem) =>
+        if pluginItem[0]["authority"] is "PUBLIC"
+          authority = "共有"
+        else
+          authority = "私有"
+        str = """
+          <li value="#{itemLength}">#{authority}-#{pluginItem[0]["pluginDocId"]} <button class="btn conflictBtn" value="#{length}">选择插件</button></li>
+        """
+        pluginMessage.push(str)
+        length = length + 1
+      printPluginMessage pluginItem for pluginItem in item["plugin"]
+      itemLength = itemLength + 1
+      str = """
+      <div>
+      #{item["identifier"]}
+      <div class="plugin-view-div">
+      #{pluginMessage.join("")}
+      </div>
+      </div>
+      <br>
+      """
+      conflictMessageShow.push(str)
+    printPluginItem item for item in conflictList
+    conflictMessageShow.join("")
+
+  # item 为调用获取插件时最外层数组的一个元素
+  initPluginItemView:(item,index,type,el) ->
+    # 模块信息变量   moduleMessage
+    moduleMessage = []
+    # 将要打印输出的 模块插件对应关系压入 moduleMessage
+    printModuleMessage = (moduleItem) =>
+      str = """
+        <li> <label class="label-select-view">#{moduleItem["moduleName"]} </label>: #{moduleItem["pluginVersion"]} </li>
+      """
+      moduleMessage.push(str)
+    printModuleMessage moduleItem for moduleItem in item["module"]
+    # 获取插件版本选项
+    selectArray = []
+    arrayItem = null
+    console.log item
+    if type is "many"
+      arrayItem = item["plugin"][index]
+    else
+      arrayItem = item["plugin"]
+    printSelectOptionItem = (selectItem) =>
+      str = """
+        <option value="#{selectItem["id"]}" >#{selectItem["version"]}</option>
+      """
+      selectArray.push(str)
+    printSelectOptionItem selectItem for selectItem in arrayItem
+    console.log selectArray
+    str = """
+      <li> <label class="label-select-view">选择版本 :</label> <select class="#{arrayItem[0]["authority"]}" name="#{arrayItem[0]["pluginDocId"]}" text="#{arrayItem[0]["identifier"]}">#{selectArray.join(" ")}</select> </li>
+    """
+    moduleMessage.push(str)
+    paramArray = []
+    str = """
+      #{item["identifier"]}
+      <div class="plugin-view-div">
+        #{moduleMessage.join("")}
+        <div class="paramsView"></div>
+      </div>
+    <br>
+    """
+    tmpEl = $(el).parent().parent().parent()
+    if type is "many"
+      tmpEl.html(str)
+    else
+      @clashPluginView.append(str)
+    paramObj = {}
+    paramItemMethod = (paramItem) =>
+      obj =
+        display:paramItem["display"]
+      paramView = new ParamsItem(obj)
+      paramView.display.setText(paramItem["value"])
+      paramObj[paramItem["key"]] = paramView.display
+      if type is "many"
+        tmpEl.find(".paramsView").append(paramView)
+      else
+        @.find(".paramsView:last").append(paramView)
+    paramItemMethod paramItem for paramItem in arrayItem[0]["params"]
+    console.log arrayItem[0]["params"]
+    @textEditorViewItems["#{arrayItem[0]["pluginDocId"]}"] = paramObj
+
+  # 对象数组   noPluginList
+  normalListToHtml:(normalList) ->
+    console.log normalList
+    normalMessageShow = []
+    printPluginItem = (item) =>
+      str = @initPluginItemView(item,0,"one",null)
+      normalMessageShow.push(str)
+    printPluginItem item for item in normalList
+    if normalMessageShow.length > 0
+      """
+      #{normalMessageShow.join("")}
+      """
+    else
+      ""
 
   initModuleList: ->
     if @projectLastContent
@@ -904,7 +1126,6 @@ class BuildProjectInfoView extends View
     else
       array = []
       @mainModuleId = null
-
     initModuleListMessage = (item) =>
       text = null
       getTxt = (item1) =>
@@ -945,17 +1166,23 @@ class BuildProjectInfoView extends View
     showHtmlView key,item for key,item of @moduleList
     if mainModuleStr is ""
       @mainModuleId = null
+    if @mainModuleId is null
+      @mainModuleTag.parent().hide()
+    else
+      @mainModuleTag.parent().show()
+    if modulesTagArray.length == 0
+      @modulesTag.parent().hide()
+    else
+      @modulesTag.parent().show()
     @mainModuleTag.html(mainModuleStr)
     @modulesTag.html(modulesTagArray.join(""))
   #初始化模块
   initSelectModuleView:(array,pageIndex,pageSize)->
-    # console.log "begin to initSelectModuleView"
-    # console.log @projectLastContent
-    # 初始化 mainModuleId  和 moduleList
     platform = "ANDROID"
     if @buildPlatform is "iOS"
       platform = "IOS"
     exceptModuleArray = array
+    LoadingMask = new @LoadingMask()
     params =
       sendCookie:true
       success:(data)=>
@@ -968,9 +1195,6 @@ class BuildProjectInfoView extends View
         if data["totalCount"] > 0
           htmlArray = []
           getHtmlItem = (item) =>
-            # if !item["show"]
-            #   return
-            # 拼接tr
             operationItem = ""
             if typeof(@moduleList[item["name"]]) is "undefined"
               operationItem = """
@@ -1061,8 +1285,11 @@ class BuildProjectInfoView extends View
           @.find(".modulesShowView").on "click","a",(e) => clickModuleShowViewBtn(e)
         else
           console.log  "没有模块"
+        $(LoadingMask).remove()
       error:(msg) =>
         console.log "initSelectModuleView api error = #{msg}"
+        $(LoadingMask).remove()
+    @.append(LoadingMask)
     client.getModuleList(params,platform,"PRIVATE",exceptModuleArray.join(","),pageIndex,pageSize)
 
   # 获取上一次构建时的信息
@@ -1092,16 +1319,20 @@ class BuildProjectInfoView extends View
     if !@projectConfigContent["identifier"] or typeof(@projectConfigContent["identifier"]) == undefined
       alert @appConfigIsNoCompleteTips
       return
+    LoadingMask = new @LoadingMask()
     params =
       sendCookie: true
       success: (data) =>
         # console.log data
         @projectIdFromServer = data["id"]
         @getLastBuildMessage()
+        $(LoadingMask).remove()
         #如果data存在则从中获取 projectId
       error:(msg) =>
         @initProjectBasicMessageViewStep5_2()
+        $(LoadingMask).remove()
         console.log msg
+    @.append(LoadingMask)
     client.getAppIdByAppIndentifer(params,@projectConfigContent["identifier"])
 
   #初始化基本信息，也就
@@ -1249,6 +1480,8 @@ class BuildProjectInfoView extends View
       @step = 9
 
   getList:(el,pageIndex,pageSize) ->
+    LoadingMask = new @LoadingMask()
+    @.append(LoadingMask)
     if $(el).hasClass("engineListClass")
       @getApiEngingList(pageIndex,pageSize)
     else if $(el).hasClass("engineVersionListClass")
@@ -1257,6 +1490,7 @@ class BuildProjectInfoView extends View
       @initSelectModuleView([],pageIndex,pageSize)
     else if $(el).hasClass("pluginListClass")
       @initSelectPluginView([],pageIndex,pageSize)
+    $(LoadingMask).remove()
 
   # 点击下一页所触发的事件
   nextPageClick:(e) ->
@@ -1278,6 +1512,7 @@ class BuildProjectInfoView extends View
 
   # 获取引擎列表
   getApiEngingList:(pageIndex,pageSize) ->
+    LoadingMask = new @LoadingMask()
     platform = "IOS"
     if @buildPlatform is "Android"
       platform = "ANDROID"
@@ -1317,8 +1552,11 @@ class BuildProjectInfoView extends View
           @enginesView.hide()
           @tipsNoEngins.show()
           @engineItemShowView.html("没有引擎...")
+        $(LoadingMask).remove()
       error:(msg) =>
         console.log msg
+        $(LoadingMask).remove()
+    @.append(LoadingMask)
     client.getEngineList params,@engineType,platform,pageIndex,pageSize
 
   # 初始化引擎列表
@@ -1375,6 +1613,8 @@ class BuildProjectInfoView extends View
           @engineVersionItemView.html(htmlArray.join(""))
           # 点击选择引擎版本链接所触发的事件
           selectEngineVersionAClick = (e) =>
+            LoadingMask = new @LoadingMask()
+            @.append(LoadingMask)
             @engineVersionView.hide()
             @engineBasicMessageView.show()
             el = e.currentTarget
@@ -1382,6 +1622,7 @@ class BuildProjectInfoView extends View
             @step = 5
             # console.log @engineVersionList[index]
             @initEngineBasicView(data["data"][index])
+            $(LoadingMask).remove()
           @.find(".selectEngineVersionA").on "click",(e) => selectEngineVersionAClick(e)
         else
           @engineVersionItemView.html("没有任何版本...")
@@ -1391,13 +1632,17 @@ class BuildProjectInfoView extends View
 
   # 获取引擎信息
   getBasicMessageView:() ->
+    LoadingMask = new @LoadingMask()
     params =
       sendCookie:true
       success:(data) =>
         # console.log data
         @initEngineBasicView(data)
+        $(LoadingMask).remove()
       error: (msg) =>
         console.log msg
+        $(LoadingMask).remove()
+    @.append(LoadingMask)
     client.getDefaultEngineMessage(params,@buildPlatform)
 
   # 初始化引擎基本信息
@@ -1808,6 +2053,12 @@ class BuildProjectInfoView extends View
       return fileId
 
 
+class ParamsItem extends View
+  @content:(obj)->
+    @li =>
+      @label obj.display,class:"label-plugin-param-view"
+      @div class: 'inline-plugin-view',name:"", =>
+        @subview "display", new TextEditorView(mini: true,placeholderText: 'Certificate keystore password...')
 
 module.exports =
   class BuildProjectView extends ChameleonBox

@@ -51,7 +51,7 @@ module.exports = Util =
     build: 1
     # description: ''
     dependencies: {}
-    plugins: []
+    plugins: {}
     releaseNote: "module #{options.moduleName} init"
     hidden: false
 
@@ -297,7 +297,7 @@ module.exports = Util =
     zipPath = pathM.join folderPath,'..',pathM.basename(folderPath)+'.zip'
     flag = "root"
     # 递归函数 当遇到文件或者文件夹里面没有文件时结束
-    compressionZip= (node,filePath) =>
+    compressionZip= (node,filePath,isroot) =>
       # console.log filePath
       # windows 和 linux 文件路径兼容处理
       stats = fs.statSync(filePath)
@@ -308,14 +308,14 @@ module.exports = Util =
       strs=str1.split("/")
       # console.log strs
       tmp = zip
-      isroot = false
+      if strs[0] is "."
+        isroot = true
+      # isroot = false
       # 3、以 tmp 保存当前 最外层文件夹
       getLast = (filePath) =>
         tmp = tmp.folder(filePath)
       if strs isnt null and strs.length isnt 0
         getLast fileItem for fileItem in strs
-        if strs.length is 1 and strs[0] is "."
-          isroot = true
       # 4、保存文件夹或者文件
       if stats.isFile()
         console.log filePath
@@ -340,8 +340,8 @@ module.exports = Util =
             tmp.folder(pathM.basename(filePath))
         fileList = fs.readdirSync(filePath)
         if fileList isnt null and fileList.length isnt 0
-          compressionZip folderZipPath,pathM.join filePath,filePathItem for  filePathItem in fileList
-    compressionZip ".",folderPath
+          compressionZip folderZipPath,pathM.join(filePath,filePathItem),false for  filePathItem in fileList
+    compressionZip ".",folderPath,true
     # 5、保存 zip
     content = zip.generate({type:"nodebuffer"})
     fs.writeFileSync(zipPath,content)

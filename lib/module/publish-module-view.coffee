@@ -23,6 +23,7 @@ class PublishModuleInfoView extends View
   lastPage:5
   countPage:0
   moduleConfigNoExsit:"模块配置文件不存在！"
+  uploadModuleErrorTips:"模块上传失败"
   step:1
   pageShowItemNumber:4
   # 1 表示步骤 1。选择模块
@@ -42,8 +43,9 @@ class PublishModuleInfoView extends View
           @div =>
             @div class:"div-display",=>
               @label desc.moduleNameLabel
-              @div class:"div-inputText", =>
-                @subview 'moduleName', new TextEditorView(mini: true)
+              @label outlet:"moduleName"
+              # @div class:"div-inputText", =>
+              #   @subview 'moduleName', new TextEditorView(mini: true)
             @div class:"div-display",=>
               @label desc.moduleUploadVersionLabel
               @div class:"div-inputText", =>
@@ -60,6 +62,7 @@ class PublishModuleInfoView extends View
       @div outlet: "moduleApplyView",class: 'form-horizontal form_width',=>
         @div outlet:"appListViewShow",=>
           @div class:"text-center", =>
+            @img class:"icon_success_img",src: desc.getImgPath 'icon_success.png'
             @span outlet:"getAppListTipsView","模块上传成功，检测到以下应用已关联本模块，是否应用为模块的最新版本？"
             @br
           @div outlet:"tableView", =>
@@ -79,7 +82,8 @@ class PublishModuleInfoView extends View
                 @a "下一页",outlet:"nextPage",click: "nextPageClick"
               @div =>
                 @label outlet:"pageTipsView","共70个应用，第1页"
-        @div outlet:"noAppListShowView",=>
+        @div outlet:"noAppListShowView",class:"no_app_list_show_view",=>
+          @img class:"icon_success_img",src: desc.getImgPath 'icon_success.png'
           @label "模块上传成功，未检测到与该模块关联的应用。",class:"tips_to_NoApp"
 
   open :(e) ->
@@ -102,11 +106,11 @@ class PublishModuleInfoView extends View
     if @step is 1
       @initFileMessageView()
     else if @step is 2
-      console.log @moduleName.getText(),@moduleUploadVersion.getText()
+      # console.log @moduleUploadVersion.getText()
       #判断模块名字和版本是否为空
-      if @moduleName.getText().trim() == ""
-        alert desc.moduleNameIsNullError
-      else if @moduleUploadVersion.getText().trim() == ""
+      # if @moduleName.getText().trim() == ""
+      #   alert desc.moduleNameIsNullError
+      if @moduleUploadVersion.getText().trim() == ""
         alert desc.moduleVersionIsNullError
       else
         # 判断模块版本格式是否合法
@@ -136,7 +140,7 @@ class PublishModuleInfoView extends View
     logoPath = PathM.join @moduleConfPath,"..",@moduleLogoFileName
     # 模块配置读取成功时
     if @moduleConfigContent
-      @moduleName.setText(@moduleConfigContent['name'])
+      @moduleName.html(@moduleConfigContent['name'])
       #需要查看版本信息的模块id
       moduleIdentiferList = []
       moduleIdentiferList.push(@moduleConfigContent["identifier"])
@@ -150,28 +154,25 @@ class PublishModuleInfoView extends View
         success: (data) =>
           console.log data
           # 返回的信息中是否包含 version 字段和其值部位 ""
-          if data[0]['version']? and data[0]['version'] != ""
+          if data[0]['version'] != ""
             console.log "the last version in server is ",data[0]['version']
           else
             data[0]['version'] = "0.0.0"
           # 返回的信息中是否包含 build 字段和其值部位 ""
-          if data[0]['build']? and data[0]['version'] != ""
-            console.log "the last version in server is ",data[0]['build']
-          else
+          if data[0]['build'] is ""
             data[0]['build'] = 0
           # 设置build的值
+          console.log data[0]['build']
           @moduleConfigContent["build"] = parseInt(data[0]['build']) + 1
           # 判断本地配置文件的版本信息与服务器最新版本那个为最新
-          result = UtilExtend.checkUploadModuleVersion(@moduleConfigContent["version"],data[0]['version'])
-          if result["error"]
-            # 服务器新
-            versionNumber = data[0]['version'].split(".")
-            versionNumber[2] = parseInt(versionNumber[2]) + 1
-            @moduleUploadVersion.setText(versionNumber.join("."))
-            # 将配置信息的版本设置为服务器最新版本，暂不写入文件中
-            @moduleConfigContent["version"] = data[0]['version']
-          else
-            @moduleUploadVersion.setText(@moduleConfigContent["version"])
+          # result = UtilExtend.checkUploadModuleVersion(@moduleConfigContent["version"],data[0]['version'])
+          # if result["error"]
+          # 服务器新
+          versionNumber = data[0]['version'].split(".")
+          versionNumber[2] = parseInt(versionNumber[2]) + 1
+          @moduleUploadVersion.setText(versionNumber.join("."))
+          # 将配置信息的版本设置为服务器最新版本，暂不写入文件中
+          @moduleConfigContent["version"] = data[0]['version']
           # console.log result
           if fs.existsSync(logoPath)
             @logo.attr("src",logoPath)
@@ -202,6 +203,8 @@ class PublishModuleInfoView extends View
           console.log @moduleId
           @initAppListView()
         error: (msg) =>
+          alert @uploadModuleErrorTips
+          @parentView.closeView()
           console.log msg
       client.uploadModuleZip(params)
     else
@@ -326,8 +329,9 @@ class PublishModuleInfoView extends View
       @parentView.prevBtn.addClass("hide")
       @parentView.nextBtn.addClass('hide')
       modulePath = PathM.join @moduleConfPath,".."
-      @moduleConfigContent['name'] = @moduleName.getText()
+      @moduleConfigContent['name'] = @moduleName.html()
       @moduleConfigContent['version'] = @moduleUploadVersion.getText()
+      @moduleConfigContent['releaseNote'] = @moduleUploadLog.getText()
       fs.writeJsonSync @moduleConfPath,@moduleConfigContent,null
       Util.fileCompression(modulePath)
       moduleZipPath = modulePath+".zip"
@@ -339,6 +343,7 @@ class PublishModuleInfoView extends View
 
   #初始化窗口
   attached: ->
+    # Util.fileCompression("E:\\atomProject\\com.cyz.pro1\\po0")
     # @selectAppPathView.hide()
     @fillMessageView.hide()
     @uploadProgressView.hide()
@@ -378,44 +383,48 @@ class PublishModuleInfoView extends View
   setSelectItem:(path) ->
     console.log "setSelectItem",path
     filePath = PathM.join path, @projectConfigFileName
-    console.log filePath
-    if !fs.existsSync(filePath)
-      return
-    obj = Util.readJsonSync filePath
-    if obj
-      str = ""
-      type = desc.appModule
-      projectName = PathM.basename path
-      modulePath = PathM.join path,@moduleDir
-      if !fs.existsSync(modulePath)
-        return
-      modulePathFiles = fs.readdirSync(modulePath)
-      console.log modulePathFiles
-      addItem = (id) =>
-        # console.log id,version
-        moduleConfigFile = PathM.join path,@moduleLocatFileName,id,@moduleConfigFileName
-        if !fs.existsSync(moduleConfigFile)
+    # console.log filePath
+    if fs.existsSync(filePath)
+      obj = Util.readJsonSync filePath
+      if obj
+        console.log path
+        str = ""
+        type = desc.appModule
+        projectName = PathM.basename path
+        modulePath = PathM.join path,@moduleDir
+        if !fs.existsSync(modulePath)
           return
-        obj2 = Util.readJsonSync moduleConfigFile
-        modulePath = PathM.join path,@moduleLocatFileName,id
-        console.log moduleConfigFile,obj2
-        if obj2
-          str = str + "<option value='#{moduleConfigFile}'>#{id} -- #{obj.name} : #{path}</option>"
-      # addItem id,version for id,version of obj['modules']
-      addItem fileName for fileName in modulePathFiles
-      console.log obj['modules']
-      # optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
-      console.log str
-      if str != ""
-        @selectProject.append str
-      return
+        modulePathFiles = fs.readdirSync(modulePath)
+        # console.log modulePathFiles
+        addItem = (id) =>
+          # console.log id,version
+          moduleConfigFile = PathM.join path,@moduleLocatFileName,id,@moduleConfigFileName
+          if !fs.existsSync(moduleConfigFile)
+            return
+          obj2 = Util.readJsonSync moduleConfigFile
+          modulePath = PathM.join path,@moduleLocatFileName,id
+          console.log moduleConfigFile,obj2
+          if obj2
+            str = str + "<option value='#{moduleConfigFile}'>#{id} -- #{obj.name} : #{path}</option>"
+        # addItem id,version for id,version of obj['modules']
+        addItem fileName for fileName in modulePathFiles
+        # console.log obj['modules']
+        # optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
+        # console.log str
+        if str != ""
+          @selectProject.append str
+        return
     else
+      console.log path
       filePath = PathM.join path, @moduleConfigFileName
+      console.log filePath
+      if !fs.existsSync(filePath)
+        return
       obj = Util.readJsonSync filePath
       type = desc.uAppModule
       if obj
         if obj['identifier']
-          str = "<option value='#{path}'>#{obj.identifier} -- #{path}</option>"
+          str = "<option value='#{filePath}'>#{obj.identifier} -- #{path}</option>"
           @selectProject.append str
       return
 
@@ -441,7 +450,7 @@ class PublishModuleInfoView extends View
         type = desc.uAppModule
         if obj
           projectName = PathM.basename path
-          optionStr = "<option value='#{path}'>#{type}:{#{obj['identifier']}} @{#{path}}</option>"
+          optionStr = "<option value='#{filePath}'>#{obj['identifier']} -- #{path}</option>"
           @.find("select option[value=' ']").remove()
           @selectProject.prepend optionStr
         else

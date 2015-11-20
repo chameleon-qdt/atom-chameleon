@@ -112,9 +112,24 @@ class SyncProjectView extends View
 
   nextStep: (box)=>
     projectId = $('.select').attr('projectId')
-    box.setPrevStep @
-    box.mergeOptions {subview: synPlatformView, projectId: projectId, account_id: @account_id, projects: {list: @projects, currentIndex: @currentIndex, totalCount: @totalCount}}
-    box.nextStep()
+    @getProjectDetail projectId, @account_id, (data)=>
+      box.setPrevStep @
+      if !!data.platformMap.ANDROID || !!data.platformMap.IOS
+        box.mergeOptions {subview: synPlatformView, platformMap: {ANDROID: data.platformMap.ANDROID, IOS: data.platformMap.IOS}, projectId: projectId, account_id: @account_id, projects: {list: @projects, currentIndex: @currentIndex, totalCount: @totalCount}}
+      else
+        box.mergeOptions {subview: syncInfoView, projectId: projectId, account_id: @account_id, projects: {list: @projects, currentIndex: @currentIndex, totalCount: @totalCount}}
+      box.nextStep()
+
+  getProjectDetail: (projectId, accountId, cb) ->
+    params =
+      sendCookie: true
+      qs:
+        account: accountId
+        identifier: projectId
+      success: cb
+      error: (err) ->
+        console.log err
+    client.getProjectDetail params
 
   onItemClick: (e) ->
     el = e.currentTarget

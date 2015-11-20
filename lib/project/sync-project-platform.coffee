@@ -13,7 +13,7 @@ class SyncProjectView extends View
   projectDetail: {}
 
   @content: (params) ->
-    @div class: 'new-project', =>
+    @div class: 'sync-project', =>
       @h2 '请选择平台:'
       @div class: 'form-horizontal', =>
         @div class: 'form-group iOS-item', =>
@@ -23,18 +23,21 @@ class SyncProjectView extends View
           @label 'android', class: 'col-sm-3 control-label', for: 'platform'
           @input type: 'radio', name: 'platform', value: 'ANDROID', class: 'radio-input'
             
-
-  initialize: ->
-    # @appId.getModel().onDidChange => @checkProjectName()
-    # @appName.getModel().onDidChange => @checkInput()
-    # @appPath.getModel().onDidChange => @checkPath()
-
   attached: ->
     @type = @parentView.options.newType
     # @appPath.html desc.newProjectDefaultPath
-    @getProjectDetail(@parentView.options.projectId, @parentView.options.account_id)
+    @showPlatform(@parentView.options.platformMap)
+    # @getProjectDetail(@parentView.options.projectId, @parentView.options.account_id)
     @parentView.setNextBtn()
     # @parentView.disableNext()
+
+  showPlatform: (platformMap)->
+    if !!platformMap.ANDROID
+      $('.android-item').show()
+      $('input:radio[value="ANDROID"]').val('ANDROID/' + platformMap.ANDROID[0])
+    if !!platformMap.IOS
+      $('.iOS-item').show()
+      $('input:radio[value="IOS"]').val('IOS/' + platformMap.IOS[0])
     
 
   getProjectDetail: (projectId, accountId) ->
@@ -59,13 +62,7 @@ class SyncProjectView extends View
     @element
 
   getProjectInfo: ->
-    platform = $('input:radio[name="platform"]:checked').val();
-    console.log platform
-    if !platform
-      alert '请选择平台'
-      return false
-    else
-      @platform = platform
+
     # appId = @appId.getText().trim()
     # appId = @appId.html()
     # appPath = @appPath.html().trim()
@@ -90,6 +87,12 @@ class SyncProjectView extends View
       @parentView.disableNext()
 
   nextStep:(box) ->
-    box.setPrevStep @
-    box.mergeOptions {subview: syncInfoView, projectInfo: @getProjectInfo(), projectDetail: @projectDetail, platform: @platform, newType: 'syncProject'}
-    box.nextStep()
+    platform = $('input:radio[name="platform"]:checked').val();
+    console.log platform
+    if !platform
+      alert '请选择平台'
+    else
+      @platform = platform
+      box.setPrevStep @
+      box.mergeOptions {subview: syncInfoView, projectDetail: @projectDetail, platform: @platform, newType: 'syncProject'}
+      box.nextStep()

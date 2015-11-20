@@ -270,6 +270,7 @@ module.exports = CreateProject =
   syncProject: (options) ->
     console.log options.projectInfo
     console.log options.projectDetail
+
     LoadingMask = new @LoadingMask()
     @modalPanel.item.append(LoadingMask)
 
@@ -279,11 +280,12 @@ module.exports = CreateProject =
       urlList.push({name: name, url: url})
 
     copyDetail = _.omit options.projectDetail, 'moduleUrlMap'
+    finalDetail =  _.extend(copyDetail,Util.formatAppConfigToObj(options.projectInfo))
     Util.createDir filePath, (err)=>
       if err
         console.error err
       else
-        Util.writeJson pathM.join(filePath, "appConfig.json"), copyDetail , (err)=>
+        Util.writeJson pathM.join(filePath, "appConfig.json"), finalDetail , (err)=>
           if err
             console.error err
           else
