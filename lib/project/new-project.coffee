@@ -22,14 +22,17 @@ class NewProjectView extends View
               @div class: 'itemIcon', =>
                 @img src: desc.getImgPath 'icon_quick.png'
               @h3 desc.simpleMoudle,class: 'project-name'
+              @div class: 'desc', desc.simpleMoudleDesc
             @div class: 'new-item text-center', 'data-type': 'empty', =>
               @div class: 'itemIcon', =>
                 @img src: desc.getImgPath 'icon_frame.png'
               @h3 desc.defaultModule,class: 'project-name'
+              @div class: 'desc', desc.defaultModuleDesc
             @div class: 'new-item text-center', 'data-type': 'frame',  =>
               @div class: 'itemIcon', =>
                 @img src: desc.getImgPath 'icon_frame.png'
               @h3 "#{desc.framework}:#{desc.defaultModuleName}",class: 'project-name'
+              @div class: 'desc', "IDE 自带框架"
           @button class:'btn btn-lg btn-action',outlet: 'nextPage',click: 'onNextPageClick', =>
             @img src: desc.getImgPath 'arrow_right.png'
 
@@ -45,18 +48,21 @@ class NewProjectView extends View
           dataName:''
           displayName: desc.simpleMoudle
           type: 'quick'
+          desc: desc.simpleMoudleDesc
         },
         {
           icon: desc.getImgPath 'icon_frame.png'
           dataName:''
           displayName: desc.defaultModule
           type: 'empty'
+          desc: desc.defaultModuleDesc
         },
         {
           icon: desc.getImgPath 'icon_frame.png'
           dataName: ''
           displayName: "#{desc.defaultModuleName}"
           type: 'frame'
+          desc: "IDE 自带框架"
         }
       ]
     @findFrameworks()
@@ -113,6 +119,7 @@ class NewProjectView extends View
                 dataName: json.name
                 displayName:json.name
                 type: 'frame'
+                desc: ''
               @frameworks.push(obj)
               @enableNextPage() if @nextPage.prop('disabled') is yes
               @pageSize = Math.ceil(@frameworks.length/3)
@@ -136,6 +143,7 @@ class NewProjectView extends View
         <img src="#{data.icon}">
       </div>
       <h3 class="project-name">#{data.displayDesc}</h3>
+      <div class="desc">#{data.desc}</div>
     </div>
     """
     @frameList.append html

@@ -66,7 +66,7 @@ class BuildProjectInfoView extends View
       @div outlet: 'selectProjectView', class:'form-horizontal form_width',=>
         @label '选择构建的应用', class: 'label-width control-label'
         @div class: 'input-width', =>
-          @select class: '', outlet: 'selectProject'
+          @select class: 'projectPath', outlet: 'selectProject'
       @div outlet: 'platformSelectView',class:'form-horizontal form_width', =>
         @div class: 'col-xs-12', =>
           @label "选择需要构建的应用平台",class:"title-2-level"
@@ -86,7 +86,7 @@ class BuildProjectInfoView extends View
         @div class: "col-xs-12", =>
           @label "引擎选择（可跳过）",class:"title-2-level"
         @div class: "col-xs-12", =>
-          @label "共有引擎", value:"PUBLIC" ,class:"public-view click-platform platformBtn",click:"platformBtnClick"
+          @label "公有引擎", value:"PUBLIC" ,class:"public-view click-platform platformBtn",click:"platformBtnClick"
           @label "私有引擎", value:"PRIVATE",class:"private-view platformBtn",click:"platformBtnClick"
           @div class:"div-table-view", =>
             @table outlet:"enginesView",=>
@@ -148,11 +148,11 @@ class BuildProjectInfoView extends View
           @label "横竖屏支持:"
           @input type:"checkbox" ,value:"scross",class:"showStyle",id:"scross-view"
           @label "横屏",for:"scross-view"
-          @input type:"checkbox" ,value:"vertical",class:"showStyle",id:"vertical-view"
+          @input type:"checkbox" ,value:"vertical",class:"showStyle",id:"vertical-view",checked:"checked"
           @label "竖屏",for:"vertical-view"
         @div class:"col-xs-12 iOSSupportView",=>
           @label "硬件支持:"
-          @input type:"checkbox" ,value:"iPhone",class:"supportMobileType",id:"iPhone-checkbox"
+          @input type:"checkbox" ,value:"iPhone",class:"supportMobileType",id:"iPhone-checkbox",checked:"checked"
           @label "iPhone",for:"iPhone-checkbox"
           @input type:"checkbox" ,value:"iPad",class:"supportMobileType",id:"iPad-checkbox"
           @label "iPad",for:"iPad-checkbox"
@@ -340,6 +340,27 @@ class BuildProjectInfoView extends View
     if @selectProject.children().length is 0
       optionStr = "<option value=' '> </option>"
       @selectProject.append optionStr
+    path = $('.entry.selected span').attr("data-path")
+
+    filePath = pathM.join path, @projectConfigFileName
+    #判断文件是否存在，不存在则跳出
+    if fs.existsSync(filePath)
+      obj = Util.readJsonSync filePath
+      if obj
+        projectName = pathM.basename path
+        optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
+      options = @.find(".projectPath > option")
+      length = 0
+      console.log options
+      setDefualt = (item) =>
+        m = $(item).attr("value")
+        if m is path
+          return
+        length = length + 1
+      setDefualt item for item in options
+      if length == options.length
+        @selectProject.append str
+      @selectProject.val(path)
     optionStr = "<option value='其他'>其他</option>"
     @selectProject.append optionStr
     @selectProject.on 'change',(e) => @onSelectChange(e)
@@ -838,7 +859,7 @@ class BuildProjectInfoView extends View
           number = @.find(".waitTime").html()
           console.log number,typeof(number)
           if typeof(number) is "undefined"
-            @buildingTips.html("正在构建，已完成<span class='waitTime'>98</span>%")
+            @buildingTips.html("正在构建，已完成<span class='waitTime'>0</span>%")
           loopTime = 25
           if waitTime < loopTime
             loopTime = waitTime
@@ -905,7 +926,7 @@ class BuildProjectInfoView extends View
     params =
       sendCookie:true
       success:(data) =>
-        console.log data
+        # console.log data
         if data.length > 0
           @pluginView.show()
           @initPluginViewTableBody(data)
@@ -1100,7 +1121,8 @@ class BuildProjectInfoView extends View
         tmpEl.find(".paramsView").append(paramView)
       else
         @.find(".paramsView:last").append(paramView)
-    paramItemMethod paramItem for paramItem in arrayItem[0]["params"]
+    if typeof(arrayItem[0]["params"]) isnt "undefined"
+      paramItemMethod paramItem for paramItem in arrayItem[0]["params"]
     console.log arrayItem[0]["params"]
     @textEditorViewItems["#{arrayItem[0]["pluginDocId"]}"] = paramObj
 
@@ -1250,12 +1272,23 @@ class BuildProjectInfoView extends View
             moduleName = @.find("span.#{className}").html()
             moduleVersionId = @.find("td>select.#{className}").val()
             moduleVersion = @.find("td>select.#{className}>option[value=#{moduleVersionId}]").html()
-            htmlStr = """
-            <a value="#{className}" class="mainModuleTag a-padding">设置主模块</a>
-            <a value="#{className}" class="cancelSelect a-padding">取消</a>
-            """
+            if @moduleList.length > 0
+              htmlStr = """
+              <a value="#{className}" class="mainModuleTag a-padding">设置主模块</a>
+              <a value="#{className}" class="cancelSelect a-padding">取消</a>
+              """
+            else
+              @mainModuleId = className
+              htmlStr = """
+              <a value="#{className}" class="cancelMainModuleTag a-padding">取消主模块</a>
+              <a value="#{className}" class="cancelSelect a-padding">取消</a>
+              """
             if $(el).hasClass("cancelMainModuleTag")
               @mainModuleId = null
+              htmlStr = """
+              <a value="#{className}" class="mainModuleTag a-padding">设置主模块</a>
+              <a value="#{className}" class="cancelSelect a-padding">取消</a>
+              """
             else
               @moduleList[moduleName] =
                 "moduleVersionId": moduleVersionId
@@ -1275,7 +1308,8 @@ class BuildProjectInfoView extends View
                 @.find(".cancelMainModuleTag").removeClass("cancelMainModuleTag")
               else if $(el).hasClass("cancelSelect")
                 delete @moduleList[moduleName]
-                @mainModuleId = null
+                if @mainModuleId is className
+                  @mainModuleId = null
                 htmlStr = """
                 <a value="#{className}" class="a-padding">选择</a>
                 """

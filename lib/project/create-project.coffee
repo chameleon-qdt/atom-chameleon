@@ -130,37 +130,32 @@ module.exports = CreateProject =
   newFrameProject: (options) ->
     console.log options
     info = options.projectInfo
+    frameworkName = options.name||desc.defaultModuleName
+    appConfigPath = pathM.join info.appPath,desc.projectConfigFileName
+    appConfig = Util.formatAppConfigToObj(info)
     createSuccess = (err) =>
       if err
         console.error err
       else
         copySuccess = (err) =>
           throw err if err
-          targetPath = pathM.join info.appPath,'modules',desc.defaultModuleName
-          frameworksPath = pathM.join @frameworksDir,desc.defaultModuleName
+          targetPath = pathM.join info.appPath,'modules',frameworkName
+          frameworksPath = pathM.join @frameworksDir,frameworkName
           Util.copy frameworksPath, targetPath, (err) => # 复制成功后，将框架复制到应用的 modules 下
             throw err if err
             alert '应用创建成功'
             packageJson = pathM.join targetPath,desc.moduleConfigFileName
-            appConfigPath = pathM.join info.appPath,desc.projectConfigFileName
             gfp = pathM.join targetPath,'.git'
             delSuccess = (err) ->
               throw err if err
               console.log 'deleted!'
-              if fs.existsSync(packageJson)
-                stats = fs.statSync(packageJson)
-                if stats.isFile()
-                  contentJson = JSON.parse(fs.readFileSync(packageJson))
-                  if fs.existsSync(appConfigPath)
-                    stats = fs.statSync(appConfigPath)
-                    if stats.isFile()
-                      contentList = JSON.parse(fs.readFileSync(appConfigPath))
-                      contentList['modules'][contentJson['name']] = contentJson['version']
-                      if contentList['mainModule'] == ""
-                        contentList['mainModule'] = contentJson['name']
-                      fs.writeJson appConfigPath,contentList,null
+              frameworkConfig = Util.readJsonSync packageJson
+              appConfig.mainModule = frameworkConfig.identifier
+              appConfig.modules[frameworkConfig.identifier] = frameworkConfig.version
+              Util.writeJson appConfigPath,appConfig, (err) =>
+                return console.error err if err?
+                console.log "appConfig modify success"
             Util.delete gfp,delSuccess
-
             # appConfigPath = pathM.join info.appPath,desc.projectConfigFileName
             writeCB = (err) =>
               throw err if err
@@ -169,7 +164,7 @@ module.exports = CreateProject =
                 Util.rumAtomCommand('tree-view:reveal-active-file')
                 console.log "aft"
               _.debounce(aft,300)
-            Util.writeJson appConfigPath, Util.formatAppConfigToObj(info), writeCB
+            Util.writeJson appConfigPath, appConfig, writeCB
 
             @modalPanel.item.children(".loading-mask").remove()
             atom.project.addPath(info.appPath)
@@ -179,13 +174,17 @@ module.exports = CreateProject =
 
     # Util.createDir info.appPath, createSuccess
     # 首先，判断本地是否有框架
-    Util.isFileExist pathM.join(@frameworksDir, desc.defaultModuleName), (exists) =>
+    localFrameworkPath = pathM.join @frameworksDir, frameworkName
+    Util.isFileExist localFrameworkPath, (exists) =>
       if exists
         Util.createDir info.appPath, createSuccess #有，执行第二步：创建应用根目录
       else
         success = (state, appPath) =>
           if state is 0
-            Util.createDir info.appPath, createSuccess
+            Util.ensureModuleConfig localFrameworkPath, appConfig, (err) =>
+              return console.error err if err?
+              console.log "moduleConfig write success"
+              Util.createDir info.appPath, createSuccess
           else
             alert '应用创建失败：git clone失败，请检查网络连接'
             @modalPanel.item.children(".loading-mask").remove()
@@ -247,16 +246,20 @@ module.exports = CreateProject =
 
 
         Util.copy @projectTempDir, info.appPath, copySuccess # 创建应用根目录成功后 将空白应用的应用内容复制到根目录
-
     # 首先，判断本地是否有框架
-    console.log pathM.join(@templateDir, fileName)
-    Util.isFileExist pathM.join(@templateDir, fileName), (exists) =>
+    localFrameworkPath = pathM.join @templateDir, fileName
+    console.log localFrameworkPath
+    appConfig = Util.formatAppConfigToObj(info)
+    Util.isFileExist localFrameworkPath, (exists) =>
       if exists
         Util.createDir info.appPath, createSuccess #有，执行第二步：创建应用根目录
       else
         success = (state, appPath) =>
           if state is 0
-            Util.createDir info.appPath, createSuccess
+            Util.ensureModuleConfig localFrameworkPath, appConfig, (err) =>
+              return console.error err if err?
+              console.log "moduleConfig write success"
+              Util.createDir info.appPath, createSuccess
           else
             alert "#{desc.createAppError}: #{desc.gitCloneError}"
             @modalPanel.item.children(".loading-mask").remove()
@@ -278,14 +281,13 @@ module.exports = CreateProject =
     urlList = []
     for name, url of options.projectDetail.moduleUrlMap
       urlList.push({name: name, url: url})
-
     copyDetail = _.omit options.projectDetail, 'moduleUrlMap'
-    finalDetail =  _.extend(copyDetail,Util.formatAppConfigToObj(options.projectInfo))
+    finalDetail =  _.extend(Util.formatAppConfigToObj(options.projectInfo), copyDetail)
     Util.createDir filePath, (err)=>
       if err
         console.error err
       else
-        Util.writeJson pathM.join(filePath, "appConfig.json"), finalDetail , (err)=>
+        Util.writeJson pathM.join(filePath, desc.projectConfigFileName), finalDetail , (err)=>
           if err
             console.error err
           else
@@ -307,7 +309,7 @@ module.exports = CreateProject =
                           else
                             # alert '同步应用成功'
                             atom.project.addPath filePath
-                            atom.workspace.open pathM.join(filePath, 'appConfig.json')
+                            atom.workspace.open pathM.join(filePath, desc.projectConfigFileName)
                             Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
                             @modalPanel.item.children(".loading-mask").remove()
                             @chameleonBox.closeView()
@@ -320,7 +322,7 @@ module.exports = CreateProject =
                 else
                   # alert '同步应用成功'
                   atom.project.addPath filePath
-                  atom.workspace.open pathM.join(filePath, 'appConfig.json')
+                  atom.workspace.open pathM.join(filePath, desc.projectConfigFileName)
                   Util.rumAtomCommand 'tree-view:toggle' if $('.tree-view-resizer').length is 0
                   @modalPanel.item.children(".loading-mask").remove()
                   @chameleonBox.closeView()

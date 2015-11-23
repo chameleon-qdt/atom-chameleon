@@ -24,13 +24,13 @@ class NewProjectType extends View
             @div class: 'itemIcon', =>
               @img src: desc.getImgPath 'icon_frame.png'
             @h3 desc.appFrameworks, class: 'title'
-            # @div class: 'desc', desc.createLocalAppDesc
+            @div class: 'desc', desc.appFrameworksDesc
         @div class: 'col-xs-6', =>
           @div class: 'item sync-project text-center', 'data-type':'newTemplate', =>
             @div class: 'itemIcon', =>
               @img src: desc.getImgPath 'icon_template.png'
             @h3 desc.appTemplate, class: 'title'
-            # @div class: 'desc', desc.syncAccountAppDesc
+            @div class: 'desc', desc.appTemplateDesc
 
   attached: ->
     @parentView.disableNext()

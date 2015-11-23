@@ -22,7 +22,7 @@ class addNewFrameworkView extends View
         @div class: 'btn-group', =>
           @button class: 'btn icon icon-x inline-block', click: 'onCancelClick', '取消'
           @button class: 'btn icon icon-check inline-block', disabled: true, id: 'sure', click: 'getThisRepo', '确定'
-      
+
 
   initialize: ->
     @.gitAddress.model.emitter.on 'did-change', () =>
@@ -45,7 +45,7 @@ class addNewFrameworkView extends View
     @.append(LoadingMask)
 
     console.log @inputAddress
-      
+
     # Util.isFileExist targetFile, (exists) =>
     #   if exists
     #     alert '框架已存在'
@@ -59,6 +59,13 @@ class addNewFrameworkView extends View
         alert '添加成功'
         @onCancelClick()
         @rerenderList()
+        frameworksPath = pathM.join @frameworksDir, gitName
+        frameworkConfig =
+          moduleName:gitName,
+          moduleId:gitName
+        Util.ensureModuleConfig frameworksPath, frameworkConfig, (err) =>
+          return console.error err if err?
+          console.log "git writeJson success"
       else
         alert '添加失败：git clone失败，请检查网络连接、git地址或者已存在同名框架'
         @.children(".loading-mask").remove()

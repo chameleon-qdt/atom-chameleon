@@ -91,7 +91,7 @@ module.exports = Util =
       @writeJson moduleConfigPath, moduleConfig, (err) =>
         return cb err if err?
         console.log 'writeJson Success!'
-        if pages.length is 0
+        if !params.isBulider
           htmlFilePath = pathM.join modulePath,desc.mainEntryFileName
           htmlString = Util.getIndexHtmlCore moduleConfig
           @writeFile htmlFilePath, htmlString, (err) =>
@@ -125,6 +125,27 @@ module.exports = Util =
             else
               cb()
           @writeFile info.path, info.html, writeHtmlFileCB
+
+  ensureModuleConfig: (path,info,cb) ->
+    moduleConfigPath = pathM.join path, desc.moduleConfigFileName
+    nodeModuleConfigPath = pathM.join path, desc.nodeModuleConfigFileName
+    if @isFileExist moduleConfigPath
+      frameworkConfig = @readJsonSync moduleConfigPath
+      return cb()
+    else if @isFileExist nodeModuleConfigPath
+      _config = @readJsonSync nodeModuleConfigPath
+      _configInfo =
+        moduleName:_config.name
+        moduleId:_config.name
+      frameworkConfig = @formatModuleConfigToObj _configInfo
+      frameworkConfig.version = _config.version
+    else
+      if info.hasOwnProperty appId
+        frameworkConfig = @appConfigToModuleConfig info
+      else if info.hasOwnProperty moduleId
+        frameworkConfig = @formatModuleConfigToObj info
+    @writeJson moduleConfigPath,frameworkConfig, (err) =>
+      cb(err)
 
 
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
@@ -318,7 +339,7 @@ module.exports = Util =
         getLast fileItem for fileItem in strs
       # 4、保存文件夹或者文件
       if stats.isFile()
-        console.log filePath
+        # console.log filePath
         fileName = pathM.basename(filePath)
         # fileZipPath = pathM.join node,fileName
         # zip.file(fileZipPath,fs.readFileSync(filePath))
@@ -343,7 +364,7 @@ module.exports = Util =
           compressionZip folderZipPath,pathM.join(filePath,filePathItem),false for  filePathItem in fileList
     compressionZip ".",folderPath,true
     # 5、保存 zip
-    content = zip.generate({type:"nodebuffer"})
+    content = zip.generate({type:"nodebuffer",compression:"DEFLATE"})
     fs.writeFileSync(zipPath,content)
     console.log "打包完了"
 
@@ -364,8 +385,7 @@ module.exports = Util =
           else
             fs.mkdirSync(savePath)
         else
-          # console.log zipObject.name + " is a file"
-          fs.writeFileSync(savePath,zipObject._data.getContent())
+          fs.writeFileSync(savePath,zipObject.asText())
       readAndwrite zipObject for fileName , zipObject of object.files
       if typeof success isnt "undefined"
         success()

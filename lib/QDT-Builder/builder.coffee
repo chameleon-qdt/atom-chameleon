@@ -60,6 +60,7 @@ module.exports =
 
 
   createProject: (options) ->
+    options.isBulider = true
     info = options.projectInfo
     util.createDir info.appPath, (err) =>
       if err

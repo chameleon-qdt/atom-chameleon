@@ -29,7 +29,7 @@ module.exports = TextDescription =
   createAppInfo: '请填写要创建的应用信息'
   inputAppID: '请输入应用标识'
   appIDPlaceholder: '例如: com.foreveross.myapp'
-  appIDError: '只能输入字母和点，且至少三级目录，例如: com.foreveross.myapp'
+  appIDError: '只能输入字母和点，且至少三级目录，11-64个字符，例如: com.foreveross.myapp'
   inputAppName: '请输入应用名称'
   appNamePlaceholder: '应用显示的名称'
   inputAppPath: '应用创建位置'
@@ -41,12 +41,15 @@ module.exports = TextDescription =
   createAppError: '应用创建失败'
 
   appFrameworks: '应用框架'
+  appFrameworksDesc: '用户常用的开发框架'
   appTemplate: '应用模板'
+  appTemplateDesc: '提供一些日常应用的场景，例如：新闻，电商，移动OA，小说阅读'
 
   selectAPPTemplate: '请选择应用模板'
   selectAPPFrameworks: '请选择开发框架'
 
   defaultModule: '默认模块'
+  defaultModuleDesc: '将生成默认的配置文件和主页'
 
 
   createModule : '创建模块'
@@ -64,6 +67,7 @@ module.exports = TextDescription =
 
   emptyModule: '空白模块'
   simpleMoudle: '快速开发'
+  simpleMoudleDesc: '通过简单的拖拽页面组件生成主页和配置文件'
   defaultTemplateModule:'自定义框架'
 
   selectModuleTemplate: '请选择模块模板'
@@ -125,6 +129,7 @@ module.exports = TextDescription =
   moduleConfigFileName: 'module-config.json'
   projectConfigFileName: 'app-config.json'
   builderConfigFileName: 'builder-config.json'
+  nodeModuleConfigFileName: 'package.json'
 
   projectConfig : '应用配置'
   moduleConfig : '模块配置'

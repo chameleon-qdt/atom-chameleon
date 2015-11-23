@@ -160,9 +160,12 @@ class CreateModuleInfoView extends View
             @setSelectItem path,null,null,true,true
           else
             alert desc.selectProjectPath
+            @selectProject[0].selectedIndex = 0
         else
           @modulePath.html path
           @checkPath()
+      else
+        @selectProject[0].selectedIndex = 0
 
 
   onSelectChange: (e) ->
