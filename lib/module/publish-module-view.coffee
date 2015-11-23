@@ -64,7 +64,7 @@ class PublishModuleInfoView extends View
         @div outlet:"appListViewShow",=>
           @div class:"text-center", =>
             @img class:"icon_success_img",src: desc.getImgPath 'icon_success.png'
-            @span outlet:"getAppListTipsView","模块上传成功，检测到以下应用已关联本模块，是否应用最新版本？"
+            @span outlet:"getAppListTipsView","模块上传成功，以下应用是否应用模块的最新版本？"
             @select outlet:"selectPlatform",class:"select-platform", =>
               @option "iOS"
               @option "Android"
@@ -278,6 +278,10 @@ class PublishModuleInfoView extends View
   #获取应用列表的第 page 页
   callGetAppListApi:(page,platformSelect) ->
     #page   页数
+    if platformSelect is 'iOS'
+      platformSelect = "IOS"
+    else
+      platformSelect = "ANDROID"
     params =
       sendCookie: true
       success: (data) =>
@@ -286,48 +290,50 @@ class PublishModuleInfoView extends View
           # console.log data["message"]
           alert data["message"]
         else
-          if data["AppAndVersions"].length > 0
-            @appListViewShow.show()
-            itemStr = []
-            # 打印 table 的子节点
-            printTableView = (item) =>
-              if item["platform"] is "ANDROID"
-                item["platform"] = "Android"
-              else
-                item["platform"] = "iOS"
-              str = "<tr>
-              <td>#{item["appName"]}</td>
-              <td>#{item["platform"]}</td>
-              <td>#{item["version"]}</td>
-              <td><button class='btn appBtn' value='#{item["appVersionId"]}'>应用</button></td>
-              </tr>"
-              itemStr.push(str)
-            printTableView item for item in data["AppAndVersions"]
-            @appListMessage.html(itemStr.join(""))
-            @countPage = data["paginationMap"]["totalPage"]
-            @currentPage = page
-            @firstPage = @currentPage
-            if @countPage - @firstPage >= 4
-              @lastPage = @firstPage + 4
+          # if data["AppAndVersions"].length > 0
+            # @noAppListShowView.hide()
+          @appListViewShow.show()
+          itemStr = []
+          # 打印 table 的子节点
+          printTableView = (item) =>
+            if item["platform"] is "ANDROID"
+              item["platform"] = "Android"
             else
-              @lastPage = @countPage
-              if @lastPage - 4 >0
-                @firstPage = @lastPage - 4
-              else
-                @firstPage = 1
-              # body...
-            tmp = @firstPage
-            aItemStr = []
-            #初始化 a 标签
-            printPageView = =>
-              str = "<a>#{tmp}</a>"
-              aItemStr.push(str)
-              tmp = tmp + 1
-            printPageView() while tmp <= @lastPage
-            @pageIndex.html(aItemStr.join(""))
-            @pageTipsView.html("共#{data["paginationMap"]["totalCount"]}个应用，第#{page}页")
+              item["platform"] = "iOS"
+            str = "<tr>
+            <td>#{item["appName"]}</td>
+            <td>#{item["platform"]}</td>
+            <td>#{item["version"]}</td>
+            <td><button class='btn appBtn' value='#{item["appVersionId"]}'>应用</button></td>
+            </tr>"
+            itemStr.push(str)
+          printTableView item for item in data["AppAndVersions"]
+          @appListMessage.html(itemStr.join(""))
+          @countPage = data["paginationMap"]["totalPage"]
+          @currentPage = page
+          @firstPage = @currentPage
+          if @countPage - @firstPage >= 4
+            @lastPage = @firstPage + 4
           else
-            @noAppListShowView.show()
+            @lastPage = @countPage
+            if @lastPage - 4 >0
+              @firstPage = @lastPage - 4
+            else
+              @firstPage = 1
+            # body...
+          tmp = @firstPage
+          aItemStr = []
+          #初始化 a 标签
+          printPageView = =>
+            str = "<a>#{tmp}</a>"
+            aItemStr.push(str)
+            tmp = tmp + 1
+          printPageView() while tmp <= @lastPage
+          @pageIndex.html(aItemStr.join(""))
+          @pageTipsView.html("共#{data["paginationMap"]["totalCount"]}个应用，第#{page}页")
+          # else
+            # @appListViewShow.hide()
+            # @noAppListShowView.show()
       error: (msg) =>
         console.log msg
     client.getAppMessage params,@moduleConfigContent["identifier"],page,@pageShowItemNumber,platformSelect

@@ -278,8 +278,8 @@ class BuildProjectInfoView extends View
         @div =>
           @label "更新内容："
         @div =>
-          @div  =>
-            @subview "releaseNote", new TextEditorView(placeholderText: 'log description...'),class:"build-log-text"
+          @div =>
+            @subview "releaseNote", new TextEditorView(mini: true,placeholderText: 'log description...'),class:"build-log-text"
       @div outlet:"buildAppView", =>
         @div outlet:"uploadImageStepView" ,=>
           @label "正在上传图片..."
@@ -857,7 +857,7 @@ class BuildProjectInfoView extends View
         else if data["status"] == "BUILDING"
           waitTime = data['remainTime']
           number = @.find(".waitTime").html()
-          console.log number,typeof(number)
+          # console.log number,typeof(number)
           if typeof(number) is "undefined"
             @buildingTips.html("正在构建，已完成<span class='waitTime'>0</span>%")
           loopTime = 25
@@ -1148,6 +1148,7 @@ class BuildProjectInfoView extends View
     else
       array = []
       @mainModuleId = null
+    # console.log @mainModuleId
     initModuleListMessage = (item) =>
       text = null
       getTxt = (item1) =>
@@ -1264,7 +1265,7 @@ class BuildProjectInfoView extends View
             htmlArray.push(str)
           getHtmlItem item for item in data["datas"]
           @modulesShowView.html(htmlArray.join(""))
-          console.log "mainModuleId = #{@mainModuleId}"
+          # console.log "mainModuleId = #{@mainModuleId}"
           # 点击模块button按钮触发事件
           clickModuleShowViewBtn = (e) =>
             el = e.target
@@ -1272,7 +1273,11 @@ class BuildProjectInfoView extends View
             moduleName = @.find("span.#{className}").html()
             moduleVersionId = @.find("td>select.#{className}").val()
             moduleVersion = @.find("td>select.#{className}>option[value=#{moduleVersionId}]").html()
-            if @moduleList.length > 0
+            length = 0
+            getLength = (key,value) =>
+              length = length + 1
+            getLength key,value for key,value of @moduleList
+            if length > 0
               htmlStr = """
               <a value="#{className}" class="mainModuleTag a-padding">设置主模块</a>
               <a value="#{className}" class="cancelSelect a-padding">取消</a>

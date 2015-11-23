@@ -134,7 +134,7 @@ module.exports =
     @send params
   #分页获取 与相应模块关联的 app 列表
   getAppMessage:(params,moduleIdentifer,pageIndex,showNumber,platform)->
-    params.url = "app_update/get_app_msg/#{moduleIdentifer}/#{pageIndex}/#{showNumber}"  # /#{platform}
+    params.url = "app_update/get_app_msg/#{moduleIdentifer}/#{platform}/#{pageIndex}/#{showNumber}"  # /#{platform}
     console.log params.url
     @send params
   applyModuleToApp:(params,appVersionId,moduleId)->
