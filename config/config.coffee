@@ -1,4 +1,4 @@
-mode = 'test'
+mode = 'pro'
 getModeUrl = ->
   switch mode
     when 'dev'
