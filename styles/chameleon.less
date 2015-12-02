@@ -540,7 +540,7 @@ atom-panel.modal > .login-box {
     text-align:center;
   }
   td{
-  	height: 50px;
+  	height: 32px;
   }
   .listOfPageView{
     text-align: right;
@@ -694,10 +694,10 @@ atom-panel.modal > .login-box {
 }
 .loading-mask {
   position: absolute;
-  top: 0;
+  top: 40px;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 90%;
   border-radius: 5px;
   z-index: 99;
 
@@ -900,7 +900,7 @@ atom-panel.modal > .login-box {
   }
   .platformBtn{
     background-color: dimgrey;
-    border: 1px solid gray;
+    border: 1px solid #444444;
     border-radius: 0px;
     margin: 0px;
     padding: 5px 20px;
@@ -908,7 +908,7 @@ atom-panel.modal > .login-box {
   .div-table-view{
     border: 1px solid;
     text-align: center;
-    border-color: gray;
+    border-color: #444444;
     padding: 20px 10px;
     height: 250px;
     overflow-y: auto;
@@ -1159,7 +1159,7 @@ atom-panel.modal > .login-box {
   }
 
   .label-disable {
-    width: 282px;
+    width: 340px;
     height: 25px;
     background-color: #1B1D23;
     display: inline-block;
@@ -1195,27 +1195,25 @@ atom-panel.modal > .login-box {
     margin-bottom: 10px;
   }
   atom-text-editor, :host {
-    width: 83%;
+    // width: 83%;
     background-color: #1B1D23;
     color: #abb2bf;
   }
   .tips_to_NoPlugins{
-    font-size: 25px;
+    // font-size: 25px;
     width: 100%;
     text-align: center;
-    background-color: #696969;
+    // background-color: #696969;
     height: 280px;
     padding-top: 120px;
   }
   .tips_to_NoEngine{
-    font-size: 25px;
-    width: 100%;
-    text-align: center;
-    background-color: #696969;
-    height: 200px;
-    padding-top: 80px;
+    padding-top: 95px;
   }
-
+  .icon-none-img{
+    height: 20px;
+    padding-right: 10px;
+  }
   .pluginView li{
     width: 100%;
     padding: 5px;
@@ -1223,7 +1221,9 @@ atom-panel.modal > .login-box {
 
   .plugin-view-div{
     // text-align: center;
-    background-color: #696969;
+    // background-color: #696969;
+    margin-top: 5px;
+    border: 1px solid #444444;
   }
   .label-select-view{
     text-align: right;
@@ -1242,7 +1242,15 @@ atom-panel.modal > .login-box {
     vertical-align: -webkit-baseline-middle;
     width: 320px;
   }
-
+  .input-width{
+    width: 410px;
+  }
+  .xml-btn{
+    width: inherit;
+  }
+  .xml-text-editor{
+    width: 100%;
+  }
 }
 
 .upload_project_view {

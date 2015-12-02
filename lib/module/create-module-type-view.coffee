@@ -42,11 +42,11 @@ class CreateModuleTypeView extends View
     $('.new-item.select').removeClass 'select'
     el.classList.add 'select'
     @createType = el.dataset.type
-    if @createType is 'template'
-      if @frameworks.length is 0
-        el.dataset.src = desc.defaultModuleName
-      if @frameworks.length is 1
-        el.dataset.src = @frameworks[0].folderName
+    # if @createType is 'template'
+    #   if @frameworks.length is 0
+    #     el.dataset.src = desc.defaultModuleName
+    #   if @frameworks.length is 1
+    #     el.dataset.src = @frameworks[0].folderName
     @parentView.enableNext()
     @parentView.disableNext() if @createType is 'simple'
 
@@ -56,8 +56,10 @@ class CreateModuleTypeView extends View
     params =
       createType:@createType
       subview:ModuleInfoView
-    params.source = source if source?
-    if params.createType is 'template' and params.source? is no
+    # params.source = source if source?
+    # if params.createType is 'template' and params.source? is no
+
+    if params.createType is 'template'
       params.frameworks = @frameworks
       params.subview = require './select-module-template-view'
     box.mergeOptions params

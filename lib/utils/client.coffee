@@ -41,7 +41,7 @@ module.exports =
           @settings.activate()
 
         else
-          params.error(err)
+          params.error(err, body)
     request params, cb
 
   login: (params) ->
@@ -194,5 +194,34 @@ module.exports =
 
   check_cert_iOS:(params) ->
     params.url = "app/check_cert_ios"
+    params.method = "POST"
+    @send params
+
+
+  # ========================文件上传至七牛   图片和模块压缩包校验===========================
+  # 调服务器接口获取七牛的 token  和 key
+  get7niuTokenAndKey:(params) ->
+    params.url = "file_info/get_token_uuid"
+    @send params
+  # 调七牛上传文件接口
+  uploadTo7niu:(params) ->
+    params.baseUrl = "http://"
+    params.url = "upload.qiniu.com/"
+    params.method = "POST"
+    @send params
+  # 检验文件
+  checkFileType:(params,fileId) ->
+    params.url = "file_info/get_file_type?file_id=#{fileId}"
+    @send params
+
+  # 模块压缩包校验
+  checkModuleZipFile:(params) ->
+    params.url = "module/upload_module_by_qdt"
+    params.method = "POST"
+    @send params
+
+  #==============================2015-11-30 查看Manifest.xml文件============================
+  getAndroidManifestXML:(params) ->
+    params.url = "plugmanager/merge"
     params.method = "POST"
     @send params

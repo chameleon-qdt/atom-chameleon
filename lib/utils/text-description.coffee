@@ -120,7 +120,7 @@ module.exports = TextDescription =
   uploadModuleVersionErrorTips: "上传模块的版本小于等于服务器上的版本"
   moduleNameIsNullError: "模块名称不能为空"
   moduleVersionIsNullError: "模块版本不能为空"
-  moduleVersionUnLegelError: "模块版本格式不合法，正确格式如下：10.3.10"
+  moduleVersionUnLegelError: "模块版本格式不合法，正确格式如下：整数.整数.整数（1.0.2） ， 且每个整数长度不能超过3"
   moduleUploadProcessLabel: "上传中"
 
   publishModulePageOneTitle: '请选择需要发布的模块'
@@ -151,8 +151,8 @@ module.exports = TextDescription =
   uploadAppError: ""
   uploadAppSuccess: "上传应用成功"
 
-  projectTipsStep5_1: "请选择横竖屏支持"
-  projectTipsStep5_2: "请选择硬件支持"
+  projectTipsStep5_1: "请选择：横竖屏支持"
+  projectTipsStep5_2: "请选择：硬件支持"
   projectTipsStep6_selectImg:"请选择扩展名为 .png"
 
   # builder

@@ -19,7 +19,7 @@ class ChameleonBuilderView extends ScrollView
     @settings = Settings
     getMessageCB = (e) =>
       if e.data isnt 'false'
-        buf = JSON.parse(new Buffer(e.data, 'base64').toString("ascii"))
+        buf = JSON.parse(new Buffer(e.data, 'base64').toString("utf8"))
         if typeof buf isnt 'undefined'
           switch buf.flag
             when '0'

@@ -144,6 +144,8 @@ module.exports = ModuleManager =
       projectConfigPath = pathM.join moduleInfo.modulePath, '..', desc.projectConfigFileName
       appConfig = Util.readJsonSync projectConfigPath
       appConfig.mainModule = moduleInfo.moduleId if !appConfig.mainModule
+      if !appConfig.modules
+        appConfig.modules = {}
       appConfig.modules[moduleInfo.moduleId] = desc.minVersion
       Util.writeJson projectConfigPath,appConfig,(err) ->
         console.log err

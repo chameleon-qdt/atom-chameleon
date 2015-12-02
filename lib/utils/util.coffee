@@ -18,6 +18,7 @@ module.exports = Util =
   # windowEmitter: new Emmitter()
   handlerList: {}
   fsx: fs
+  under: _
 
   rumAtomCommand: (command) ->
      atom.views.getView(atom.workspace).dispatchEvent(new CustomEvent(command, bubbles: true, cancelable: true))
@@ -140,9 +141,9 @@ module.exports = Util =
       frameworkConfig = @formatModuleConfigToObj _configInfo
       frameworkConfig.version = _config.version
     else
-      if info.hasOwnProperty appId
+      if info.hasOwnProperty 'appId'
         frameworkConfig = @appConfigToModuleConfig info
-      else if info.hasOwnProperty moduleId
+      else if info.hasOwnProperty 'moduleId'
         frameworkConfig = @formatModuleConfigToObj info
     @writeJson moduleConfigPath,frameworkConfig, (err) =>
       cb(err)
@@ -151,7 +152,7 @@ module.exports = Util =
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
   checkProjectName: (str)->
     regEx5 = /^([A-Za-z]+\.){2,}[A-Za-z]+\w*$/
-    regEx6 = /^.{10,64}$/
+    regEx6 = /^.{0,64}$/
     flag5 = regEx5.test str
     flag6 = regEx6.test str
     return flag5 and flag6
@@ -319,19 +320,15 @@ module.exports = Util =
     flag = "root"
     # 递归函数 当遇到文件或者文件夹里面没有文件时结束
     compressionZip= (node,filePath,isroot) =>
-      # console.log filePath
       # windows 和 linux 文件路径兼容处理
       stats = fs.statSync(filePath)
       # 1、将 windows 文件路径的 \ 转为 linux 文件路径的 /
       str1=node.replace(/\\/g,"/")
-      # console.log str1
       # 2、切割路径
       strs=str1.split("/")
-      # console.log strs
       tmp = zip
       if strs[0] is "."
         isroot = true
-      # isroot = false
       # 3、以 tmp 保存当前 最外层文件夹
       getLast = (filePath) =>
         tmp = tmp.folder(filePath)
@@ -339,16 +336,11 @@ module.exports = Util =
         getLast fileItem for fileItem in strs
       # 4、保存文件夹或者文件
       if stats.isFile()
-        # console.log filePath
         fileName = pathM.basename(filePath)
-        # fileZipPath = pathM.join node,fileName
-        # zip.file(fileZipPath,fs.readFileSync(filePath))
         if isroot
           zip.file(fileName,fs.readFileSync(filePath))
-          # console.log "==============>>  strs is null or 0"
         else
           tmp.file(fileName,fs.readFileSync(filePath))
-        # console.log pathM.basename(fileName)
       else
         if flag is "root"
           flag = "children"
@@ -374,22 +366,24 @@ module.exports = Util =
       if err
         throw err
       object = new JSZip(data)
-      # console.log object.files
       readAndwrite = (zipObject) ->
-        # console.log zipObject.name
         savePath = pathM.join unzipPath,zipObject.name
         if zipObject.dir
-          # console.log zipObject.name + " is dir"
           if fs.existsSync(savePath)
             console.log "文件夹已存在,文件夹中的相同文件将被覆盖"
           else
             fs.mkdirSync(savePath)
         else
-          fs.writeFileSync(savePath,zipObject.asText())
+          tmp = savePath.substring(savePath.lastIndexOf('.'))
+          tmp = tmp.toUpperCase()
+          # 当文件问 图片时 使用 zipObject.asNodeBuffer() 其他的使用zipObject.asText()
+          if tmp is '.PNG' or tmp is '.GIF' or tmp is '.JPG' or tmp is '.JPEG' or tmp is '.BMP'
+            fs.writeFileSync(pathM.join(unzipPath,"icon3.png"),zipObject.asNodeBuffer())
+          else
+            fs.writeFileSync(savePath,zipObject.asText())
       readAndwrite zipObject for fileName , zipObject of object.files
       if typeof success isnt "undefined"
         success()
-      # console.log "!"
     fs.readFile(zipPath,cb)
   # 回调函数必须包含三个参数 cb(err,httpResponse,body)
   upload_file: (filePath, type, userAccount, cb) ->

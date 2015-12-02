@@ -14,6 +14,7 @@ class PublishModuleInfoView extends View
   projectConfigFileName: desc.projectConfigFileName
   moduleLogoFileName: desc.moduleLogoFileName
   moduleLocatFileName: desc.moduleLocatFileName
+  moduleIndexFileName:"index.html"
   moduleDir:"modules"
   moduleConfPath:null
   moduleConfigContent:null
@@ -24,9 +25,11 @@ class PublishModuleInfoView extends View
   countPage:0
   moduleConfigNoExsit:"模块配置文件不存在！"
   uploadModuleErrorTips:"模块上传失败"
-  platform:'IOS'
+  imageTypeTips:"请选择 png 格式的图片。"
+  moduleIndexHtmlNoExist:"模块缺失 index.html 文件"
+  platform:'iOS'
   step:1
-  pageShowItemNumber:4
+  pageShowItemNumber:8
   # 1 表示步骤 1。选择模块
   # 2 表示步骤 2.填写信息
   @content:() ->
@@ -65,10 +68,12 @@ class PublishModuleInfoView extends View
           @div class:"text-center", =>
             @img class:"icon_success_img",src: desc.getImgPath 'icon_success.png'
             @span outlet:"getAppListTipsView","模块上传成功，以下应用是否应用模块的最新版本？"
+            @span "切换平台："
             @select outlet:"selectPlatform",class:"select-platform", =>
               @option "iOS"
               @option "Android"
             @br
+          @div outlet:"messageTipsShow",class:"text-center"
           @div outlet:"tableView", =>
             @div outlet: "appListtable",=>
               @table class:"text-center", =>
@@ -208,26 +213,50 @@ class PublishModuleInfoView extends View
       return false
     if isNaN(numbers[0]) or isNaN(numbers[1]) or isNaN(numbers[2])
       return false
+    if numbers[0].length > 3 or numbers[1].length > 3 or numbers[2].length > 3
+      return false
     return true
   # 上传模块包
   callUploadModuleApi:(filePath)->
-    if fs.existsSync filePath
-      params =
-        formData: {
-          up_file: fs.createReadStream(filePath)
-        }
+    if fs.existsSync filePath  # 判断文件是否存在
+      # 获取七牛的 token 和 key
+      paramsOfGettoken =
         sendCookie: true
-        success: (data) =>
-          # console.log "上传模块成功"
-          # console.log data
-          @moduleId=data["module_id"]
-          # console.log @moduleId
-          @initAppListView()
-        error: (msg) =>
-          alert @uploadModuleErrorTips
-          @parentView.closeView()
-          console.log msg
-      client.uploadModuleZip(params)
+        success:(data)=>
+          token = data["token"]
+          key = data["uuid"]+".zip"
+          dataField = {}
+          dataField["file"] = fs.createReadStream(filePath)
+          dataField["token"] = token
+          dataField["key"] = key
+          #上传至七牛
+          paramTo7niu =
+            sendCookie:true
+            formData:dataField
+            success:(data1) =>
+              # console.log data1
+              fileId = data1["key"]
+              checkData = {}
+              checkData["up_classify"] = "module_upload_file"
+              checkData["file_id"] = fileId
+              # checkData["file_name"] = data["uuid"]
+              paramCheckFile =
+                sendCookie: true
+                formData:checkData
+                success:(data2) =>
+                  @initAppListView()
+                error:(err,body) =>
+                  json = JSON.parse( body );
+                  alert json["message"]
+                  @parentView.closeView()
+                  return
+              client.checkModuleZipFile(paramCheckFile)
+            error :(err) =>
+              console.log err
+          client.uploadTo7niu(paramTo7niu)
+        error : (err) =>
+          console.log err
+      client.get7niuTokenAndKey(paramsOfGettoken)
     else
       alert "文件#{filePath}不存在"
 
@@ -254,7 +283,7 @@ class PublishModuleInfoView extends View
   clickNumberToPage:(e) ->
     el = e.currentTarget
     number = parseInt($(el).html())
-    console.log el
+    # console.log el
       # body...
     @callGetAppListApi(number,@platform)
     #根据 模块标识获取 与他相关联的应用标识
@@ -278,6 +307,7 @@ class PublishModuleInfoView extends View
   #获取应用列表的第 page 页
   callGetAppListApi:(page,platformSelect) ->
     #page   页数
+    # console.log platformSelect
     if platformSelect is 'iOS'
       platformSelect = "IOS"
     else
@@ -292,6 +322,16 @@ class PublishModuleInfoView extends View
         else
           # if data["AppAndVersions"].length > 0
             # @noAppListShowView.hide()
+          # console.log data
+          if data["paginationMap"]["totalCount"] <= 0
+            str = "无 #{@platform} 应用与该模块应用。"
+            @messageTipsShow.html(str)
+            @tableView.hide()
+            @messageTipsShow.show()
+            # return
+          else
+            @messageTipsShow.hide()
+            @tableView.show()
           @appListViewShow.show()
           itemStr = []
           # 打印 table 的子节点
@@ -368,12 +408,17 @@ class PublishModuleInfoView extends View
     if result["error"]
       alert desc.uploadModuleVersionErrorTips
     else
+      modulePath = PathM.join @moduleConfPath,".."
       # console.log "the module will be upload ."
+      path = PathM.join modulePath,@moduleIndexFileName
+      if !fs.existsSync(path)
+        alert @moduleIndexHtmlNoExist
+        @parentView.closeView()
+        return
       @fillMessageView.hide()
       @uploadProgressView.show()
       @parentView.prevBtn.addClass("hide")
       @parentView.nextBtn.addClass('hide')
-      modulePath = PathM.join @moduleConfPath,".."
       @moduleConfigContent['name'] = @moduleName.html()
       @moduleConfigContent['version'] = @moduleUploadVersion.getText()
       @moduleConfigContent['releaseNote'] = @moduleUploadLog.getText()
@@ -399,26 +444,26 @@ class PublishModuleInfoView extends View
     if projectNum isnt 0
       @setSelectItem path for path in projectPaths
     path = $('.entry.selected span').attr("data-path")
-    filePath = PathM.join path, @moduleConfigFileName
-    # console.log filePath
-    if fs.existsSync(filePath)
-      obj = Util.readJsonSync filePath
-      type = desc.uAppModule
-      if obj
-        if obj['identifier']
-          str = "<option value='#{filePath}'>#{obj.identifier} -- #{path}</option>"
-      options = @.find("option")
-      length = 0
-      setDefualt = (item) =>
-        m = $(item).attr("value")
-        if m is filePath
-          return
-        length = length + 1
-      setDefualt item for item in options
-      if length == options.length
-        @selectProject.append str
-      @selectProject.val(filePath)
-
+    if typeof(path) is "string"
+      filePath = PathM.join path, @moduleConfigFileName
+      # console.log filePath
+      if fs.existsSync(filePath)
+        obj = Util.readJsonSync filePath
+        type = desc.uAppModule
+        if obj
+          if obj['identifier']
+            str = "<option value='#{filePath}'>#{obj.identifier} -- #{path}</option>"
+        options = @.find("option")
+        length = 0
+        setDefualt = (item) =>
+          m = $(item).attr("value")
+          if m is filePath
+            return
+          length = length + 1
+        setDefualt item for item in options
+        if length == options.length
+          @selectProject.append str
+        @selectProject.val(filePath)
     if @selectProject.children().length is 0
       optionStr = "<option value=' '> </option>"
       @selectProject.append optionStr
@@ -426,7 +471,7 @@ class PublishModuleInfoView extends View
     @selectProject.append optionStr
 
     @selectProject.on 'change',(e) => @onSelectChange(e)
-    console.log @selectLogo
+    # console.log @selectLogo
     @selectLogo.on 'click', (e) => @selectIcon(e)
 
   # 模块Logo选择
@@ -436,13 +481,43 @@ class PublishModuleInfoView extends View
     cb = (selectPath) =>
       if selectPath? and selectPath.length != 0
         tmp = selectPath[0].substring(selectPath[0].lastIndexOf('.'))
-        console.log tmp
-        if tmp is ".jpeg" or tmp is ".png" or tmp is ".jpg"
-          fs.writeFileSync(img_path,fs.readFileSync(selectPath[0]))
-          @logo.attr("src",selectPath)
-        else
-          alert "请选择扩展名为 .jpeg 或者 .png 或者 .jpg"
-          return
+        # 获取上传至七牛的 token 和 key
+        params =
+          sendCookie:true
+          success:(data) =>
+            # console.log data
+            token = data["token"]
+            key = data["uuid"]+".png"
+            dataField = {}
+            dataField["file"] = fs.createReadStream(selectPath[0])
+            dataField["token"] = token
+            dataField["key"] = key
+            # 上传至七牛
+            paramTo7niu =
+              sendCookie: true
+              formData: dataField
+              success:(data1) =>
+                # console.log data1
+                fileId = data1["key"]
+                # 检验文件类型
+                paramCheckFile =
+                  sendCookie:true
+                  success:(data2) =>
+                    # 如果文件是 png 格式 则保存文件至模块位置，否则报提示
+                    if data2["file_type"] is "image/png"
+                      fs.writeFileSync(img_path,fs.readFileSync(selectPath[0]))
+                      @logo.attr("src",selectPath[0])
+                    else
+                      alert @imageTypeTips
+                  error:(msg2) =>
+                    console.log msg2
+                client.checkFileType(paramCheckFile,fileId)
+              error:(msg1) ->
+                console.log msg1
+            client.uploadTo7niu(paramTo7niu)
+          error:(msg) =>
+            console.log msg
+        client.get7niuTokenAndKey(params)
     Util.openFile options,cb
 
   #下拉框初始化  读取左边导航栏所有模块
@@ -524,8 +599,6 @@ class PublishModuleInfoView extends View
         @selectProject.get(0).selectedIndex = 0
       else
         @selectProject.get(0).selectedIndex = 0
-
-
 
   getElement: ->
     @element

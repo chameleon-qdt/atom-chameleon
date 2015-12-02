@@ -83,6 +83,7 @@ class SyncProjectView extends View
       appName : @appName.getText()
       appPath : path
 
+    @projectDetail.name = projectInfo.appName
     console.log projectInfo
     projectInfo
 

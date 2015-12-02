@@ -43,7 +43,7 @@ class BuildProjectInfoView extends View
   moduleList :{}        # 对应构建应用的 moduleList 不过需要转一下格式 []
   pluginList:[]         # 对应构建应用的 pluginList
   mainModuleId:null     # 对应构建应用的 mainModuleId
-  pageSize:4
+  pageSize:8
   pageIndex:1
   engineId:null
   pageTotal:1
@@ -55,6 +55,7 @@ class BuildProjectInfoView extends View
   buildingId:null
   timerEvent:null
   textEditorViewItems:{}
+  imageTypeTips:"请选择 png 格式的图片。"
   pluginFromServer:null
   # buildStep:1 #1、表示上传图片 2、表示调构建接口 3、表示见识构建结果 4、表示显示结果
   step:1 #1、代表第一步选择应用  2、为选择选择平台 3、为选择引擎 4、为选择引擎的版本 5、为引擎基本信息
@@ -100,7 +101,9 @@ class BuildProjectInfoView extends View
                   @td "操作"
               @tbody outlet:"engineItemShowView"
             @div outlet:"tipsNoEngins",=>
-              @label "没有引擎",class:"tips_to_NoEngine"
+              @div class:"tips_to_NoEngine",=>
+                @img class:"icon-none-img",src: desc.getImgPath 'icon_none.png'
+                @label "没有引擎!"
           @div class: "",=>
             @button "上一页",class:"btn engineListClass prevPageButton"
             @button "下一页",class:"btn engineListClass nextPageButton"
@@ -157,7 +160,8 @@ class BuildProjectInfoView extends View
           @input type:"checkbox" ,value:"iPad",class:"supportMobileType",id:"iPad-checkbox"
           @label "iPad",for:"iPad-checkbox"
       @div outlet:"projectBasicMessageView",class:"form-horizontal form_width",=>
-        @div class: "col-xs-12", =>
+        @div class: "col-xs-12 select-img-view", =>
+          @label "点击图片显示位置可以选择图片"
           @div class:"" ,=>
             @label "APP LOGO", class:"label-logo"
             @img outlet:"logo",class:'pic img-logo', src: desc.getImgPath 'select-logo.png'
@@ -195,7 +199,9 @@ class BuildProjectInfoView extends View
           @button "下一页",class:"btn moduleListClass nextPageButton"
       @div outlet:"selectPluginView",class:"form-horizontal form_width", =>
         @div outlet:"noPluginView",=>
-          @label "没有任何插件",class:"tips_to_NoPlugins"
+          @div class:"tips_to_NoPlugins", =>
+            @img class:"icon-none-img",src: desc.getImgPath 'icon_none.png'
+            @label "所选模块未关联插件，点击下一步继续构建!"
         @div outlet:"pluginView",class:"pluginView", =>
           @div outlet:"clashPluginView",class:"clashPluginView"
           @div outlet:"noClashPluginView"
@@ -273,17 +279,22 @@ class BuildProjectInfoView extends View
           @label outlet:"lastAppVersion"
         @div =>
           @label "填写版本号："
-          @div class: 'inline-view', =>
+          @div class: 'inline-view input-width', =>
             @subview 'versionUpload', new TextEditorView(mini: true,placeholderText: 'upload version...')
         @div =>
           @label "更新内容："
         @div =>
           @div =>
-            @subview "releaseNote", new TextEditorView(mini: true,placeholderText: 'log description...'),class:"build-log-text"
+            @subview "releaseNote", new TextEditorView(mini: true,placeholderText: 'log description...')
+        @div outlet:"btnExportXML", =>
+          @button "查看Manifest.xml",class:"btn xml-btn"
+        @div outlet:"manifestFileShowView",=>
+          @div class:"build-log-text",=>
+            @subview "manifestFileAsText", new TextEditorView(mini: false,placeholderText: 'log description...')
       @div outlet:"buildAppView", =>
-        @div outlet:"uploadImageStepView" ,=>
-          @label "正在上传图片..."
-          @progress class:'inline-block uploadImagesProgress', max:'100',value:"0", outlet:"imagesUploadProgress"
+        # @div outlet:"uploadImageStepView" ,=>
+        #   @label "正在上传图片..."
+        #   @progress class:'inline-block uploadImagesProgress', max:'100',value:"0", outlet:"imagesUploadProgress"
         @div outlet:"sendBuildRequestView", =>
           @div =>
             @label "正在请求构建,请耐心等待..."
@@ -306,7 +317,6 @@ class BuildProjectInfoView extends View
   # 点击平台图片触发事件  同时初始化  @buildPlatform
   clickIcon:(e) ->
     el = e.currentTarget
-    console.log "选择 #{$(el).attr('value')} 平台"
     @buildPlatform = $(el).attr('value')
     @.find(".selectBuildTemplate").removeClass("active")
     $(el).addClass("active")
@@ -314,7 +324,6 @@ class BuildProjectInfoView extends View
   # 点击平台按钮事件
   platformBtnClick:(m1,b1) ->
     @engineType = $(b1).attr("value")
-    # console.log $(b1).attr("value"),@engineType
     @.find(".platformBtn").removeClass("click-platform")
     $(b1).addClass("click-platform")
     @initEngineTableView()
@@ -341,26 +350,25 @@ class BuildProjectInfoView extends View
       optionStr = "<option value=' '> </option>"
       @selectProject.append optionStr
     path = $('.entry.selected span').attr("data-path")
-
-    filePath = pathM.join path, @projectConfigFileName
-    #判断文件是否存在，不存在则跳出
-    if fs.existsSync(filePath)
-      obj = Util.readJsonSync filePath
-      if obj
-        projectName = pathM.basename path
-        optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
-      options = @.find(".projectPath > option")
-      length = 0
-      console.log options
-      setDefualt = (item) =>
-        m = $(item).attr("value")
-        if m is path
-          return
-        length = length + 1
-      setDefualt item for item in options
-      if length == options.length
-        @selectProject.append str
-      @selectProject.val(path)
+    if typeof(path) is "string"
+      filePath = pathM.join path, @projectConfigFileName
+      #判断文件是否存在，不存在则跳出
+      if fs.existsSync(filePath)
+        obj = Util.readJsonSync filePath
+        if obj
+          projectName = pathM.basename path
+          optionStr = "<option value='#{path}'>#{projectName}  -  #{path}</option>"
+        options = @.find(".projectPath > option")
+        length = 0
+        setDefualt = (item) =>
+          m = $(item).attr("value")
+          if m is path
+            return
+          length = length + 1
+        setDefualt item for item in options
+        if length == options.length
+          @selectProject.append str
+        @selectProject.val(path)
     optionStr = "<option value='其他'>其他</option>"
     @selectProject.append optionStr
     @selectProject.on 'change',(e) => @onSelectChange(e)
@@ -372,6 +380,34 @@ class BuildProjectInfoView extends View
     @.find('.iOSCertTh').on 'click',(e) => @clickIosCert(e)
     @.find(".uploadAndCheckCertBtn").on "click",(e) => @uploadCheckCert(e)
     @.find(".cert_file_input_click").on "click",(e) => @selectCertViewFile(e)
+    @.find(".xml-btn").on "click",(e) => @showAndroidManifestXML(e)
+    @.find(".select-img-view").on "click","img",(e) => @selectImg(e)
+
+  showAndroidManifestXML:(e) ->
+    privatePluginVersionMap = {}
+    publicPluginVersionMap = {}
+    platform = "IOS"
+    dealPluginType = (pluginItem) =>
+      if pluginItem["pluginType"] is "PUBLIC"
+        publicPluginVersionMap["#{pluginItem["pluginVersionId"]}"] = pluginItem["params"]
+      else
+        privatePluginVersionMap["#{pluginItem["pluginVersionId"]}"] = pluginItem["params"]
+    dealPluginType pluginItem for pluginItem in @pluginList
+    if @buildPlatform isnt "iOS"
+      platform = "ANDROID"
+    data =
+      platform:platform
+      privatePluginVersionMap:privatePluginVersionMap
+      publicPluginVersionMap:publicPluginVersionMap
+    params =
+      sendCookie:true
+      body: JSON.stringify(data)
+      success:(data) =>
+        @manifestFileAsText.setText(data["data"])
+        @manifestFileShowView.show()
+      error:(msg,body) =>
+        console.log body
+    client.getAndroidManifestXML params
 
   initParam: ->
     @imageList = {}
@@ -385,7 +421,6 @@ class BuildProjectInfoView extends View
 
   checkModuleNeedToUpload:(path) ->
     modulesPath = pathM.join path,@moduleDir
-    # console.log modulesPath
     if fs.existsSync(modulesPath)
       modules = fs.readdirSync(modulesPath)
       identifierList = []
@@ -396,14 +431,14 @@ class BuildProjectInfoView extends View
          else
            return
       getModuleIdentifiers modulePath for modulePath in modules
-      console.log identifierList
+
       params =
         formData:{
           identifier:JSON.stringify(identifierList)
         }
         sendCookie: true
         success: (data) =>
-          console.log data
+          # console.log data
           moduleList = []
           getNeedToUploadModuleIdentifier = (item) =>
             if item["build"] is ""
@@ -412,13 +447,14 @@ class BuildProjectInfoView extends View
           getNeedToUploadModuleIdentifier item for item in data
           # return moduleList
           str = moduleList.join(",")
-          console.log str
+          # console.log str
           if str is ""
             return
           else
             if confirm "检测到未上传模块： #{str}，是否要先上传模块？"
               @parentView.closeView()
               Util.rumAtomCommand("chameleon:publish-module")
+              return
         error:=>
           console.log "call the last version api fail"
       # 获取 该模块最新版本 和 build
@@ -443,7 +479,7 @@ class BuildProjectInfoView extends View
       @parentView.prevBtn.attr('disabled',false)
       @step = 2
     else if @step is 2 #2、为选择选择平台   在点击平台图片的时候 初始化 @buildPlatform
-      console.log @step,@buildPlatform
+      # console.log @step,@buildPlatform
       @certInfo = {}
       @platformSelectView.hide()
       @tipsNoEngins.hide()
@@ -459,7 +495,7 @@ class BuildProjectInfoView extends View
       # @parentView.nextBtn.text("下一步")
       @step = 5
     else if @step is 3 #3、为选择引擎
-      console.log "show engin basic message"
+      # console.log "show engin basic message"
       @engineTableView.hide()
       @engineBasicMessageView.show()
       @getBasicMessageView() #初始化  engineMessage 的值
@@ -482,7 +518,6 @@ class BuildProjectInfoView extends View
       # callBack = =>
       @projectBasicMessageView.hide()
       @selectModuleView.show()
-      @pageSize = 4
       @pageIndex = 1
       # @parentView.nextBtn.text("下一步")
       @initModuleList()
@@ -494,7 +529,6 @@ class BuildProjectInfoView extends View
       if !@mainModuleId
         alert @selectModuleTxt
         return
-      @pageSize = 4
       @pageIndex = 1
       @selectModuleView.hide()
       @noPluginView.hide()
@@ -527,16 +561,21 @@ class BuildProjectInfoView extends View
         @lastAppVersion.html("0.0.0")
         @versionUpload.setText("0.0.1")
       @step = 10
+      @manifestFileShowView.hide()
+      if @buildPlatform is "Android"
+        @btnExportXML.show()
+      else
+        @btnExportXML.hide()
       @parentView.nextBtn.text("生成安装")
     else if @step is 10
       @buildAppMethod()
 
   initPluginList: ->
     arrayPlugin = @.find(".clashPluginView select")
-    console.log @.find(".clashPluginView select")
+    # console.log @.find(".clashPluginView select")
     arr = []
     initPlugin = (item) =>
-      console.log $(item).attr("class")
+      # console.log $(item).attr("class")
       pluginId = $(item).attr("name")
       params = {}
       getParamsFromTextView = (key,value) =>
@@ -552,7 +591,7 @@ class BuildProjectInfoView extends View
       arr.push(obj)
     initPlugin item for item in arrayPlugin
     @pluginList = arr
-    console.log @pluginList
+    # console.log @pluginList
 
 
   selectCertViewFile:(e) ->
@@ -576,7 +615,6 @@ class BuildProjectInfoView extends View
 
   #检验证书
   uploadCheckCert:(e) ->
-    console.log "click check"
     el = e.currentTarget
     if @buildPlatform is "Android"
       params =
@@ -585,7 +623,6 @@ class BuildProjectInfoView extends View
           up_file: fs.createReadStream(@certFile.getText())
         }
         success:(data) =>
-          console.log data
           obj =
             keystoreFileId:data["url_id"]
             keypass:@keyPassword.getText()
@@ -594,7 +631,6 @@ class BuildProjectInfoView extends View
             sendCookie:true
             formData:obj
             success:(data2) =>
-              console.log data2
               @parentView.nextBtn.text("下一步")
               @certAlias.val(data2["alias"])
               @certInfo["certAlias"] = data2["alias"]
@@ -603,7 +639,6 @@ class BuildProjectInfoView extends View
               @certInfo["keyPassword"] = obj["keypass"]
               alert @passCheckTips
             error:(msg) =>
-              console.log msg
               alert @unPassCheckTips
           client.check_cert_android(params1)
         error:(msg) =>
@@ -614,7 +649,6 @@ class BuildProjectInfoView extends View
       descFile = null         #证书解释文件
       appPassword = null      #证书密码
       if $(el).hasClass("iOSCompanyCertCheck")
-        console.log "iOSCompanyCertCheck"
         appCert = @companyAppCert.getText()
         descFile = @companyDescFile.getText()
         appPassword = @companyAppPassword.getText()
@@ -622,7 +656,7 @@ class BuildProjectInfoView extends View
         appCert = @appCert.getText()
         descFile = @descFile.getText()
         appPassword = @appPassword.getText()
-      console.log "开始上传证书 iOS 证书"
+      # console.log "开始上传证书 iOS 证书"
       #上传 iOS 证书
       params =
         sendCookie:true
@@ -630,8 +664,7 @@ class BuildProjectInfoView extends View
           up_file: fs.createReadStream(appCert)
         }
         success:(data) =>
-          console.log data
-          console.log "开始上传证书 上传证书解释文件"
+          # console.log "开始上传证书 上传证书解释文件"
           # 上传证书解释文件
           params1 =
             sendCookie:true
@@ -648,7 +681,6 @@ class BuildProjectInfoView extends View
                 formData:obj
                 success:(data2) =>
                   @parentView.nextBtn.text("下一步")
-                  console.log data2
                   if $(el).hasClass("iOSCompanyCertCheck")
                     @companyAppId.val(data2["bundleIdentify"])
                     @certInfo["companyAppId"] = data2["bundleIdentify"]
@@ -700,8 +732,8 @@ class BuildProjectInfoView extends View
   #上传logo的图片
   uploadFileSync:(callBack) ->
     @buildReView.hide()
-    @uploadImageStepView.show()
-    @sendBuildRequestView.hide()
+    # @uploadImageStepView.show()
+    @sendBuildRequestView.show()
     @waitingBuildResultView.hide()
     @buildResultView.hide()
     @buildAppView.show()
@@ -766,63 +798,67 @@ class BuildProjectInfoView extends View
       return
     @parentView.prevBtn.hide()
     @parentView.nextBtn.hide()
-    callBack = =>
-      @uploadImageStepView.hide()
-      @sendBuildRequestView.show()
-      platform = "IOS"
-      if @buildPlatform is "Android"
-        platform = "ANDROID"
-      data = {}
-      data["certInfo"] = @certInfo
-      data["platform"] = platform
-      data["appId"] = @projectIdFromServer
-      data["identifier"] = @projectConfigContent["identifier"]
-      data["logoFileId"] = @logoImage
-      data["classify"] = "appdisplay" #可不填
-      data["status"] = "OFFLINE" #
-      data["appName"] = @projectConfigContent["name"]
-      data["version"] = uplaoadVersion
-      data["createTime"] = UtilExtend.dateFormat("YYYY-MM-DD HH:mm:ss",new Date()) #当前时间
-      data["images"] = @imageList #文件id
-      data["releaseNote"] = @releaseNote.getText()
-      modules = []
-      formatModuleList = (key,item) =>
-        tmp =
-          "moduleVersionId":item["moduleVersionId"]
-          "moduleId": item["moduleId"]
-          "appVersionId":""
-          "appId":""
-        modules.push(tmp)
-      formatModuleList key,item for key,item of @moduleList
-      plugins = []
-      # formatPlugineList = (key,item) =>
-      #   tmp =
-      #     "pluginVersionId":item["pluginVersionId"]
-      #     "pluginId": item["pluginId"]
-      #     "appVersionId":""
-      #     "appId":""
-      #   plugins.push(tmp)
-      # formatPluginList key,item for key,item of @pluginList
-      data["moduleList"] = modules
-      data["pluginList"] = @pluginList
-      data["mainModuleId"] = @mainModuleId
-      data["engineId"] = @engineMessage["engineId"]
-      data["engineVersionId"] = @engineMessage["id"]
-      console.log data
-      params =
-        sendCookie:true
-        body: JSON.stringify(data)
-        success:(data) =>
-          console.log "requestBuildApp data = #{data}"
-          @buildingId = data["buildId"]
-          #监听构建结果
-          @sendBuildRequestView.hide()
-          @waitingBuildResultView.show()
-          @checkBuildStatusByBuildId(@buildingId)
-        error:(msg) =>
-          console.log msg
-      client.requestBuildApp(params)
-    @uploadFileSync(callBack)
+    # callBack = =>
+    # @uploadImageStepView.hide()
+    # @sendBuildRequestView.show()
+    @buildReView.hide()
+    # @uploadImageStepView.show()
+    @sendBuildRequestView.show()
+    @waitingBuildResultView.hide()
+    @buildResultView.hide()
+    @buildAppView.show()
+    platform = "IOS"
+    if @buildPlatform is "Android"
+      platform = "ANDROID"
+    data = {}
+    data["certInfo"] = @certInfo
+    data["platform"] = platform
+    data["appId"] = @projectIdFromServer
+    data["identifier"] = @projectConfigContent["identifier"]
+    data["logoFileId"] = @logoImage
+    data["classify"] = "appdisplay" #可不填
+    data["status"] = "OFFLINE" #
+    data["appName"] = @projectConfigContent["name"]
+    data["version"] = uplaoadVersion
+    data["createTime"] = UtilExtend.dateFormat("YYYY-MM-DD HH:mm:ss",new Date()) #当前时间
+    data["images"] = @imageList #文件id
+    data["releaseNote"] = @releaseNote.getText()
+    modules = []
+    formatModuleList = (key,item) =>
+      tmp =
+        "moduleVersionId":item["moduleVersionId"]
+        "moduleId": item["moduleId"]
+        "appVersionId":""
+        "appId":""
+      modules.push(tmp)
+    formatModuleList key,item for key,item of @moduleList
+    plugins = []
+    # formatPlugineList = (key,item) =>
+    #   tmp =
+    #     "pluginVersionId":item["pluginVersionId"]
+    #     "pluginId": item["pluginId"]
+    #     "appVersionId":""
+    #     "appId":""
+    #   plugins.push(tmp)
+    # formatPluginList key,item for key,item of @pluginList
+    data["moduleList"] = modules
+    data["pluginList"] = @pluginList
+    data["mainModuleId"] = @mainModuleId
+    data["engineId"] = @engineMessage["engineId"]
+    data["engineVersionId"] = @engineMessage["id"]
+    params =
+      sendCookie:true
+      body: JSON.stringify(data)
+      success:(data) =>
+        @buildingId = data["buildId"]
+        #监听构建结果
+        @sendBuildRequestView.hide()
+        @waitingBuildResultView.show()
+        @checkBuildStatusByBuildId(@buildingId)
+      error:(msg) =>
+        console.log msg
+    client.requestBuildApp(params)
+    # @uploadFileSync(callBack)
 
   # 判断版本是否合法，判断规则：是否由三个数和两个点组成
   checkVersionIsLegal:(version)->
@@ -838,7 +874,6 @@ class BuildProjectInfoView extends View
     params =
       sendCookie:true
       success:(data) =>
-        console.log data
         waitTime = 0
         if data["code"] == -1
           alert @buildIsExist
@@ -857,7 +892,6 @@ class BuildProjectInfoView extends View
         else if data["status"] == "BUILDING"
           waitTime = data['remainTime']
           number = @.find(".waitTime").html()
-          # console.log number,typeof(number)
           if typeof(number) is "undefined"
             @buildingTips.html("正在构建，已完成<span class='waitTime'>0</span>%")
           loopTime = 25
@@ -887,14 +921,12 @@ class BuildProjectInfoView extends View
 
   # 定时任务
   timerMethod: (buildingId,loopTime) ->
-    # console.log @timerEvent
     if loopTime <= 0
       @checkBuildStatusByBuildId(buildingId)
     else
       number = parseInt(@.find(".waitTime").html())
       if number < 99
         number = number+1
-      # console.log number
       @.find(".waitTime").html(number)
       loopTime = loopTime - 1
       @timerEvent = setTimeout =>
@@ -904,17 +936,14 @@ class BuildProjectInfoView extends View
   # 初始化插件
   # array 需要过滤掉的插件数据
   initSelectPluginView:(array,pageIndex,pageSize) ->
-    # console.log "begin to initSelectPluginView"
     platform = "ANDROID"
     if @buildPlatform is "iOS"
       platform = "IOS"
     exceptModuleArray = array
     moduleIds = []
     getModuleIds = (item,value) =>
-      console.log value
       moduleIds.push(value["moduleVersionId"])
     getModuleIds item,value for item,value of @moduleList
-    console.log moduleIds,@moduleList,@projectIdFromServer
     dataJson =
       "module_version_ids":moduleIds.join(",")
       "platform": platform
@@ -945,7 +974,6 @@ class BuildProjectInfoView extends View
     noPluginList = []
     conflictList = []
     normalList = []
-    console.log data
     classifyItems = (item) =>
       if item["type"] is "zero"
         noPluginList.push(item)
@@ -966,21 +994,17 @@ class BuildProjectInfoView extends View
       el = e.currentTarget
       pluginIndex = parseInt($(el).attr("value"))
       itemIndex = parseInt($(el).parent().attr("value"))
-      console.log $(el).parent("div")
       @initPluginItemView(conflictList[itemIndex],pluginIndex,"many",el)
     @.find(".conflictBtn").on "click",(e) => clickConflictBtn(e)
     @.find(".clashPluginView").on "change","select",(e) => @changePluginVersionEvent(e)
 
   changePluginVersionEvent:(e) ->
-    console.log "changePluginVersionEvent"
     el = e.currentTarget
     authority = $(el).attr("class")
     pluginDocId = $(el).attr("name")
     identifier = $(el).attr("text")
     id = $(el).val()
-    console.log authority,pluginDocId,identifier
     pluginList = []
-    console.log @pluginFromServer
     getPluginList = (item) =>
       if item["identifier"] is identifier
         if item["type"] is "many"
@@ -991,12 +1015,10 @@ class BuildProjectInfoView extends View
         else
           pluginList = item["plugin"]
     getPluginList item for item in @pluginFromServer
-    console.log pluginList
     plugin = {}
     getPlugin = (itemPlugin) =>
       if itemPlugin["id"] is id
         plugin = itemPlugin
-        console.log itemPlugin
     getPlugin itemPlugin for itemPlugin in pluginList
     @reShowPluginParamsView(plugin,el)
 
@@ -1005,7 +1027,6 @@ class BuildProjectInfoView extends View
     tmpEl = $(el).parent().parent().find(".paramsView")
     tmpEl.html("")
     paramObj = {}
-    console.log plugin
     getParams = (item) =>
       obj =
         display:item["display"]
@@ -1018,7 +1039,6 @@ class BuildProjectInfoView extends View
 
   # 对象数组   noPluginList
   noPluginListToHtml:(noPluginList) ->
-    console.log noPluginList
     identifierList = []
     printIdentifierList = (item) =>
       identifierList.push(item["identifier"])
@@ -1035,7 +1055,6 @@ class BuildProjectInfoView extends View
 
   # 对象数组   noPluginList
   conflictListToHtml:(conflictList) ->
-    console.log conflictList
     conflictMessageShow = []
     itemLength = 0
     printPluginItem = (item) =>
@@ -1080,7 +1099,6 @@ class BuildProjectInfoView extends View
     # 获取插件版本选项
     selectArray = []
     arrayItem = null
-    console.log item
     if type is "many"
       arrayItem = item["plugin"][index]
     else
@@ -1091,7 +1109,7 @@ class BuildProjectInfoView extends View
       """
       selectArray.push(str)
     printSelectOptionItem selectItem for selectItem in arrayItem
-    console.log selectArray
+
     str = """
       <li> <label class="label-select-view">选择版本 :</label> <select class="#{arrayItem[0]["authority"]}" name="#{arrayItem[0]["pluginDocId"]}" text="#{arrayItem[0]["identifier"]}">#{selectArray.join(" ")}</select> </li>
     """
@@ -1123,12 +1141,12 @@ class BuildProjectInfoView extends View
         @.find(".paramsView:last").append(paramView)
     if typeof(arrayItem[0]["params"]) isnt "undefined"
       paramItemMethod paramItem for paramItem in arrayItem[0]["params"]
-    console.log arrayItem[0]["params"]
+
     @textEditorViewItems["#{arrayItem[0]["pluginDocId"]}"] = paramObj
 
   # 对象数组   noPluginList
   normalListToHtml:(normalList) ->
-    console.log normalList
+
     normalMessageShow = []
     printPluginItem = (item) =>
       str = @initPluginItemView(item,0,"one",null)
@@ -1148,11 +1166,11 @@ class BuildProjectInfoView extends View
     else
       array = []
       @mainModuleId = null
-    # console.log @mainModuleId
+
     initModuleListMessage = (item) =>
       text = null
       getTxt = (item1) =>
-        # console.log item["value"],item[""]
+
         if item1["value"] is item["version"]
           text = item1["text"]
           return
@@ -1209,11 +1227,10 @@ class BuildProjectInfoView extends View
     params =
       sendCookie:true
       success:(data)=>
-        # console.log data
         if data['totalCount'] <= pageIndex*@pageSize
-          @.find(".engineListClass.nextPageButton").attr("disabled",true)
+          @.find(".moduleListClass.nextPageButton").attr("disabled",true)
         else
-          @.find(".engineListClass.nextPageButton").attr("disabled",false)
+          @.find(".moduleListClass.nextPageButton").attr("disabled",false)
 
         if data["totalCount"] > 0
           htmlArray = []
@@ -1265,7 +1282,7 @@ class BuildProjectInfoView extends View
             htmlArray.push(str)
           getHtmlItem item for item in data["datas"]
           @modulesShowView.html(htmlArray.join(""))
-          # console.log "mainModuleId = #{@mainModuleId}"
+
           # 点击模块button按钮触发事件
           clickModuleShowViewBtn = (e) =>
             el = e.target
@@ -1340,7 +1357,7 @@ class BuildProjectInfoView extends View
     params =
       sendCookie:true
       success:(data) =>
-        # console.log "getLastBuildMessage #{data}"
+
         @projectLastContent = data
         @initProjectBasicMessageViewStep5_2()
       error: (msg) =>
@@ -1362,7 +1379,6 @@ class BuildProjectInfoView extends View
     params =
       sendCookie: true
       success: (data) =>
-        # console.log data
         @projectIdFromServer = data["id"]
         @getLastBuildMessage()
         $(LoadingMask).remove()
@@ -1407,17 +1423,13 @@ class BuildProjectInfoView extends View
         htmlVerticalArray = []
         getVerticalStr = (item1) =>
           if item1 is "iPad"
-            # console.log "getIPadVerticalHtml"
             htmlVerticalArray.push(@getIPadVerticalHtml())
           else if item1 is "iPhone"
-            # console.log "getIPhoneVerticalHtml"
             htmlVerticalArray.push(@getIPhoneVerticalHtml())
           else
-            # console.log "getAndroidVerticalHtml"
             htmlVerticalArray.push(@getAndroidVerticalHtml())
         getVerticalStr item1 for item1 in supportMobileTypeArray
         @.find(".verticalModelView").show()
-        # console.log htmlVerticalArray.join("")
         @verticalModelView.html(htmlVerticalArray.join(""))
       else
         if isNeedHide is 0
@@ -1427,20 +1439,16 @@ class BuildProjectInfoView extends View
         htmlScrossArray = []
         getScrossStr = (item2) =>
           if item2 is "iPad"
-            # console.log "getIPadScrossHtml"
             htmlScrossArray.push(@getIPadScrossHtml())
           else if item2 is "iPhone"
-            # console.log "getIPhoneScrossHtml"
             htmlScrossArray.push(@getIPhoneScrossHtml())
           else
-            # console.log "getAndroidScrossHtml"
             htmlScrossArray.push(@getAndroidScrossHtml())
         getScrossStr item2 for item2 in supportMobileTypeArray
         @.find(".scrossModelView").show()
-        # console.log htmlScrossArray.join("")
         @scrossModelView.html(htmlScrossArray.join(""))
     showView item for item in showStyleArray
-    @.find("img").on "click",(e) => @selectImg(e)
+    # @.find("select-img-view").on "click","img",(e) => @selectImg(e)
     # 隐藏不必要的显示
     if isNeedHide is 0
       @.find(".verticalModelView").hide()
@@ -1458,16 +1466,45 @@ class BuildProjectInfoView extends View
     cb = (selectPath) =>
       if selectPath? and selectPath.length != 0
         tmp = selectPath[0].substring(selectPath[0].lastIndexOf('.'))
-        # console.log tmp
-        if tmp is ".png"
-          $(el).attr("src",selectPath[0])
-          if $(el).hasClass("img-logo")
-            @logoImage = selectPath[0]
-          else
-            @imageList[$(el).attr("value")] = selectPath[0]
-          # console.log @imageList
-        else
-          alert desc.projectTipsStep6_selectImg
+        params =
+          sendCookie:true
+          success:(data) =>
+            token = data["token"]
+            key = data["uuid"]+".png"
+            dataField = {}
+            dataField["file"] = fs.createReadStream(selectPath[0])
+            dataField["token"] = token
+            dataField["key"] = key
+            # 上传至七牛
+            paramTo7niu =
+              sendCookie: true
+              formData: dataField
+              success:(data1) =>
+                fileId = data1["key"]
+                # 检验文件类型
+                paramCheckFile =
+                  sendCookie:true
+                  success:(data2) =>
+                    # 如果文件是 png 格式 则保存文件至模块位置，否则报提示
+
+                    if data2["file_type"] is "image/png"
+                      $(el).attr("src",selectPath[0])
+                      if $(el).hasClass("img-logo")
+                        @logoImage = data1["key"]
+                      else
+                        @imageList[$(el).attr("value")] = data1["key"]
+
+                    else
+                      alert @imageTypeTips
+                  error:(msg2) =>
+                    console.log msg2
+                client.checkFileType(paramCheckFile,fileId)
+              error:(msg1) ->
+                console.log msg1
+            client.uploadTo7niu(paramTo7niu)
+          error:(msg) =>
+            console.log msg
+        client.get7niuTokenAndKey(params)
     Util.openFile options,cb
 
   # 点击上一步按钮触发事件
@@ -1602,7 +1639,6 @@ class BuildProjectInfoView extends View
   initEngineTableView:() ->
     @engineMessage = null
     @pageIndex = 1
-    @pageSize = 4
     @getApiEngingList @pageIndex,@pageSize
 
   # 点击选择，直接就获取引擎的版本列表
@@ -1612,13 +1648,11 @@ class BuildProjectInfoView extends View
     @engineVersionView.show()
 
     #初始化分页信息
-    @pageSize = 4
     @pageIndex = 1
     @pageTotal = 1
     el = e.currentTarget
     @engineId = $(el).attr("value")
     @enginName.html("&nbsp;&nbsp;"+$(el).attr("text"))
-    console.log @engineId
     @getEngineVersionList(@pageIndex,@pageSize)
 
   # 根据引擎的Id 获取引擎版本列表并显示出来
@@ -1626,7 +1660,6 @@ class BuildProjectInfoView extends View
     params =
       sendCookie:true
       success:(data)=>
-        # console.log data
         # 判断是否没有下一页了
         if data['totalCount'] <= pageIndex*@pageSize
           @.find(".engineVersionListClass.nextPageButton").attr("disabled",true)
@@ -1659,7 +1692,6 @@ class BuildProjectInfoView extends View
             el = e.currentTarget
             index = $(el).attr("value")
             @step = 5
-            # console.log @engineVersionList[index]
             @initEngineBasicView(data["data"][index])
             $(LoadingMask).remove()
           @.find(".selectEngineVersionA").on "click",(e) => selectEngineVersionAClick(e)
@@ -1675,7 +1707,6 @@ class BuildProjectInfoView extends View
     params =
       sendCookie:true
       success:(data) =>
-        # console.log data
         @initEngineBasicView(data)
         $(LoadingMask).remove()
       error: (msg) =>
@@ -1698,9 +1729,19 @@ class BuildProjectInfoView extends View
     @engineIdView.html(data["identifier"])
     @engineName.html(data["name"])
     @platform.html(data["platform"])
-    @engineSize.html(data["fileSize"])
+    tmp = parseFloat(data["fileSize"])
+    tmp2 = (tmp / 1024).toFixed(0)
+    tmp3 = (tmp2 / 1024).toFixed(0)
+    tmp4 = (tmp3 / 1024).toFixed(0)
+    str = data["fileSize"]
+    if tmp4 > 1
+      str = tmp4+" G"
+    else if tmp3 > 1
+      str = tmp3 + " M"
+    else
+      str = tmp2 + " K"
+    @engineSize.html(str)
     @engineVersion.html(data["version"])
-    # console.log "env=",data["buildEnvironment"]["name"]
     @buildEnv.html(data["buildEnvironment"]["name"]+data["buildEnvironment"]["version"])
 
   # 获取左边文件
@@ -1726,13 +1767,11 @@ class BuildProjectInfoView extends View
     atom.pickFolder (paths) =>
       if paths?
         path = pathM.join paths[0]
-        # console.log  path
         filePath = pathM.join path,@projectConfigFileName
         if !fs.existsSync(filePath)
           @.find("select option:first").prop("selected","selected")
           alert @selectProjectTxt
           return
-        # console.log filePath
         if !fs.existsSync(filePath)
           @.find("select option:first").prop("selected","selected")
           alert @pleaseSelectRealProjectTips
@@ -1973,7 +2012,7 @@ class BuildProjectInfoView extends View
       else
         @imageList["android960_640"] = images["android960_640"]
         images["android960_640"] = @getImageUrlMethod(images["android960_640"])
-        console.log images["android960_640"]
+
       if typeof(images["android1136_640"]) is "undefined" || images["android1136_640"] == ""
         images["android1136_640"] = androidSrc
       else
@@ -2105,6 +2144,5 @@ module.exports =
       title: desc.buildProjectMainTitle
       subview: new BuildProjectInfoView()
     closeView: ->
-      # console.log @contentView.buildPlatform
       window.clearTimeout(@contentView.timerEvent)
       super()

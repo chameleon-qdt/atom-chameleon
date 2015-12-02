@@ -1,6 +1,7 @@
 Path = require 'path'
 desc = require '../utils/text-description'
-Util = require '../utils/util'
+# Util = require '../utils/util'
+_ = require 'underscore-plus'
 ModuleInfoView = require './create-module-info-view'
 {$, TextEditorView, View} = require 'atom-space-pen-views'
 
@@ -63,6 +64,9 @@ class SelectModuleTmpView extends View
 
   findFrameworks: ->
     @frameworks =  @parentView.options.frameworks
+    fw = _.find @frameworks, (framework) =>
+      return framework.folderName is desc.defaultModuleName
+    @frameworks.push({dataName:desc.defaultModuleName,folderName:desc.defaultModuleName}) if(!fw)
     @pageSize = Math.ceil(@frameworks.length/3)
     @enableNextPage() if @nextPage.prop('disabled') is yes and @pageSize >1
 
