@@ -151,6 +151,7 @@ module.exports = Util =
 
   # 将传递过来的 str 进行判断是否符合文件命名，如果不符合，将不符合的字符改为"-", 并进行去重
   checkProjectName: (str)->
+    # regEx7 = "abstract assert boolean break byte case catch char class const continue  default do  double  else enum  extends final finally float for goto  if  implements  import instanceof  int interface long  native new package private protected public return  strictfp  short static  super switch  synchronized  this  throw throws transient try void  volatile  while".split('')
     regEx5 = /^([A-Za-z]+\.){2,}[A-Za-z]+\w*$/
     regEx6 = /^.{0,64}$/
     flag5 = regEx5.test str

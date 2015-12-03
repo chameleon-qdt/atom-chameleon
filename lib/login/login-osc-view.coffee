@@ -4,16 +4,25 @@ desc = require '../utils/text-description'
 Settings = require '../settings/settings'
 Config = require '../../config/config'
 Util = require '../utils/util'
+Client = require '../utils/client'
 
 module.exports =
 class ChameleonBuilderView extends ScrollView
   @content: ->
-    @iframe class: 'builder-iframe', src: Config.oscLoginUrl
+    @iframe class: 'builder-iframe', src: ''
     # @iframe class: 'builder-iframe', src: 'http://bsl.foreveross.com/qdt-web-dev/html/account/login.html?osc_flag=false'
       
   getURI: -> @uri
 
   getTitle: -> desc.oscLoginPanelTitle
+
+  getLoginUrl: ->
+    params = {
+      success: (data)=>
+        return data.body
+    }
+    Client.getClientId params
+      
 
   initialize: ({@uri}) ->
     @settings = Settings
@@ -50,3 +59,8 @@ class ChameleonBuilderView extends ScrollView
     #   @menuClick(e.currentTarget)
 
   attached: ->
+    params = {
+      success: (data)=>
+        $('.builder-iframe').attr('src', Config.getLoginUrl(data.client_id))
+    }
+    Client.getClientId params

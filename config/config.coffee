@@ -6,7 +6,7 @@ getModeUrl = ->
       client_id: 'JEJAugLlTgnaOxVhA1g1'
     when 'pro'
       url: 'qdt-web'
-      client_id: 'ql4p9NCK8qztzrWCpzbK'
+      client_id: 'WLe4gmcgbg0qvO6AgWfy'
     when 'test'
       url: 'qdt-web-test'
       client_id: '08yXEftRlLWMbdOpCzS1'
@@ -20,6 +20,9 @@ module.exports =
   serverUrl: "http://bsl.foreveross.com/#{modeUrl.url}/api/v1/"
 
   oscLoginUrl: "https://www.oschina.net/action/oauth2/authorize?client_id=#{modeUrl.client_id}&redirect_uri=http://bsl.foreveross.com/#{modeUrl.url}/api/v1/anonymous/oschina&response_type=code&state=qdt"
+
+  getLoginUrl: (client_id)->
+    return "https://www.oschina.net/action/oauth2/authorize?client_id=#{client_id}&redirect_uri=http://bsl.foreveross.com/#{modeUrl.url}/api/v1/anonymous/oschina&response_type=code&state=qdt"
 
   tempList: [
     {

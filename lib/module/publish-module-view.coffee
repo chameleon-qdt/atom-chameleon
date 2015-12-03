@@ -19,6 +19,7 @@ class PublishModuleInfoView extends View
   moduleConfPath:null
   moduleConfigContent:null
   moduleId:null
+  moduleVersionId:null
   currentPage:1
   firstPage:1
   lastPage:5
@@ -27,6 +28,7 @@ class PublishModuleInfoView extends View
   uploadModuleErrorTips:"模块上传失败"
   imageTypeTips:"请选择 png 格式的图片。"
   moduleIndexHtmlNoExist:"模块缺失 index.html 文件"
+  appSuccessTips:"应用成功"
   platform:'iOS'
   step:1
   pageShowItemNumber:8
@@ -244,6 +246,9 @@ class PublishModuleInfoView extends View
                 sendCookie: true
                 formData:checkData
                 success:(data2) =>
+                  # console.log data2
+                  @moduleId = data2["module_id"]
+                  @moduleVersionId = data2["module_version_id"]
                   @initAppListView()
                 error:(err,body) =>
                   json = JSON.parse( body );
@@ -271,6 +276,8 @@ class PublishModuleInfoView extends View
     @.find("#appBodyList").on "click",".appBtn",(e) => @appBtnClick(e)
     @.find(".page-list").on "click","a",(e) => @clickNumberToPage(e)
     @callGetAppListApi(1,@platform)
+
+  #
   platformChange:(e) ->
     el = e.currentTarget
     @platform = @selectPlatform.val()
@@ -344,10 +351,10 @@ class PublishModuleInfoView extends View
             <td>#{item["appName"]}</td>
             <td>#{item["platform"]}</td>
             <td>#{item["version"]}</td>
-            <td><button class='btn appBtn' value='#{item["appVersionId"]}'>应用</button></td>
+            <td><button class='btn appBtn' id='#{item["appId"]}' value='#{item["appVersionId"]}'>应用</button></td>
             </tr>"
             itemStr.push(str)
-          printTableView item for item in data["AppAndVersions"]
+          printTableView item for item in data["datas"]
           @appListMessage.html(itemStr.join(""))
           @countPage = data["paginationMap"]["totalPage"]
           @currentPage = page
@@ -376,29 +383,47 @@ class PublishModuleInfoView extends View
             # @noAppListShowView.show()
       error: (msg) =>
         console.log msg
-    client.getAppMessage params,@moduleConfigContent["identifier"],page,@pageShowItemNumber,platformSelect
+    client.getAppListByModule_2 params,@moduleConfigContent["identifier"],page,@pageShowItemNumber,platformSelect
 
   appBtnClick:(e) ->
     el = e.currentTarget
-    appVersionId = el.value
-    # console.log appVersionId
-    if appVersionId
-      @callActInAppApi(appVersionId,el)
+    @callActInAppApi(el)
 
   #请求应用到应用
-  callActInAppApi:(appVersionId,el)->
+  callActInAppApi:(el)->
     #@moduleIdentifer  模块标识
     #@appVersionId     所要应用到的应用ID
     # @moduleId = "5629a80e0cf26371e4d32066"
+    platform = "IOS"
+    if @platform is "Android"
+      platform = "ANDROID"
+    dataParam =
+      moduleVersionId: @moduleVersionId
+      moduleId: @moduleId
+      appVersionId: $(el).attr("value")
+      appId: $(el).attr("id")
+      platform: platform
+    console.log dataParam
     params =
       sendCookie: true
+      body:JSON.stringify(dataParam)
       success:(data) =>
         $(el).attr("disabled",true)
         # console.log data
-        alert data["message"]
+        if data["status"] is "FAIL"
+          $(el).attr("disabled",false)
+          array = []
+          getErrorPlugin = (key,item) =>
+            str = "#{key} : #{item.join(",")}"
+            array.push(str)
+          getErrorPlugin key,item for key,item of data["data"]
+          alert "应用失败：模块低版本没有配置以下插件\n"+array.join("\n")
+        else
+          alert @appSuccessTips
+        # alert data["message"]
       error: (msg) =>
         console.log msg
-    client.applyModuleToApp(params,appVersionId,@moduleId)
+    client.checkModuleAndPluginMessage(params)
 
 
   # 0、检测版本；1、压缩文件；2、上传压缩包；3删除压缩包

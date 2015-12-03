@@ -18,7 +18,7 @@ module.exports =
       params.jar = j
     params = $.extend defaultsParams, params
     cb = (err, httpResponse, body) =>
-      # console.log httpResponse
+      console.log httpResponse
       # console.log err
       # console.log body
       if httpResponse.complete
@@ -197,6 +197,10 @@ module.exports =
     params.method = "POST"
     @send params
 
+  getClientId:(params) ->
+    params.url = "anonymous/login_auth_info"
+    @send params
+
 
   # ========================文件上传至七牛   图片和模块压缩包校验===========================
   # 调服务器接口获取七牛的 token  和 key
@@ -224,4 +228,14 @@ module.exports =
   getAndroidManifestXML:(params) ->
     params.url = "plugmanager/merge"
     params.method = "POST"
+    @send params
+
+  # ===================2015-12-2 模块应用到应用时，需要调用这个接口校验插件====================
+  checkModuleAndPluginMessage:(params) ->
+    params.url = "app_module/app_relate_single_module"
+    params.method = "POST"
+    @send params
+
+  getAppListByModule_2:(params,identifier,page,pageShowItemNumber,platformSelect) ->
+    params.url = "app_module/get_app_version_list?identifier=#{identifier}&platform=#{platformSelect}&pageIndex=#{page}&pageSize=#{pageShowItemNumber}"
     @send params

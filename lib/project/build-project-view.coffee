@@ -176,7 +176,7 @@ class BuildProjectInfoView extends View
                 @label "横屏"
                 @div outlet:"scrossModelView"
 
-      @div outlet:"selectModuleView",class:"form-horizontal form_width", =>
+      @div outlet:"selectModuleView",class:"form-horizontal form_width selectModuleView", =>
         @div =>
           @label "关联模块",class:"title-2-level"
         @div =>
@@ -382,6 +382,17 @@ class BuildProjectInfoView extends View
     @.find(".cert_file_input_click").on "click",(e) => @selectCertViewFile(e)
     @.find(".xml-btn").on "click",(e) => @showAndroidManifestXML(e)
     @.find(".select-img-view").on "click","img",(e) => @selectImg(e)
+    @.find(".selectModuleView").on "change","select",(e) => @changeSelectOption(e)
+
+  changeSelectOption:(e) ->
+    el = e.currentTarget
+    moduleId = $(el).attr("class")
+    moduleVersionId = $(el).val()
+    moduleVersion = @.find("td>select.#{moduleId}>option[value=#{moduleVersionId}]").html()
+    if typeof(@moduleList["#{moduleId}"]) isnt "undefined"
+      @moduleList["#{moduleId}"]["moduleVersionId"] = moduleVersionId
+      @moduleList["#{moduleId}"]["moduleVersion"] = moduleVersion
+      @printShowViewOfModule()
 
   showAndroidManifestXML:(e) ->
     privatePluginVersionMap = {}
@@ -414,7 +425,7 @@ class BuildProjectInfoView extends View
     @pluginList = {}
     @moduleList = {}
     @logoImage = null
-    @buildPlatform = "iOS"
+    # @buildPlatform = "iOS"
     @engineType = "PUBLIC"
     @httpType = "http"
 
@@ -540,6 +551,7 @@ class BuildProjectInfoView extends View
       if @noPluginIsExist
         alert @noPluginIsExistTips
         return
+      console.log @.find(".clashPluginView button").length
       if @.find(".clashPluginView button").length > 0
         alert @conflictPluginIsExistTips
         return
@@ -960,6 +972,7 @@ class BuildProjectInfoView extends View
           @pluginView.show()
           @initPluginViewTableBody(data)
         else
+          @clashPluginView.html("")
           @noPluginView.show()
           console.log "没有任何插件"
         $(LoadingMask).remove()
@@ -985,6 +998,7 @@ class BuildProjectInfoView extends View
     if noPluginList.length > 0
       @noPluginIsExist = true
     @pluginFromServer = data
+    @clashPluginView.html("")
     noPluginListHtmlStr = @noPluginListToHtml(noPluginList)
     @clashPluginView.html(noPluginListHtmlStr)
     conflictListHtmlStr = @conflictListToHtml(conflictList)
@@ -1046,7 +1060,7 @@ class BuildProjectInfoView extends View
     if identifierList.length > 0
       """
         <div class="plugin-view-div">
-          <label style="color: red;">插件#{identifierList.join(",")}不存在，请先上传这些插件。</label>
+          <label style="color: red;">不存在#{@buildPlatform}插件#{identifierList.join(",")}，请先上传这些插件。</label>
         </div>
         <br>
       """
@@ -1176,7 +1190,7 @@ class BuildProjectInfoView extends View
           return
       getTxt item1 for item1 in item["versions"]
 
-      @moduleList["#{item['name']}"] =
+      @moduleList["#{item['id']}"] =
         "moduleVersionId": item["version"]
         "moduleId": item["id"]
         "appVersionId":""
@@ -1215,6 +1229,7 @@ class BuildProjectInfoView extends View
       @modulesTag.parent().hide()
     else
       @modulesTag.parent().show()
+    console.log @modulesTag.html()
     @mainModuleTag.html(mainModuleStr)
     @modulesTag.html(modulesTagArray.join(""))
   #初始化模块
@@ -1236,7 +1251,7 @@ class BuildProjectInfoView extends View
           htmlArray = []
           getHtmlItem = (item) =>
             operationItem = ""
-            if typeof(@moduleList[item["name"]]) is "undefined"
+            if typeof(@moduleList[item["id"]]) is "undefined"
               operationItem = """
               <a value="#{item["id"]}" class="a-padding">选择</a>
               """
@@ -1245,13 +1260,13 @@ class BuildProjectInfoView extends View
               <a value="#{item["id"]}" class="cancelMainModuleTag a-padding">取消主模块</a>
               <a value="#{item["id"]}" class="cancelSelect a-padding">取消</a>
               """
-              item["version"] = @moduleList[item["name"]]["moduleVersionId"]
+              item["version"] = @moduleList[item["id"]]["moduleVersionId"]
             else
               operationItem = """
               <a value="#{item["id"]}" class="mainModuleTag a-padding">设置主模块</a>
               <a value="#{item["id"]}" class="cancelSelect a-padding">取消</a>
               """
-              item["version"] = @moduleList[item["name"]]["moduleVersionId"]
+              item["version"] = @moduleList[item["id"]]["moduleVersionId"]
             # 获取下拉框的选项
             itemArray = []
             getChildOptions = (optionItem) =>
@@ -1312,7 +1327,7 @@ class BuildProjectInfoView extends View
               <a value="#{className}" class="cancelSelect a-padding">取消</a>
               """
             else
-              @moduleList[moduleName] =
+              @moduleList[className] =
                 "moduleVersionId": moduleVersionId
                 "moduleId":className
                 "appVersionId":""
@@ -1329,7 +1344,7 @@ class BuildProjectInfoView extends View
                 @.find(".cancelMainModuleTag").addClass("mainModuleTag")
                 @.find(".cancelMainModuleTag").removeClass("cancelMainModuleTag")
               else if $(el).hasClass("cancelSelect")
-                delete @moduleList[moduleName]
+                delete @moduleList[className]
                 if @mainModuleId is className
                   @mainModuleId = null
                 htmlStr = """

@@ -105,7 +105,11 @@ module.exports = ModuleManager =
   gitCloneDefaultModule: (options) ->
     success = (state, appPath) =>
       if state is 0
-        @CreateTemplateModule options
+        modulePath = pathM.join desc.getFrameworkPath(),options.source
+        Util.ensureModuleConfig modulePath, options.moduleInfo, (err) =>
+          return console.error err if err?
+          console.log "moduleConfig write success"
+          @CreateTemplateModule options
       else
         alert "#{desc.createModuleError}:#{desc.gitCloneError}"
         @modalPanel.item.children(".loading-mask").remove()
